@@ -1,5 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
@@ -23,16 +23,17 @@ const upiDisplay = document.getElementById("upi-display");
 const upiText = document.getElementById("upi-text");
 const qrCanvas = document.getElementById("upi-qr");
 
+// ✅ Progress Updater
 async function updateProgress() {
   const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
   let total = 0;
-  snapshot.forEach((doc) => (total += parseInt(doc.data().amount || 0)));
+  snapshot.forEach((doc) => total += parseInt(doc.data().amount || 0));
   const percent = Math.min((total / goalAmount) * 100, 100);
   progressBar.style.width = `${percent}%`;
   raisedAmount.innerText = `Raised: ₹${total} / ₹${goalAmount}`;
 }
 
-document.getElementById("payment-option").addEventListener("change", async (e) => {
+document.getElementById("payment-option").addEventListener("change", (e) => {
   const option = e.target.value;
   const amount = document.getElementById("amount").value;
   if (!amount || amount <= 0) {
@@ -40,6 +41,7 @@ document.getElementById("payment-option").addEventListener("change", async (e) =
     e.target.value = "";
     return;
   }
+
   upiDisplay.classList.remove("hidden");
   if (option === "upi-id") {
     upiText.textContent = upiID;
@@ -61,42 +63,28 @@ form.addEventListener("submit", async (e) => {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const amount = parseInt(document.getElementById("amount").value);
-  const txnID = document.getElementById("txnId").value.trim();
+  const txnId = document.getElementById("txnId").value.trim();
 
-  if (!name || !email || !amount || !txnID) return alert("Please fill all fields!");
-
-  const now = new Date();
-  const istTime = now.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  if (!name || !email || !amount || !txnId) {
+    alert("Please fill all fields!");
+    return;
+  }
 
   await addDoc(collection(db, "ComicProjectDonations"), {
     name,
     email,
     amount,
-    txnID,
-    timestamp: istTime
+    txnId,
+    timestamp: new Date()
   });
-
-  emailjs.send("service_vepkrhs", "template_rco2ar3", {
-    to_name: name,
-    amount,
-    reply_to: email
-  }, "KijBVWP5PtYQoaPSF");
 
   alert("🎉 Thank you for your contribution!");
   form.reset();
   upiDisplay.classList.add("hidden");
-  updateProgress();
+  await updateProgress();
 });
 
-document.getElementById("footer").innerHTML = 
+document.getElementById("footer").innerHTML =
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
 updateProgress();
