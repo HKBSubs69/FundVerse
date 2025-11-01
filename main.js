@@ -51,7 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = doc.data();
         total += Number(data.amount) || 0;
       });
-
+document.getElementById("debug").textContent =
+  "Docs found: " + snapshot.size + ", Total: ₹" + total;
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
       raisedAmount.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${goalAmount.toLocaleString("en-IN")}`;
