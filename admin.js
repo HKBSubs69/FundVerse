@@ -1,8 +1,7 @@
 // -----------------------------
-// FundVerse Admin Panel Script
+// FundVerse Admin Panel Script (FINAL FIXED)
 // -----------------------------
 
-// ✅ Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -12,14 +11,11 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// -----------------------------
-// DOM ELEMENTS
-// -----------------------------
+// Elements
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const emailField = document.getElementById("admin-email");
@@ -31,18 +27,14 @@ const donationsTable = document.getElementById("donations-table");
 const totalRaisedDisplay = document.getElementById("total-raised");
 const progressBar = document.getElementById("progress-bar");
 
-// -----------------------------
-// LOGIN FUNCTIONALITY
-// -----------------------------
+// Login
 loginBtn.addEventListener("click", async () => {
   const email = emailField.value.trim();
   const password = passField.value.trim();
-
   if (!email || !password) {
     errorMsg.textContent = "Please enter both email and password.";
     return;
   }
-
   try {
     await auth.signInWithEmailAndPassword(email, password);
     errorMsg.textContent = "";
@@ -51,7 +43,6 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-// Auto login state
 auth.onAuthStateChanged(user => {
   if (user) {
     loginSection.style.display = "none";
@@ -63,12 +54,9 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// Logout
 logoutBtn.addEventListener("click", () => auth.signOut());
 
-// -----------------------------
-// FETCH & DISPLAY DONATIONS
-// -----------------------------
+// Fetch donations
 function loadDonations() {
   db.collection("ComicProjectDonations")
     .orderBy("timestamp", "desc")
@@ -79,7 +67,15 @@ function loadDonations() {
       snapshot.forEach(doc => {
         const d = doc.data();
 
-        const txn = d.transactionId || d.txnId || "—";
+        // ✅ Support multiple field name styles
+        const txn =
+          d.transactionId ||
+          d.txnId ||
+          d.transaction_id ||
+          d.txnid ||
+          d.TXNID ||
+          "—";
+
         const time = d.timestamp
           ? new Date(d.timestamp.seconds * 1000).toLocaleString()
           : "—";
@@ -97,10 +93,7 @@ function loadDonations() {
         donationsTable.appendChild(tr);
       });
 
-      // Update total raised
       totalRaisedDisplay.textContent = `₹${total.toLocaleString()}`;
-
-      // Update progress bar
       const goal = 20000;
       const percent = Math.min((total / goal) * 100, 100);
       progressBar.style.width = percent + "%";
