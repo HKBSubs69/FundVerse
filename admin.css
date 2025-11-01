@@ -1,3 +1,7 @@
+/* ----------------------------
+   FundVerse Admin Panel Styles
+----------------------------- */
+
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -20,7 +24,7 @@ h1 {
   text-shadow: 0 0 10px #ff2e2e;
 }
 
-button#logout-btn {
+#logout-btn {
   background-color: #ff2e2e;
   border: none;
   color: white;
@@ -28,6 +32,10 @@ button#logout-btn {
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 1rem;
+  transition: 0.3s;
+}
+#logout-btn:hover {
+  background-color: #e32222;
 }
 
 .summary p {
@@ -56,9 +64,11 @@ table {
   margin-top: 1rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #333;
   padding: 8px;
+  text-align: left;
 }
 
 th {
@@ -70,4 +80,5 @@ footer {
   color: #bbb;
   margin-top: 3rem;
   text-align: center;
+  line-height: 1.5;
 }
