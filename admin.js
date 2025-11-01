@@ -1,7 +1,3 @@
-// ---------------------------
-// FundVerse Admin Dashboard
-// ---------------------------
-
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -15,56 +11,62 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+const loginSection = document.getElementById("login-section");
+const dashboard = document.getElementById("dashboard");
+const emailField = document.getElementById("admin-email");
+const passField = document.getElementById("admin-password");
+const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
-const donationTable = document.getElementById("donations-table");
-const totalRaised = document.getElementById("total-raised");
-const goalBar = document.getElementById("goal-bar");
+const errorMsg = document.getElementById("login-error");
 
-const GOAL_AMOUNT = 20000;
+loginBtn.addEventListener("click", async () => {
+  try {
+    await auth.signInWithEmailAndPassword(
+      emailField.value.trim(),
+      passField.value.trim()
+    );
+  } catch (err) {
+    errorMsg.textContent = "❌ " + err.message;
+  }
+});
 
-// ---------------------------
-// Fetch & Display Donations
-// ---------------------------
-async function loadDonations() {
-  donationTable.innerHTML = "";
-  let total = 0;
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loginSection.style.display = "none";
+    dashboard.style.display = "block";
+    loadDonations();
+  } else {
+    loginSection.style.display = "block";
+    dashboard.style.display = "none";
+  }
+});
 
-  const snapshot = await db.collection("ComicProjectDonations").get();
-  snapshot.forEach((doc) => {
-    const d = doc.data();
-    total += parseFloat(d.amount) || 0;
+logoutBtn.addEventListener("click", () => auth.signOut());
 
-    const row = document.createElement("tr");
-    const timestamp = d.timestamp
-      ? new Date(d.timestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
-      : "Invalid Date";
-
-    row.innerHTML = `
-      <td>${d.name}</td>
-      <td>${d.email}</td>
-      <td>₹${d.amount}</td>
-      <td>${d.txnID || "N/A"}</td>
-      <td>${timestamp}</td>
-    `;
-    donationTable.appendChild(row);
-  });
-
-  const percent = Math.min((total / GOAL_AMOUNT) * 100, 100).toFixed(1);
-  goalBar.style.width = `${percent}%`;
-  totalRaised.textContent = `₹${total}`;
+function loadDonations() {
+  db.collection("ComicProjectDonations")
+    .orderBy("timestamp", "desc")
+    .onSnapshot(snapshot => {
+      let total = 0;
+      const tbody = document.getElementById("donations-table");
+      tbody.innerHTML = "";
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        total += Number(d.amount);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${d.name}</td>
+          <td>${d.email}</td>
+          <td>₹${d.amount}</td>
+          <td>${d.txnID || "N/A"}</td>
+          <td>${d.timestamp || "—"}</td>`;
+        tbody.appendChild(tr);
+      });
+      document.getElementById("total-raised").textContent = "₹" + total;
+      document.getElementById("progress-bar").style.width =
+        Math.min((total / 20000) * 100, 100) + "%";
+    });
 }
 
-auth.onAuthStateChanged((user) => {
-  if (user) loadDonations();
-  else window.location.href = "login.html";
-});
-
-// ---------------------------
-// Logout
-// ---------------------------
-logoutBtn.addEventListener("click", () => {
-  auth.signOut().then(() => (window.location.href = "login.html"));
-});
-
-// Auto Year
-document.getElementById("autoYear").textContent = new Date().getFullYear();
+document.getElementById("footer").innerHTML =
+  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
