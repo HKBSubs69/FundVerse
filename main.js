@@ -1,8 +1,4 @@
-// Import Firebase (v9 modular)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-// Firebase Config
+// ✅ Use Firebase 8 syntax for GitHub Pages (no module imports)
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -13,14 +9,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// Constants
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-// Elements
 const form = document.getElementById("donationForm");
 const progressBar = document.getElementById("progress-bar");
 const raisedAmount = document.getElementById("raised-amount");
@@ -28,25 +22,27 @@ const upiDisplay = document.getElementById("upi-display");
 const upiText = document.getElementById("upi-text");
 const qrCanvas = document.getElementById("upi-qr");
 
-// Update total amount + progress bar
+// Update progress bar
 async function updateProgress() {
   try {
-    const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+    const snapshot = await db.collection("ComicProjectDonations").get();
     let total = 0;
-    snapshot.forEach((doc) => (total += parseInt(doc.data().amount || 0)));
+    snapshot.forEach((doc) => {
+      const amt = parseInt(doc.data().amount) || 0;
+      total += amt;
+    });
     const percent = Math.min((total / goalAmount) * 100, 100);
     progressBar.style.width = `${percent}%`;
     raisedAmount.innerText = `Raised: ₹${total} / ₹${goalAmount}`;
-  } catch (err) {
-    console.error("Progress Update Error:", err);
+  } catch (e) {
+    console.error("Progress update error", e);
   }
 }
 
-// Payment option logic
-document.getElementById("payment-option").addEventListener("change", async (e) => {
+// Handle payment option
+document.getElementById("payment-option").addEventListener("change", (e) => {
   const option = e.target.value;
   const amount = document.getElementById("amount").value.trim();
-
   if (!amount || amount <= 0) {
     alert("Please enter a valid amount first.");
     e.target.value = "";
@@ -66,13 +62,11 @@ document.getElementById("payment-option").addEventListener("change", async (e) =
     upiText.textContent = "";
     qrCanvas.classList.remove("hidden");
     const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-    QRCode.toCanvas(qrCanvas, qrData, { width: 200 }, (error) => {
-      if (error) console.error(error);
-    });
+    QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
   }
 });
 
-// Form submission
+// Submit form
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -82,41 +76,44 @@ form.addEventListener("submit", async (e) => {
   const txnId = document.getElementById("txnId").value.trim();
 
   if (!name || !email || !amount || !txnId) {
-    alert("Please fill all fields!");
+    alert("Please fill all fields correctly!");
     return;
   }
 
+  const now = new Date();
+  const formattedDate = now.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata"
+  });
+
   try {
-    await addDoc(collection(db, "ComicProjectDonations"), {
+    await db.collection("ComicProjectDonations").add({
       name,
       email,
       amount,
       txnId,
-      timestamp: new Date()
+      date: formattedDate,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
-
-    // Optional EmailJS (if used)
-    if (typeof emailjs !== "undefined") {
-      emailjs.send("service_vepkrhs", "template_rco2ar3", {
-        to_name: name,
-        amount,
-        reply_to: email
-      }, "KijBVWP5PtYQoaPSF");
-    }
 
     alert("🎉 Thank you for your contribution!");
     form.reset();
     upiDisplay.classList.add("hidden");
-    await updateProgress();
-  } catch (err) {
-    console.error("Donation Submit Error:", err);
-    alert("Something went wrong. Please try again.");
+    updateProgress();
+  } catch (error) {
+    console.error("Donation error:", error);
+    alert("Error submitting donation. Please try again!");
   }
 });
 
-// Auto Footer
+// Footer auto year
 document.getElementById("footer").innerHTML =
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-// Initialize progress
+// Initialize
 updateProgress();
