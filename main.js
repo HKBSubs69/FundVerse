@@ -1,6 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
+// 🔥 Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -9,82 +7,82 @@ const firebaseConfig = {
   messagingSenderId: "125480706897",
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const goalAmount = 20000;
+// UPI and QR
 const upiID = "7079441779@ikwik";
+const qrBase = "upi://pay?pa=7079441779@ikwik&pn=Blue%20Ocean%20Studios%20India&cu=INR&am=";
 
-const form = document.getElementById("donationForm");
-const progressBar = document.getElementById("progress-bar");
-const raisedAmount = document.getElementById("raised-amount");
+// Elements
+const amountInput = document.getElementById("amount");
+const upiBtn = document.getElementById("upi-id-btn");
+const qrBtn = document.getElementById("upi-qr-btn");
 const upiDisplay = document.getElementById("upi-display");
-const upiText = document.getElementById("upi-text");
-const qrCanvas = document.getElementById("upi-qr");
+const qrDisplay = document.getElementById("qr-display");
+const footerText = document.getElementById("footer-text");
+const donationForm = document.getElementById("donation-form");
 
-async function updateProgress() {
-  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
-  let total = 0;
-  snapshot.forEach((doc) => (total += parseInt(doc.data().amount || 0)));
-  const percent = Math.min((total / goalAmount) * 100, 100);
-  progressBar.style.width = `${percent}%`;
-  raisedAmount.innerText = `Raised: ₹${total} / ₹${goalAmount}`;
-}
+// Footer auto year
+const year = new Date().getFullYear();
+footerText.innerHTML = `© FundVerse ${year} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-document.getElementById("payment-option").addEventListener("change", async (e) => {
-  const option = e.target.value;
-  const amount = document.getElementById("amount").value;
-  if (!amount || amount <= 0) {
-    alert("Please enter a valid amount first.");
-    e.target.value = "";
-    return;
-  }
+// Show UPI ID
+upiBtn.addEventListener("click", () => {
+  const amount = amountInput.value;
+  if (!amount || amount <= 0) return alert("Enter valid amount first!");
+  const link = `${qrBase}${amount}`;
   upiDisplay.classList.remove("hidden");
-  if (option === "upi-id") {
-    upiText.textContent = upiID;
-    qrCanvas.classList.add("hidden");
-    upiText.onclick = () => {
-      const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-      window.location.href = url;
-    };
-  } else if (option === "upi-qr") {
-    upiText.textContent = "";
-    qrCanvas.classList.remove("hidden");
-    const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-    QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-  }
+  qrDisplay.classList.add("hidden");
+  upiDisplay.innerHTML = `
+    <p>UPI ID: <a href="${link}" target="_blank">${upiID}</a></p>
+    <p>Click above to pay via your UPI app.</p>`;
 });
 
-form.addEventListener("submit", async (e) => {
+// Show Dynamic QR
+qrBtn.addEventListener("click", () => {
+  const amount = amountInput.value;
+  if (!amount || amount <= 0) return alert("Enter valid amount first!");
+  const link = `${qrBase}${amount}`;
+  upiDisplay.classList.add("hidden");
+  qrDisplay.classList.remove("hidden");
+  qrDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(link)}&size=200x200" alt="UPI QR Code">`;
+});
+
+// Submit donation
+donationForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
-  const amount = parseInt(document.getElementById("amount").value);
+  const amount = Number(document.getElementById("amount").value);
   const txnId = document.getElementById("txnId").value.trim();
 
-  if (!name || !email || !amount || !txnId) return alert("Please fill all fields!");
+  if (!name || !email || !amount || !txnId) return alert("All fields are required!");
 
-  await addDoc(collection(db, "ComicProjectDonations"), {
-    name,
-    email,
-    amount,
-    txnId,
-    timestamp: new Date().toISOString()
-  });
+  try {
+    await db.collection("ComicProjectDonations").add({
+      name,
+      email,
+      amount,
+      txnID: txnId,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-  emailjs.send("service_vepkrhs", "template_rco2ar3", {
-    to_name: name,
-    amount,
-    reply_to: email
-  }, "KijBVWP5PtYQoaPSF");
-
-  alert("🎉 Thank you for your contribution!");
-  form.reset();
-  upiDisplay.classList.add("hidden");
-  updateProgress();
+    alert("🎉 Thank you for your contribution!");
+    donationForm.reset();
+    upiDisplay.classList.add("hidden");
+    qrDisplay.classList.add("hidden");
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting donation. Try again.");
+  }
 });
 
-document.getElementById("footer").innerHTML = 
-  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
-
-updateProgress();
+// Progress bar auto update
+db.collection("ComicProjectDonations").onSnapshot(snapshot => {
+  let total = 0;
+  snapshot.forEach(doc => (total += Number(doc.data().amount || 0)));
+  const percent = Math.min((total / 20000) * 100, 100);
+  document.getElementById("progress-bar").style.width = percent + "%";
+  document.getElementById("progress-text").textContent = `Raised: ₹${total} / ₹20,000`;
+});
