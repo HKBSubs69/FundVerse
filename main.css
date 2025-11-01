@@ -1,82 +1,162 @@
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #0d0d0d;
-  color: white;
-  margin: 0;
-  text-align: center;
+/* main.css — FundVerse final theme (black + red glow) */
+
+:root{
+  --bg:#070707;
+  --card:#111;
+  --muted:#9b9b9b;
+  --accent:#ff2e2e;
+  --accent-weak:#ff6363;
+  --input:#1a1a1a;
 }
 
-.container {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
+*{box-sizing:border-box}
+
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
-.title {
-  font-size: 2.5rem;
-  color: #ff2e2e;
-  text-shadow: 0 0 10px red;
+.container{
+  max-width:640px;
+  margin:20px auto;
+  padding:22px;
 }
 
-.subtitle {
-  color: #ff8080;
+/* Header */
+.title{
+  font-size:3rem;
+  margin:6px 0 6px;
+  color:var(--accent);
+  text-align:center;
+  text-shadow:0 0 18px rgba(255,46,46,0.55);
+  font-weight:700;
 }
 
-.progress-container {
-  margin: 15px 0;
+.subtitle{
+  color:var(--accent-weak);
+  text-align:center;
+  font-size:1.2rem;
+  margin:6px 0 12px;
 }
 
-progress {
-  width: 100%;
-  height: 12px;
-  border-radius: 10px;
-  overflow: hidden;
+/* Tagline */
+.tagline{
+  font-style:italic;
+  color:#cfcfcf;
+  text-align:center;
+  margin-bottom:18px;
 }
 
-progress::-webkit-progress-bar {
-  background: #333;
+/* Progress */
+.progress-container{
+  margin: 12px 0 18px;
+  text-align:center;
+}
+progress#progressBar{
+  width:100%;
+  height:14px;
+  border-radius:10px;
+  appearance:none;
+  -webkit-appearance:none;
+  background:#2b2b2b;
+  overflow:hidden;
+}
+progress#progressBar::-webkit-progress-bar{background:#2b2b2b;border-radius:10px}
+progress#progressBar::-webkit-progress-value{background:linear-gradient(90deg,var(--accent),var(--accent-weak));border-radius:10px}
+
+/* Raised text */
+#raisedAmount{
+  color:var(--accent);
+  font-weight:600;
+  margin-top:12px;
+  text-align:center;
+  font-size:1.1rem;
 }
 
-progress::-webkit-progress-value {
-  background: #ff2e2e;
+/* Form */
+form#donationForm{
+  margin-top:18px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-input, select, button {
-  display: block;
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 1rem;
+/* Inputs */
+input[type="text"], input[type="email"], input[type="number"], select {
+  background:var(--input);
+  border:1px solid #2e2e2e;
+  color:#fff;
+  padding:14px 16px;
+  border-radius:14px;
+  font-size:16px;
+  outline:none;
+  caret-color:var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
 }
 
-button {
-  background-color: #ff2e2e;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+input::placeholder, select option { color: #8f8f8f; }
+
+/* Select focus highlight */
+select:focus, input:focus {
+  box-shadow: 0 0 0 4px rgba(255,46,46,0.06);
+  border-color:var(--accent);
 }
 
-button:hover {
-  background-color: #ff4d4d;
+/* Payment details area */
+#upiDetails{ margin-top:8px; text-align:center; color:#ddd; }
+#upiDetails a{ color:var(--accent); text-decoration:none; font-weight:600; }
+
+/* QR image */
+#qrImage{
+  display:block;
+  margin:12px auto 8px;
+  width:220px;
+  height:220px;
+  border-radius:12px;
+  background:#fff;
+  padding:6px;
+  box-shadow:0 6px 30px rgba(0,0,0,0.6);
 }
 
-footer {
-  margin-top: 40px;
-  font-size: 0.9rem;
-  color: #ccc;
+/* Contribute button */
+button[type="submit"]{
+  background:linear-gradient(180deg,var(--accent),var(--accent-weak));
+  border:none;
+  padding:14px 18px;
+  color:#fff;
+  font-size:18px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:700;
+  margin-top:6px;
+  box-shadow: 0 8px 30px rgba(255,46,46,0.12);
+}
+button[type="submit"]:active{ transform:translateY(1px) }
+
+/* Hint text */
+.hint{
+  color:#cfcfcf;
+  font-size:0.9rem;
+  margin: -4px 0 8px;
 }
 
-a {
-  color: #007bff;
+/* Footer */
+footer{
+  margin-top:28px;
+  font-size:0.9rem;
+  color:#bdbdbd;
+  text-align:center;
+  line-height:1.4;
 }
 
-.hidden {
-  display: none;
-}
-
-#qrCanvas {
-  margin: 10px auto;
-  display: block;
-}
+/* Responsive */
+@media (max-width:420px){
+  .title{ font-size:2.2rem }
+  #qrImage{ width:180px; height:180px }
+  input, select, button{ padding:12px; font-size:15px }
+    }
