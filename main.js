@@ -1,4 +1,4 @@
-// ✅ Firebase config (safe client keys)
+// ✅ Initialize Firebase (v8)
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -8,7 +8,6 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase (v8 syntax)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -22,7 +21,7 @@ const upiDisplay = document.getElementById("upi-display");
 const upiText = document.getElementById("upi-text");
 const qrCanvas = document.getElementById("upi-qr");
 
-// ✅ Function to update progress bar and total
+// ✅ Update progress bar and raised amount
 async function updateProgress() {
   try {
     const snapshot = await db.collection("ComicProjectDonations").get();
@@ -33,19 +32,19 @@ async function updateProgress() {
     });
     const percent = Math.min((total / goalAmount) * 100, 100);
     progressBar.style.width = `${percent}%`;
-    raisedAmount.innerText = `Raised: ₹${total} / ₹${goalAmount}`;
+    raisedAmount.textContent = `Raised: ₹${total} / ₹${goalAmount}`;
   } catch (error) {
-    console.error("Progress update failed:", error);
+    console.error("Error updating progress:", error);
   }
 }
 
-// ✅ Show QR or UPI ID when user selects payment method
+// ✅ Show payment options
 document.getElementById("payment-option").addEventListener("change", (e) => {
   const option = e.target.value;
   const amount = document.getElementById("amount").value.trim();
 
   if (!amount || amount <= 0) {
-    alert("Please enter a valid amount before selecting payment method.");
+    alert("Please enter a valid amount first!");
     e.target.value = "";
     return;
   }
@@ -67,7 +66,7 @@ document.getElementById("payment-option").addEventListener("change", (e) => {
   }
 });
 
-// ✅ Handle form submission
+// ✅ Submit donation form
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -77,11 +76,10 @@ form.addEventListener("submit", async (e) => {
   const txnId = document.getElementById("txnId").value.trim();
 
   if (!name || !email || !amount || !txnId) {
-    alert("Please fill all fields correctly before submitting.");
+    alert("Please fill all fields!");
     return;
   }
 
-  // Format date for India
   const now = new Date();
   const formattedDate = now.toLocaleString("en-IN", {
     day: "2-digit",
@@ -109,13 +107,11 @@ form.addEventListener("submit", async (e) => {
     updateProgress();
   } catch (error) {
     console.error("Error adding donation:", error);
-    alert("Error submitting donation. Please try again.");
   }
 });
 
-// ✅ Footer auto-year
+// ✅ Auto-year footer
 document.getElementById("footer").innerHTML =
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-// ✅ Initialize
 updateProgress();
