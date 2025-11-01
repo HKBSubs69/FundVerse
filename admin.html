@@ -5,52 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
+
 <body>
-  <div class="admin-container" id="login-section">
-    <h2>FundVerse Admin Login</h2>
+  <!-- 🔐 Login Section -->
+  <section id="login-section" class="login-container">
+    <h1>FundVerse Admin Login</h1>
     <input type="email" id="admin-email" placeholder="Admin Email" required />
     <input type="password" id="admin-password" placeholder="Password" required />
     <button id="login-btn">Login</button>
     <p id="login-error"></p>
-  </div>
+  </section>
 
-  <div class="admin-dashboard" id="dashboard" style="display:none;">
-    <header>
-      <h1>FundVerse Dashboard</h1>
-      <button id="logout-btn">Logout</button>
-    </header>
+  <!-- 📊 Dashboard -->
+  <section id="dashboard" class="dashboard-container" style="display:none;">
+    <h1>FundVerse Dashboard</h1>
+    <button id="logout-btn" class="logout-btn">Logout</button>
 
-    <section class="project-summary">
+    <div class="summary">
       <h2>Project Summary</h2>
       <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
       <p><strong>Goal:</strong> ₹20,000</p>
       <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-      <div class="progress"><div class="bar" id="progress-bar"></div></div>
-    </section>
 
-    <section class="donations-list">
-      <h2>Donations</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Amount (₹)</th>
-            <th>Transaction ID</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="donations-table"></tbody>
-      </table>
-    </section>
-  </div>
+      <div class="progress-bar-bg">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
 
-  <footer id="footer"></footer>
+    <h2>Donations</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Amount (₹)</th>
+          <th>Transaction ID</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="donations-table"></tbody>
+    </table>
 
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <footer>
+      © FundVerse 2025 | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI
+    </footer>
+  </section>
+
   <script src="admin.js"></script>
 </body>
-  </html>
+</html>
