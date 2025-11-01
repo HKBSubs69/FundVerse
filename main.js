@@ -1,119 +1,69 @@
-// main.js — FundVerse Final Secure Version (with dynamic QR + live progress + reCAPTCHA)
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-// --- FIREBASE CONFIG ---
+// Firebase Config (Use your existing correct setup)
 const firebaseConfig = {
-  apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
-  authDomain: "fundverse-f3b0c.firebaseapp.com",
-  projectId: "fundverse-f3b0c",
-  storageBucket: "fundverse-f3b0c.firebasestorage.app",
-  messagingSenderId: "125480706897",
-  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
+  apiKey: "AIzaSyDXQ-6Ebbm9mH2JvZzG1D3Ysh1h6otM8ko",
+  authDomain: "fundverse.firebaseapp.com",
+  projectId: "fundverse",
+  storageBucket: "fundverse.appspot.com",
+  messagingSenderId: "794229998763",
+  appId: "1:794229998763:web:db2e99cb5e83a1f84e93b7"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// --- DOM REFERENCES ---
+// DOM Elements
 const form = document.getElementById("donationForm");
-const nameInput = document.getElementById("name");
-const emailInput = document.getElementById("email");
-const amountInput = document.getElementById("amount");
-const txnInput = document.getElementById("txnId");
 const paymentOption = document.getElementById("paymentOption");
-const upiDetails = document.getElementById("upiDetails");
-const raisedAmount = document.getElementById("raisedAmount");
-const progressBar = document.getElementById("progressBar");
+const upiSection = document.getElementById("upiSection");
+const progressFill = document.getElementById("progressFill");
+const raisedText = document.getElementById("raisedText");
+const year = document.getElementById("year");
 
-// --- CONSTANTS ---
-const GOAL = 20000;
-const UPI_ID = "7079441779@ikwik";
-const UPI_NAME = "FundVerse";
+// Auto year
+year.textContent = new Date().getFullYear();
 
-// --- DYNAMIC QR + ID DISPLAY ---
+// Show UPI Section
 paymentOption.addEventListener("change", () => {
-  const method = paymentOption.value;
-  const amount = Number(amountInput.value || 0);
-  if (!method) {
-    upiDetails.innerHTML = "";
-    return;
-  }
-
-  const upiLink = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${encodeURIComponent(amount)}&cu=INR`;
-
-  if (method === "upiID") {
-    upiDetails.innerHTML = `
-      <p><strong>UPI ID:</strong> ${UPI_ID}</p>
-      <p>Tap below to open your UPI app with the amount prefilled.</p>
-      <button id="openUpiBtn" style="background:#ff2e2e;color:#fff;border:none;border-radius:10px;padding:10px 14px;margin-top:6px;cursor:pointer">Open UPI App</button>
-      <p class="hint">After payment, enter your Transaction ID below.</p>
-    `;
-    document.getElementById("openUpiBtn").onclick = () => { window.location.href = upiLink; };
-  }
-
-  if (method === "upiQR") {
-    const qrURL = `https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl=${encodeURIComponent(upiLink)}`;
-    upiDetails.innerHTML = `
-      <p>Scan this QR to pay via any UPI app:</p>
-      <img src="${qrURL}" alt="UPI QR" style="width:220px;height:220px;border-radius:12px;margin:8px auto;display:block;background:#fff;padding:6px">
-      <p class="hint">After payment, check your app’s payment history and paste the Transaction ID below.</p>
-    `;
-  }
+  upiSection.style.display = paymentOption.value === "upi" ? "block" : "none";
 });
 
-// --- reCAPTCHA ---
-let recaptchaVerified = false;
-window.onRecaptchaSuccess = function () {
-  recaptchaVerified = true;
-};
+// Load total raised and update progress
+async function updateProgress() {
+  const snapshot = await db.collection("ComicProjectDonations").get();
+  let total = 0;
+  snapshot.forEach(doc => total += Number(doc.data().amount || 0));
 
-// --- FORM SUBMIT ---
+  const goal = 20000;
+  const percent = Math.min((total / goal) * 100, 100);
+  progressFill.style.width = percent + "%";
+  raisedText.textContent = `Raised: ₹${total} / ₹${goal}`;
+}
+updateProgress();
+
+// Handle form submission
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  const amount = form.amount.value.trim();
+  const txnId = form.txnId.value.trim();
+  const captchaResponse = grecaptcha.getResponse();
 
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim();
-  const amount = Number(amountInput.value);
-  const txn = txnInput.value.trim();
-
-  if (!name || !email || !amount || !txn) {
-    alert("Please fill all fields and Transaction ID after payment.");
+  if (!captchaResponse) {
+    alert("Please complete the reCAPTCHA");
     return;
   }
 
-  if (!recaptchaVerified) {
-    alert("Please verify reCAPTCHA before submitting.");
-    return;
-  }
+  await db.collection("ComicProjectDonations").add({
+    name,
+    email,
+    amount,
+    txnId,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-  try {
-    await addDoc(collection(db, "ComicProjectDonations"), {
-      name, email, amount, txnID: txn, timestamp: serverTimestamp()
-    });
-    alert("✅ Thank you! Your donation was recorded successfully.");
-    form.reset();
-    upiDetails.innerHTML = "";
-    grecaptcha.reset();
-    recaptchaVerified = false;
-  } catch (err) {
-    console.error("Error saving donation:", err);
-    alert("Something went wrong. Try again later.");
-  }
-});
-
-// --- LIVE PROGRESS BAR ---
-onSnapshot(collection(db, "ComicProjectDonations"), (snapshot) => {
-  let total = 0;
-  snapshot.forEach(doc => total += Number(doc.data().amount) || 0);
-  raisedAmount.textContent = `Raised: ₹${total.toLocaleString()} / ₹${GOAL.toLocaleString()}`;
-  const progress = Math.min((total / GOAL) * 100, 100);
-  progressBar.value = total;
-  progressBar.max = GOAL;
+  alert("🎉 Thank you for your support!");
+  form.reset();
+  grecaptcha.reset();
+  upiSection.style.display = "none";
+  updateProgress();
 });
