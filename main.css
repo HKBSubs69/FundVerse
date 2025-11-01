@@ -1,100 +1,133 @@
+/* General */
 body {
+  background-color: #000;
+  color: #fff;
   font-family: "Poppins", sans-serif;
-  background-color: #0d0d0d;
-  color: white;
-  text-align: center;
   margin: 0;
   padding: 0;
+  text-align: center;
 }
 
-header {
-  padding: 20px;
-  background: linear-gradient(90deg, #000, #330000);
-  box-shadow: 0 0 20px red;
+.logo {
+  color: #ff1a1a;
+  font-size: 2.4rem;
+  margin-top: 20px;
+  text-shadow: 0 0 10px red;
 }
 
-.glow {
-  color: #ff4d4d;
-  text-shadow: 0 0 20px #ff0000;
+.project-name {
+  color: #ff6b6b;
+  font-weight: 600;
 }
 
 .tagline {
-  font-style: italic;
-  color: #ccc;
+  color: #aaa;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
 }
 
-main {
-  padding: 20px;
-}
-
-.progress-container {
-  width: 90%;
-  max-width: 500px;
-  background: #1a1a1a;
-  border-radius: 15px;
+/* Progress Section */
+.progress-section {
   margin: 20px auto;
+  width: 90%;
+  max-width: 400px;
+}
+
+#progressBarContainer {
+  background: #222;
+  border-radius: 20px;
+  height: 18px;
   overflow: hidden;
 }
 
-.progress-bar {
-  height: 20px;
+#progressBar {
+  background: #e50914;
+  height: 100%;
   width: 0%;
-  background: red;
-  border-radius: 15px;
-  transition: width 0.5s ease-in-out;
+  border-radius: 20px;
+  transition: width 0.3s ease-in-out;
 }
 
-#progress-text {
+.raised-text {
   color: #ff4d4d;
-  font-weight: bold;
+  font-weight: 600;
+  margin-top: 10px;
 }
 
-.donate-section input {
-  display: block;
-  margin: 10px auto;
-  padding: 10px;
-  width: 80%;
+/* Form */
+.form-section {
+  width: 90%;
   max-width: 400px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background-color: #121212;
-  color: white;
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  margin: auto;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
 }
 
-button {
-  background-color: #ff3333;
+.form-section h2 {
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 1rem;
+}
+
+input:focus, select:focus {
+  border-color: #e50914;
+  outline: none;
+}
+
+.btn-red {
+  background-color: #e50914;
+  color: #fff;
   border: none;
-  padding: 10px 20px;
-  color: white;
+  padding: 12px 25px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  width: 100%;
+  font-weight: bold;
+  margin-top: 15px;
+  transition: background 0.2s;
 }
 
-button:hover {
-  background-color: #ff4d4d;
-}
-
-.payment-options {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
+.btn-red:hover {
+  background-color: #ff1a1a;
 }
 
 .hidden {
   display: none;
 }
 
-#upi-display, #qr-display {
-  margin-top: 10px;
-  font-weight: bold;
+.txn-tip {
+  color: #ccc;
+  font-size: 0.85rem;
+  margin-top: 5px;
 }
 
+/* Footer */
 footer {
-  background: #0a0a0a;
-  padding: 15px;
+  background: #111;
   margin-top: 30px;
-  border-top: 1px solid red;
-  font-size: 14px;
+  padding: 15px 10px;
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.4em;
+}
+
+footer a {
+  color: #4da3ff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
