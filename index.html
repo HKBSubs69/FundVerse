@@ -4,56 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
+
   <link rel="stylesheet" href="main.css" />
-  <script type="module" src="main.js" defer></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://fundverse.app/favicon.ico" type="image/x-icon">
+
+  <!-- reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-  <header>
-    <h1 class="logo">FundVerse</h1>
-    <p class="project-name">Project: The Deserted Path (Comic Version)</p>
+  <header class="hero">
+    <h1 class="glow">FundVerse</h1>
+    <h3 class="subhead">Project: The Deserted Path (Comic Version)</h3>
     <p class="tagline">Empowering Dreams. One Step at a Time.</p>
   </header>
 
-  <main>
-    <div class="progress-section">
-      <div id="progressBarContainer">
-        <div id="progressBar"></div>
-      </div>
-      <p id="raisedAmount" class="raised-text">Raised: ₹0 / ₹20,000</p>
+  <section class="progress-section">
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
     </div>
+    <p id="raisedAmount" class="raised-text">Raised: ₹0 / ₹20,000</p>
+  </section>
 
-    <section class="form-section">
-      <h2>Support the Project</h2>
-      <form id="donationForm">
-        <input type="text" id="name" placeholder="Full Name" required />
-        <input type="email" id="email" placeholder="Email Address" required />
-        <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
+  <section class="form-section">
+    <h2>Support the Project</h2>
+    <form id="donationForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <input type="number" id="amount" placeholder="Donation Amount (₹)" required min="1" step="any">
 
-        <label for="paymentOption" class="input-label">Payment Option</label>
-        <select id="paymentOption" class="form-control">
-          <option value="">Select Option</option>
-          <option value="upi_id">UPI ID</option>
-          <option value="upi_qr">UPI QR</option>
-        </select>
+      <label for="paymentOption">Payment Option</label>
+      <select id="paymentOption" required>
+        <option value="">Select Option</option>
+        <option value="upi_id">UPI ID</option>
+        <option value="upi_qr">UPI QR</option>
+      </select>
 
-        <div id="upiDisplay" class="hidden"></div>
-        <div id="qrDisplay" class="hidden"></div>
+      <div id="upiDisplay" class="hidden"></div>
+      <div id="qrDisplay" class="hidden"></div>
 
-        <input type="text" id="txnID" placeholder="Enter Transaction ID (After Payment)" required />
-        <p class="txn-tip">💡 Find it in your payment confirmation screen.</p>
+      <label for="txnID">Transaction ID (After Payment)</label>
+      <input type="text" id="txnID" placeholder="Enter Transaction ID" required>
 
-        <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+      <p class="note">💡 Find your Transaction ID in your UPI payment history.</p>
 
-        <button type="submit" class="btn-red">Contribute</button>
-      </form>
-    </section>
-  </main>
+      <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+
+      <button type="submit" class="btn-red">Contribute</button>
+    </form>
+  </section>
+
+  <section class="contact-section">
+    <h2>Contact Us</h2>
+    <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
+  </section>
 
   <footer>
     <p>© FundVerse <span id="year"></span> | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI</p>
-    <p>Contact: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
   </footer>
 
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Main Script -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
