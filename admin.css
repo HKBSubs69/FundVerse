@@ -1,77 +1,92 @@
 body {
-  background: #0d0d0d;
-  color: white;
+  background: #0a0a0a;
+  color: #fff;
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
-  text-align: center;
 }
 
-.admin-container {
-  max-width: 900px;
+.admin-container, .admin-dashboard {
+  max-width: 850px;
   margin: 40px auto;
+  padding: 25px;
   background: #111;
-  padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 0 15px #ff1e1e44;
+  box-shadow: 0 0 20px rgba(255,0,0,0.4);
 }
 
-.glow {
-  color: #ff1e1e;
-  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
-}
+h1, h2 { color: #ff4b4b; text-align: center; }
 
 input {
-  width: 80%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  border: none;
-  background: #222;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
   color: white;
+  font-size: 16px;
 }
 
 button {
-  background: #ff1e1e;
+  width: 100%;
+  padding: 12px;
+  background: #ff4b4b;
   color: white;
   border: none;
-  padding: 10px 20px;
-  margin-top: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  border-radius: 6px;
+  margin-top: 10px;
 }
 
-button:hover {
-  background: #ff5050;
-}
+button:hover { background: #ff1e1e; }
 
-.hidden {
-  display: none;
+#login-error { color: #ff7777; text-align: center; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 th, td {
-  border-bottom: 1px solid #333;
+  border: 1px solid #222;
   padding: 8px;
+  text-align: center;
 }
 
-th {
-  background: #ff1e1e33;
-}
+tr:nth-child(even) { background: #1a1a1a; }
 
-#stats p {
-  margin: 5px 0;
-  color: #ff4040;
+.progress {
+  background: #222;
+  border-radius: 20px;
+  height: 15px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0000, #ff4b4b);
+  width: 0%;
+  transition: width .5s ease-in-out;
 }
 
 footer {
+  text-align: center;
   margin-top: 40px;
-  color: #ccc;
-  font-size: 0.85em;
+  color: #bbb;
+  font-size: .85em;
+}
+
+@media (max-width: 600px){
+  .admin-container,.admin-dashboard{padding:15px;margin:20px;}
+  table,th,td{font-size:14px;}
 }
