@@ -1,8 +1,13 @@
-// Import Firebase SDK modules
+// ---- Firebase imports ----
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-// ✅ Firebase Config (keep hidden in .env for production)
+// ---- Your real config ----
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -12,72 +17,74 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
+// ---- Initialize ----
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const donationsRef = collection(db, "ComicProjectDonations");
 
-const donationForm = document.getElementById("donationForm");
-const paymentOption = document.getElementById("paymentOption");
+// ---- Elements ----
+const form = document.getElementById("donationForm");
 const upiDisplay = document.getElementById("upiDisplay");
 const qrDisplay = document.getElementById("qrDisplay");
+const paymentOption = document.getElementById("paymentOption");
 const raisedText = document.getElementById("raisedAmount");
 const progressBar = document.getElementById("progressBar");
-const totalGoal = 20000;
-
-// 🔴 UPI Details
-const upiID = "7079441779@ikwik";
-
-// Live year
 document.getElementById("year").textContent = new Date().getFullYear();
 
-// ✅ Real-Time Progress Fetch
-const donationsRef = collection(db, "ComicProjectDonations");
+// ---- Constants ----
+const upiID = "7079441779@ikwik";
+const goal = 20000;
+
+// ============================================================
+// 🔴 1.  Live Firestore listener for Raised + Progress
+// ============================================================
 onSnapshot(donationsRef, (snapshot) => {
-  let totalRaised = 0;
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    totalRaised += parseFloat(data.amount || 0);
-  });
-  
-  // Update progress bar and text
-  const progress = Math.min((totalRaised / totalGoal) * 100, 100);
-  progressBar.style.width = `${progress}%`;
-  raisedText.innerText = `Raised: ₹${totalRaised.toFixed(2)} / ₹${totalGoal}`;
+  let total = 0;
+  snapshot.forEach((d) => (total += Number(d.data().amount || 0)));
+
+  const pct = Math.min((total / goal) * 100, 100);
+  progressBar.style.width = pct + "%";
+  raisedText.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${goal.toLocaleString("en-IN")}`;
 });
 
-// ✅ Payment Option Handling (Require Amount First)
+// ============================================================
+// 🔴 2.  Show payment option (must enter amount first)
+// ============================================================
 paymentOption.addEventListener("change", () => {
-  const amountValue = parseFloat(document.getElementById("amount").value);
+  const amount = parseFloat(document.getElementById("amount").value);
   upiDisplay.classList.add("hidden");
   qrDisplay.classList.add("hidden");
 
-  if (!amountValue || amountValue <= 0) {
-    alert("⚠️ Please enter a valid amount before selecting a payment method.");
+  if (!amount || amount <= 0) {
+    alert("Please enter a valid amount before choosing a payment method.");
     paymentOption.value = "";
     return;
   }
 
-  const selected = paymentOption.value;
-  if (selected === "upi_id") {
-    upiDisplay.innerHTML = `<p>Click below to pay via UPI ID:</p>
-      <button class="btn-red" id="upiLink">Pay ₹${amountValue}</button>`;
+  const link = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+
+  if (paymentOption.value === "upi_id") {
     upiDisplay.classList.remove("hidden");
+    upiDisplay.innerHTML = `
+      <p><strong>UPI ID:</strong> ${upiID}</p>
+      <button class="btn-red" onclick="window.location.href='${link}'">
+        Pay ₹${amount} via UPI App
+      </button>`;
+  }
 
-    document.getElementById("upiLink").addEventListener("click", () => {
-      const upiUrl = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amountValue}&cu=INR`;
-      window.location.href = upiUrl;
-    });
-
-  } else if (selected === "upi_qr") {
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=${upiID}&pn=FundVerse&am=${amountValue}&cu=INR&size=200x200`;
-    qrDisplay.innerHTML = `<p>Scan this QR to pay ₹${amountValue}:</p>
-      <img src="${qrUrl}" alt="UPI QR" class="qr-img">`;
+  if (paymentOption.value === "upi_qr") {
     qrDisplay.classList.remove("hidden");
+    qrDisplay.innerHTML = `
+      <p>Scan to pay ₹${amount}</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(link)}&size=220x220"
+           alt="UPI QR" style="display:block;margin:10px auto;border-radius:8px;">`;
   }
 });
 
-// ✅ Form Submission
-donationForm.addEventListener("submit", async (e) => {
+// ============================================================
+// 🔴 3.  Handle form submit
+// ============================================================
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("name").value.trim();
@@ -85,8 +92,8 @@ donationForm.addEventListener("submit", async (e) => {
   const amount = parseFloat(document.getElementById("amount").value);
   const txnID = document.getElementById("txnID").value.trim();
 
-  if (!txnID) {
-    alert("Please enter your Transaction ID after completing the payment!");
+  if (!name || !email || !amount || !txnID) {
+    alert("Please complete all fields and payment before submitting.");
     return;
   }
 
@@ -96,16 +103,16 @@ donationForm.addEventListener("submit", async (e) => {
       email,
       amount,
       txnID,
-      date: new Date().toISOString()
+      timestamp: new Date().toISOString()
     });
 
-    alert("✅ Thank you for your contribution!");
-    donationForm.reset();
+    alert("🎉 Thank you for your contribution!");
+    form.reset();
     upiDisplay.classList.add("hidden");
     qrDisplay.classList.add("hidden");
-
-  } catch (error) {
-    console.error("Error saving donation:", error);
-    alert("❌ Error submitting donation. Try again.");
+    paymentOption.value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Error saving donation. Try again later.");
   }
 });
