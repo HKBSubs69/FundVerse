@@ -1,108 +1,100 @@
 body {
-  background: #0d0d0d;
-  color: white;
   font-family: "Poppins", sans-serif;
+  background-color: #0d0d0d;
+  color: white;
   text-align: center;
   margin: 0;
   padding: 0;
 }
 
 header {
-  padding: 20px 10px;
+  padding: 20px;
+  background: linear-gradient(90deg, #000, #330000);
+  box-shadow: 0 0 20px red;
 }
 
 .glow {
-  color: #ff1e1e;
-  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
-  font-size: 2em;
-}
-
-.subtitle {
-  color: #ff7676;
-  font-weight: bold;
+  color: #ff4d4d;
+  text-shadow: 0 0 20px #ff0000;
 }
 
 .tagline {
   font-style: italic;
   color: #ccc;
-  margin-bottom: 15px;
 }
 
-.progress-bar-container {
-  background: #222;
-  border-radius: 20px;
-  height: 20px;
-  margin: 10px auto;
-  width: 80%;
-}
-
-#progress-bar {
-  background: #ff3131;
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
-}
-
-#raised-amount {
-  color: #ff4040;
-  margin-bottom: 20px;
-}
-
-.donation-section {
-  background: #111;
+main {
   padding: 20px;
-  margin: 20px auto;
+}
+
+.progress-container {
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
+  background: #1a1a1a;
   border-radius: 15px;
-  box-shadow: 0 0 15px #ff1e1e44;
+  margin: 20px auto;
+  overflow: hidden;
 }
 
-input, select, button {
-  width: 90%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 1em;
+.progress-bar {
+  height: 20px;
+  width: 0%;
+  background: red;
+  border-radius: 15px;
+  transition: width 0.5s ease-in-out;
 }
 
-input, select {
-  background: #222;
-  color: #fff;
-}
-
-button {
-  background: #ff1e1e;
-  color: white;
-  cursor: pointer;
+#progress-text {
+  color: #ff4d4d;
   font-weight: bold;
 }
 
+.donate-section input {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background-color: #121212;
+  color: white;
+}
+
+button {
+  background-color: #ff3333;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
 button:hover {
-  background: #ff5050;
+  background-color: #ff4d4d;
+}
+
+.payment-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .hidden {
   display: none;
 }
 
-.clickable {
-  color: #ff4040;
-  text-decoration: underline;
-  cursor: pointer;
+#upi-display, #qr-display {
+  margin-top: 10px;
+  font-weight: bold;
 }
 
 footer {
-  background: #111;
-  color: #bbb;
-  font-size: 0.85em;
+  background: #0a0a0a;
   padding: 15px;
   margin-top: 30px;
-}
-
-.contact-section {
-  background: #0f0f0f;
-  padding: 15px;
-  border-top: 2px solid #ff1e1e33;
+  border-top: 1px solid red;
+  font-size: 14px;
 }
