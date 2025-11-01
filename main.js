@@ -1,12 +1,8 @@
-// ---- Firebase Setup ----
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// Import Firebase SDK modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
+// ✅ Firebase Config (keep hidden in .env for production)
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -16,88 +12,100 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ---- Auto Year in Footer ----
+const donationForm = document.getElementById("donationForm");
+const paymentOption = document.getElementById("paymentOption");
+const upiDisplay = document.getElementById("upiDisplay");
+const qrDisplay = document.getElementById("qrDisplay");
+const raisedText = document.getElementById("raisedAmount");
+const progressBar = document.getElementById("progressBar");
+const totalGoal = 20000;
+
+// 🔴 UPI Details
+const upiID = "7079441779@ikwik";
+
+// Live year
 document.getElementById("year").textContent = new Date().getFullYear();
 
-// ---- Payment Option Dropdown ----
-document.getElementById("paymentOption").addEventListener("change", function () {
-  const upiDisplay = document.getElementById("upiDisplay");
-  const qrDisplay = document.getElementById("qrDisplay");
-  const selected = this.value;
-  const amount = document.getElementById("amount").value;
+// ✅ Real-Time Progress Fetch
+const donationsRef = collection(db, "ComicProjectDonations");
+onSnapshot(donationsRef, (snapshot) => {
+  let totalRaised = 0;
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    totalRaised += parseFloat(data.amount || 0);
+  });
+  
+  // Update progress bar and text
+  const progress = Math.min((totalRaised / totalGoal) * 100, 100);
+  progressBar.style.width = `${progress}%`;
+  raisedText.innerText = `Raised: ₹${totalRaised.toFixed(2)} / ₹${totalGoal}`;
+});
 
+// ✅ Payment Option Handling (Require Amount First)
+paymentOption.addEventListener("change", () => {
+  const amountValue = parseFloat(document.getElementById("amount").value);
   upiDisplay.classList.add("hidden");
   qrDisplay.classList.add("hidden");
 
+  if (!amountValue || amountValue <= 0) {
+    alert("⚠️ Please enter a valid amount before selecting a payment method.");
+    paymentOption.value = "";
+    return;
+  }
+
+  const selected = paymentOption.value;
   if (selected === "upi_id") {
+    upiDisplay.innerHTML = `<p>Click below to pay via UPI ID:</p>
+      <button class="btn-red" id="upiLink">Pay ₹${amountValue}</button>`;
     upiDisplay.classList.remove("hidden");
-    upiDisplay.innerHTML = `
-      <p style="color:#fff;text-align:center;margin-top:10px">
-        <b>Send payment to:</b> 7079441779@ikwik
-      </p>
-      <button class="btn-red" style="margin-top:10px"
-        onclick="window.location.href='upi://pay?pa=7079441779@ikwik&am=${amount}&cu=INR'">
-        Pay via UPI App
-      </button>
-    `;
+
+    document.getElementById("upiLink").addEventListener("click", () => {
+      const upiUrl = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amountValue}&cu=INR`;
+      window.location.href = upiUrl;
+    });
+
   } else if (selected === "upi_qr") {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=${upiID}&pn=FundVerse&am=${amountValue}&cu=INR&size=200x200`;
+    qrDisplay.innerHTML = `<p>Scan this QR to pay ₹${amountValue}:</p>
+      <img src="${qrUrl}" alt="UPI QR" class="qr-img">`;
     qrDisplay.classList.remove("hidden");
-    qrDisplay.innerHTML = `
-      <p style="color:#fff;text-align:center;margin-top:10px">
-        Scan the QR below to pay ₹${amount || "..."}
-      </p>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=7079441779@ikwik&am=${amount}&cu=INR&size=200x200"
-        alt="UPI QR Code" style="display:block;margin:10px auto;border-radius:8px;">
-    `;
   }
 });
 
-// ---- Form Submit ----
-const donationForm = document.getElementById("donationForm");
+// ✅ Form Submission
 donationForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const amount = parseFloat(document.getElementById("amount").value);
   const txnID = document.getElementById("txnID").value.trim();
 
-  if (!txnID || !amount) {
-    alert("Please complete all fields and payment details.");
+  if (!txnID) {
+    alert("Please enter your Transaction ID after completing the payment!");
     return;
   }
 
   try {
-    await addDoc(collection(db, "donations"), {
+    await addDoc(donationsRef, {
       name,
       email,
       amount,
       txnID,
-      timestamp: new Date().toISOString(),
+      date: new Date().toISOString()
     });
 
-    alert("🎉 Thank you for your contribution!");
+    alert("✅ Thank you for your contribution!");
     donationForm.reset();
-    document.getElementById("upiDisplay").classList.add("hidden");
-    document.getElementById("qrDisplay").classList.add("hidden");
+    upiDisplay.classList.add("hidden");
+    qrDisplay.classList.add("hidden");
+
   } catch (error) {
     console.error("Error saving donation:", error);
-    alert("Error submitting donation. Please try again.");
+    alert("❌ Error submitting donation. Try again.");
   }
-});
-
-// ---- Real-Time Raised Amount ----
-onSnapshot(collection(db, "donations"), (snapshot) => {
-  let total = 0;
-  snapshot.forEach((doc) => {
-    total += Number(doc.data().amount || 0);
-  });
-
-  const raisedElement = document.getElementById("raisedAmount");
-  raisedElement.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹20,000`;
-
-  const percent = Math.min((total / 20000) * 100, 100);
-  document.getElementById("progressBar").style.width = percent + "%";
 });
