@@ -1,162 +1,159 @@
-/* main.css — FundVerse final theme (black + red glow) */
-
-:root{
-  --bg:#070707;
-  --card:#111;
-  --muted:#9b9b9b;
-  --accent:#ff2e2e;
-  --accent-weak:#ff6363;
-  --input:#1a1a1a;
+/* ===== FundVerse Styling ===== */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #0d0d0d;
+  color: #fff;
+  text-align: center;
 }
 
-*{box-sizing:border-box}
-
-html,body{
-  height:100%;
-  margin:0;
-  background:var(--bg);
-  color:#fff;
-  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+/* ===== Container ===== */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 30px 20px;
 }
 
-.container{
-  max-width:640px;
-  margin:20px auto;
-  padding:22px;
+/* ===== Titles ===== */
+.title {
+  color: #ff1a1a;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 20px #ff1a1a;
 }
 
-/* Header */
-.title{
-  font-size:3rem;
-  margin:6px 0 6px;
-  color:var(--accent);
-  text-align:center;
-  text-shadow:0 0 18px rgba(255,46,46,0.55);
-  font-weight:700;
+.subtitle {
+  color: #ff6666;
+  margin-top: 10px;
+  font-size: 1.2rem;
 }
 
-.subtitle{
-  color:var(--accent-weak);
-  text-align:center;
-  font-size:1.2rem;
-  margin:6px 0 12px;
+.tagline {
+  color: #b3b3b3;
+  margin-bottom: 25px;
 }
 
-/* Tagline */
-.tagline{
-  font-style:italic;
-  color:#cfcfcf;
-  text-align:center;
-  margin-bottom:18px;
+/* ===== Progress Bar ===== */
+.progress-section {
+  margin-bottom: 25px;
 }
 
-/* Progress */
-.progress-container{
-  margin: 12px 0 18px;
-  text-align:center;
-}
-progress#progressBar{
-  width:100%;
-  height:14px;
-  border-radius:10px;
-  appearance:none;
-  -webkit-appearance:none;
-  background:#2b2b2b;
-  overflow:hidden;
-}
-progress#progressBar::-webkit-progress-bar{background:#2b2b2b;border-radius:10px}
-progress#progressBar::-webkit-progress-value{background:linear-gradient(90deg,var(--accent),var(--accent-weak));border-radius:10px}
-
-/* Raised text */
-#raisedAmount{
-  color:var(--accent);
-  font-weight:600;
-  margin-top:12px;
-  text-align:center;
-  font-size:1.1rem;
+.progress-bar {
+  width: 100%;
+  height: 15px;
+  background-color: #222;
+  border-radius: 30px;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 
-/* Form */
-form#donationForm{
-  margin-top:18px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #ff1a1a;
+  transition: width 0.5s ease-in-out;
 }
 
-/* Inputs */
-input[type="text"], input[type="email"], input[type="number"], select {
-  background:var(--input);
-  border:1px solid #2e2e2e;
-  color:#fff;
-  padding:14px 16px;
-  border-radius:14px;
-  font-size:16px;
-  outline:none;
-  caret-color:var(--accent);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
+/* ===== Form Styling ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #141414;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.15);
 }
 
-input::placeholder, select option { color: #8f8f8f; }
-
-/* Select focus highlight */
-select:focus, input:focus {
-  box-shadow: 0 0 0 4px rgba(255,46,46,0.06);
-  border-color:var(--accent);
+.form input,
+.form select {
+  padding: 14px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  background-color: #1c1c1c;
+  color: #fff;
+  outline: none;
+  transition: 0.3s;
 }
 
-/* Payment details area */
-#upiDetails{ margin-top:8px; text-align:center; color:#ddd; }
-#upiDetails a{ color:var(--accent); text-decoration:none; font-weight:600; }
-
-/* QR image */
-#qrImage{
-  display:block;
-  margin:12px auto 8px;
-  width:220px;
-  height:220px;
-  border-radius:12px;
-  background:#fff;
-  padding:6px;
-  box-shadow:0 6px 30px rgba(0,0,0,0.6);
+.form input:focus,
+.form select:focus {
+  box-shadow: 0 0 10px #ff1a1a;
 }
 
-/* Contribute button */
-button[type="submit"]{
-  background:linear-gradient(180deg,var(--accent),var(--accent-weak));
-  border:none;
-  padding:14px 18px;
-  color:#fff;
-  font-size:18px;
-  border-radius:14px;
-  cursor:pointer;
-  font-weight:700;
-  margin-top:6px;
-  box-shadow: 0 8px 30px rgba(255,46,46,0.12);
-}
-button[type="submit"]:active{ transform:translateY(1px) }
-
-/* Hint text */
-.hint{
-  color:#cfcfcf;
-  font-size:0.9rem;
-  margin: -4px 0 8px;
+.payment-label {
+  margin-top: 5px;
+  color: #ff6666;
+  font-weight: 500;
 }
 
-/* Footer */
-footer{
-  margin-top:28px;
-  font-size:0.9rem;
-  color:#bdbdbd;
-  text-align:center;
-  line-height:1.4;
+/* ===== QR Section ===== */
+.qr-instruction {
+  margin-top: 10px;
+  color: #ccc;
 }
 
-/* Responsive */
-@media (max-width:420px){
-  .title{ font-size:2.2rem }
-  #qrImage{ width:180px; height:180px }
-  input, select, button{ padding:12px; font-size:15px }
-    }
+.qr {
+  margin: 10px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+}
+
+.upi-id {
+  font-size: 0.95rem;
+  color: #ffb3b3;
+}
+
+/* ===== Button ===== */
+button {
+  background-color: #ff1a1a;
+  border: none;
+  color: white;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #e60000;
+  box-shadow: 0 0 15px #ff1a1a;
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top: 30px;
+  font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+footer a {
+  color: #ff6666;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: #ff1a1a;
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .title {
+    font-size: 2.1rem;
+  }
+
+  .form {
+    padding: 20px;
+  }
+
+  .qr {
+    width: 180px;
+    height: 180px;
+  }
+}
