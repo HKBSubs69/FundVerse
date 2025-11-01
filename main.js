@@ -1,8 +1,6 @@
-// ---------------------------
-// FundVerse Main Script (Final Version)
-// ---------------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -12,106 +10,69 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// DOM Elements
-const donationForm = document.getElementById("donation-form");
-const raisedAmountText = document.getElementById("raised-amount");
-const progressFill = document.getElementById("progress-fill");
-const paymentOption = document.getElementById("payment-option");
-const qrContainer = document.getElementById("qr-container");
+const form = document.getElementById("donationForm");
+const amountInput = document.getElementById("amount");
+const paymentOption = document.getElementById("paymentOption");
+const upiDetails = document.getElementById("upiDetails");
+const upiText = document.getElementById("upiText");
+const qrCanvas = document.getElementById("qrCanvas");
+const raisedAmount = document.getElementById("raisedAmount");
+const progressBar = document.getElementById("progressBar");
 
-// Constants
-const GOAL_AMOUNT = 20000;
-const UPI_ID = "7079441779@ikwik";
+document.getElementById("year").textContent = new Date().getFullYear();
 
-// ---------------------------
-// Payment Option Logic
-// ---------------------------
-paymentOption.addEventListener("change", () => {
-  const selected = paymentOption.value;
-  const amount = document.getElementById("amount").value.trim();
+paymentOption.addEventListener("change", async () => {
+  const amount = amountInput.value || 0;
+  const upiId = "fundverse@upi";
+  const upiLink = `upi://pay?pa=${upiId}&pn=FundVerse&am=${amount}&cu=INR`;
 
-  if (!amount) {
-    qrContainer.innerHTML = `<p style="color:#ff4d4d;">Please enter an amount first.</p>`;
-    return;
-  }
+  if (paymentOption.value === "upiID") {
+    upiDetails.classList.remove("hidden");
+    qrCanvas.classList.add("hidden");
+    upiText.innerHTML = `Click below to pay using UPI ID:<br><a href="${upiLink}" style="color:#ff2e2e;">${upiId}</a>`;
+  } else if (paymentOption.value === "upiQR") {
+    upiDetails.classList.remove("hidden");
+    upiText.textContent = "Scan this QR to Pay:";
+    qrCanvas.classList.remove("hidden");
 
-  if (selected === "upiQR") {
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Blue%20Ocean%20Studios%20India&am=${amount}&cu=INR`;
-    const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-    qrContainer.innerHTML = `
-      <img src="${qrAPI}" alt="UPI QR Code" style="margin-top:10px;border-radius:10px;width:200px;height:200px;">
-      <p style="color:#bbb;margin-top:5px;">Scan this QR to pay ₹${amount}</p>
-    `;
-  } else if (selected === "upiID") {
-    qrContainer.innerHTML = `
-      <p style="color:#ff4d4d;margin-top:8px;">Send ₹${amount} to: <strong>${UPI_ID}</strong></p>
-      <button id="open-upi" style="margin-top:8px;background:#ff2e2e;color:#fff;padding:8px 16px;border:none;border-radius:8px;">Pay via UPI App</button>
-    `;
-    document.getElementById("open-upi").addEventListener("click", () => {
-      const link = `upi://pay?pa=${UPI_ID}&pn=Blue%20Ocean%20Studios%20India&am=${amount}&cu=INR`;
-      window.location.href = link;
-    });
+    const qr = await import("https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js");
+    qr.default.toCanvas(qrCanvas, upiLink);
   } else {
-    qrContainer.innerHTML = "";
+    upiDetails.classList.add("hidden");
   }
 });
 
-// ---------------------------
-// Submit Donation
-// ---------------------------
-donationForm.addEventListener("submit", async (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  const amount = parseFloat(amountInput.value);
+  const txnId = form.txnId.value.trim();
+  const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const amount = parseFloat(document.getElementById("amount").value.trim());
-  const txnID = document.getElementById("txn-id").value.trim();
-
-  if (!name || !email || !amount || !txnID) {
-    alert("⚠️ Please fill all fields, including Transaction ID.");
-    return;
-  }
-
-  const data = {
+  await addDoc(collection(db, "ComicProjectDonations"), {
     name,
     email,
     amount,
-    txnID,
-    timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
-  };
+    txnID: txnId,
+    timestamp
+  });
 
-  try {
-    await db.collection("ComicProjectDonations").add(data);
-    alert("🎉 Thank you for your contribution!");
-    donationForm.reset();
-    qrContainer.innerHTML = "";
-    updateProgress();
-  } catch (error) {
-    console.error("Error saving donation:", error);
-  }
+  alert("Thank you for contributing!");
+  form.reset();
+  fetchRaisedAmount();
 });
 
-// ---------------------------
-// Progress Bar Updater
-// ---------------------------
-async function updateProgress() {
+async function fetchRaisedAmount() {
+  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
   let total = 0;
-  const snapshot = await db.collection("ComicProjectDonations").get();
-  snapshot.forEach(doc => total += parseFloat(doc.data().amount) || 0);
-
-  const percentage = Math.min((total / GOAL_AMOUNT) * 100, 100).toFixed(1);
-  progressFill.style.width = `${percentage}%`;
-  raisedAmountText.textContent = `Raised: ₹${total} / ₹${GOAL_AMOUNT}`;
+  snapshot.forEach(doc => {
+    total += parseFloat(doc.data().amount) || 0;
+  });
+  raisedAmount.textContent = `Raised: ₹${total} / ₹20,000`;
+  progressBar.value = total;
 }
-
-updateProgress();
-setInterval(updateProgress, 5000);
-
-// ---------------------------
-// Auto Year in Footer
-// ---------------------------
-document.getElementById("autoYear").textContent = new Date().getFullYear();
+fetchRaisedAmount();
