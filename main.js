@@ -1,5 +1,16 @@
+// main.js — final fixed (module style)
+// this file expects index.html to include: <script type="module" src="main.js" defer></script>
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
@@ -12,67 +23,140 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const collRef = collection(db, "ComicProjectDonations");
 
-const form = document.getElementById("donationForm");
+// DOM
+const donationForm = document.getElementById("donationForm");
 const amountInput = document.getElementById("amount");
 const paymentOption = document.getElementById("paymentOption");
 const upiDetails = document.getElementById("upiDetails");
 const upiText = document.getElementById("upiText");
-const qrCanvas = document.getElementById("qrCanvas");
+const qrCanvasOrImage = document.getElementById("qrCanvas"); // canvas element exists in your HTML
 const raisedAmount = document.getElementById("raisedAmount");
 const progressBar = document.getElementById("progressBar");
 
-document.getElementById("year").textContent = new Date().getFullYear();
+// Use your UPI ID
+const UPI_ID = "7079441779@ikwik";
+const GOAL = 20000;
 
-paymentOption.addEventListener("change", async () => {
-  const amount = amountInput.value || 0;
-  const upiId = "fundverse@upi";
-  const upiLink = `upi://pay?pa=${upiId}&pn=FundVerse&am=${amount}&cu=INR`;
+// helper to create upi link
+function makeUpiLink(amount) {
+  const pa = encodeURIComponent(UPI_ID);
+  const pn = encodeURIComponent("FundVerse");
+  const am = encodeURIComponent(amount);
+  // standard UPI deep link
+  return `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR`;
+}
 
-  if (paymentOption.value === "upiID") {
+// Show QR or UPI ID
+paymentOption.addEventListener("change", () => {
+  const sel = paymentOption.value;
+  const amt = (amountInput.value && Number(amountInput.value)) ? amountInput.value : 0;
+  if (!sel) {
+    upiDetails.classList.add("hidden");
+    upiText.innerHTML = "";
+    if (qrCanvasOrImage) qrCanvasOrImage.classList.add("hidden");
+    return;
+  }
+
+  const upiLink = makeUpiLink(amt);
+
+  if (sel === "upiID") {
     upiDetails.classList.remove("hidden");
-    qrCanvas.classList.add("hidden");
-    upiText.innerHTML = `Click below to pay using UPI ID:<br><a href="${upiLink}" style="color:#ff2e2e;">${upiId}</a>`;
-  } else if (paymentOption.value === "upiQR") {
+    if (qrCanvasOrImage) qrCanvasOrImage.classList.add("hidden");
+    upiText.innerHTML = `<strong>UPI ID:</strong> <span style="color:var(--accent)">${UPI_ID}</span><br>
+      <button id="openUpiBtn" style="margin-top:10px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer">
+        Open UPI App
+      </button>`;
+    // attach click to open deep link
+    setTimeout(() => {
+      const btn = document.getElementById("openUpiBtn");
+      if (btn) btn.onclick = () => { window.location.href = upiLink; };
+    }, 50);
+  } else if (sel === "upiQR") {
     upiDetails.classList.remove("hidden");
     upiText.textContent = "Scan this QR to Pay:";
-    qrCanvas.classList.remove("hidden");
-
-    const qr = await import("https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js");
-    qr.default.toCanvas(qrCanvas, upiLink);
-  } else {
-    upiDetails.classList.add("hidden");
+    // create QR via QRServer (simple image)
+    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+    if (qrCanvasOrImage) {
+      qrCanvasOrImage.classList.remove("hidden");
+      // if canvas exists, replace it with an image for simplicity
+      // ensure we have an <img id="qrImage"> inside upiDetails
+      let img = document.getElementById("qrImage");
+      if (!img) {
+        img = document.createElement("img");
+        img.id = "qrImage";
+        img.style.width = "220px";
+        img.style.height = "220px";
+        img.style.borderRadius = "12px";
+        img.style.marginTop = "10px";
+        img.alt = "QR Code";
+        // append to upiDetails after upiText
+        upiDetails.appendChild(img);
+      }
+      img.src = qrURL;
+    }
   }
 });
 
-form.addEventListener("submit", async (e) => {
+
+// Submit donation
+donationForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = form.name.value.trim();
-  const email = form.email.value.trim();
-  const amount = parseFloat(amountInput.value);
-  const txnId = form.txnId.value.trim();
-  const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-  await addDoc(collection(db, "ComicProjectDonations"), {
-    name,
-    email,
-    amount,
-    txnID: txnId,
-    timestamp
-  });
+  const name = (donationForm.name.value || "").trim();
+  const email = (donationForm.email.value || "").trim();
+  const amount = Number(donationForm.amount.value || 0);
+  const txn = (donationForm.txnId.value || "").trim();
 
-  alert("Thank you for contributing!");
-  form.reset();
-  fetchRaisedAmount();
+  if (!name || !email || !amount || !txn) {
+    alert("Please fill all fields (name, email, amount, transaction id).");
+    return;
+  }
+
+  try {
+    // Save with server timestamp
+    await addDoc(collRef, {
+      name,
+      email,
+      amount,
+      txnID: txn,
+      timestamp: serverTimestamp()
+    });
+
+    alert("Thank you — donation recorded. You can now share the page.");
+    donationForm.reset();
+    upiDetails.classList.add("hidden");
+    const img = document.getElementById("qrImage");
+    if (img) img.remove();
+  } catch (err) {
+    console.error("Error saving donation:", err);
+    alert("Error saving donation — try again later.");
+  }
 });
 
-async function fetchRaisedAmount() {
-  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+
+// Live progress using onSnapshot
+const q = query(collRef, orderBy("timestamp", "desc"));
+onSnapshot(q, (snap) => {
   let total = 0;
-  snapshot.forEach(doc => {
-    total += parseFloat(doc.data().amount) || 0;
+  snap.forEach(doc => {
+    const d = doc.data();
+    total += Number(d.amount) || 0;
   });
-  raisedAmount.textContent = `Raised: ₹${total} / ₹20,000`;
-  progressBar.value = total;
-}
-fetchRaisedAmount();
+
+  // update raised text and progress
+  raisedAmount.textContent = `Raised: ₹${total.toLocaleString()} / ₹${GOAL.toLocaleString()}`;
+
+  // if progressBar is <progress> element, set value attribute
+  if (progressBar) {
+    // if it's a <progress> element
+    if (progressBar.tagName && progressBar.tagName.toLowerCase() === "progress") {
+      progressBar.value = Math.min(total, GOAL);
+      progressBar.max = GOAL;
+    } else {
+      // fallback: a div-based bar
+      progressBar.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
+    }
+  }
+});
