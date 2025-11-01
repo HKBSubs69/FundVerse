@@ -5,41 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
 </head>
 <body>
-  <div class="admin-container" id="login-box">
-    <h1 class="glow">FundVerse Admin</h1>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
+  <div class="admin-container" id="login-section">
+    <h2>FundVerse Admin Login</h2>
+    <input type="email" id="admin-email" placeholder="Admin Email" required />
+    <input type="password" id="admin-password" placeholder="Password" required />
     <button id="login-btn">Login</button>
-    <p id="error-msg"></p>
+    <p id="login-error"></p>
   </div>
 
-  <div class="admin-container hidden" id="dashboard">
-    <h2>Donation Records</h2>
-    <div id="stats">
-      <p id="totalAmount"></p>
-      <p id="totalCount"></p>
-      <p id="lastUpdated"></p>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Amount (₹)</th>
-          <th>Txn ID</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="donationTable"></tbody>
-    </table>
-    <button id="logout-btn">Logout</button>
+  <div class="admin-dashboard" id="dashboard" style="display:none;">
+    <header>
+      <h1>FundVerse Dashboard</h1>
+      <button id="logout-btn">Logout</button>
+    </header>
+
+    <section class="project-summary">
+      <h2>Project Summary</h2>
+      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+      <p><strong>Goal:</strong> ₹20,000</p>
+      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+      <div class="progress"><div class="bar" id="progress-bar"></div></div>
+    </section>
+
+    <section class="donations-list">
+      <h2>Donations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Amount (₹)</th>
+            <th>Transaction ID</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="donations-table"></tbody>
+      </table>
+    </section>
   </div>
 
   <footer id="footer"></footer>
-  <script src="admin.js" type="module"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="admin.js"></script>
 </body>
-</html>
+  </html>
