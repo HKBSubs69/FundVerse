@@ -1,6 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
+// ✅ Firebase setup
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -10,58 +8,72 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-const USER = "FundVerseAdmin";
-const PASS = "FundVerse@2025"; // secure password known only to you
-
-const loginBox = document.getElementById("login-box");
+// DOM elements
+const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
-const errorMsg = document.getElementById("error-msg");
-const totalAmount = document.getElementById("totalAmount");
-const totalCount = document.getElementById("totalCount");
-const lastUpdated = document.getElementById("lastUpdated");
-const donationTable = document.getElementById("donationTable");
+const emailField = document.getElementById("admin-email");
+const passField = document.getElementById("admin-password");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const errorMsg = document.getElementById("login-error");
 
-document.getElementById("login-btn").addEventListener("click", () => {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-  if (user === USER && pass === PASS) {
-    loginBox.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-    loadData();
-  } else {
-    errorMsg.textContent = "❌ Invalid Credentials";
+// login
+loginBtn.addEventListener("click", async () => {
+  try {
+    await auth.signInWithEmailAndPassword(
+      emailField.value.trim(),
+      passField.value.trim()
+    );
+  } catch (err) {
+    errorMsg.textContent = "❌ " + err.message;
   }
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-  dashboard.classList.add("hidden");
-  loginBox.classList.remove("hidden");
+// listen for auth
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loginSection.style.display = "none";
+    dashboard.style.display = "block";
+    loadDonations();
+  } else {
+    loginSection.style.display = "block";
+    dashboard.style.display = "none";
+  }
 });
 
-async function loadData() {
-  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
-  let total = 0, count = 0;
-  donationTable.innerHTML = "";
-  snapshot.forEach((doc) => {
-    const d = doc.data();
-    total += parseInt(d.amount || 0);
-    count++;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.name}</td>
-      <td>${d.email}</td>
-      <td>₹${d.amount}</td>
-      <td>${d.txnId}</td>
-      <td>${new Date(d.timestamp).toLocaleString()}</td>`;
-    donationTable.appendChild(tr);
-  });
-  totalAmount.textContent = `💰 Total Raised: ₹${total}`;
-  totalCount.textContent = `🙌 Total Donors: ${count}`;
-  lastUpdated.textContent = `🕓 Last Updated: ${new Date().toLocaleString()}`;
+// logout
+logoutBtn.addEventListener("click", () => auth.signOut());
+
+// load donations
+function loadDonations() {
+  db.collection("ComicProjectDonations")
+    .orderBy("timestamp", "desc")
+    .onSnapshot(snapshot => {
+      const tbody = document.getElementById("donations-table");
+      let total = 0;
+      tbody.innerHTML = "";
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        total += Number(d.amount);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${d.name}</td>
+          <td>${d.email}</td>
+          <td>₹${d.amount}</td>
+          <td>${d.txnId}</td>
+          <td>${new Date(d.timestamp).toLocaleString()}</td>`;
+        tbody.appendChild(tr);
+      });
+      document.getElementById("total-raised").textContent = "₹" + total;
+      document.getElementById("progress-bar").style.width =
+        Math.min((total / 20000) * 100, 100) + "%";
+    });
 }
 
-document.getElementById("footer").innerHTML = 
+// footer
+document.getElementById("footer").innerHTML =
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
