@@ -1,51 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse | Comic Project</title>
-  <link rel="stylesheet" href="main.css" />
-  <script type="module" src="main.js" defer></script>
-</head>
-<body>
-  <div class="container">
-    <h1 class="title">FundVerse</h1>
-    <h2 class="subtitle">Project: The Deserted Path (Comic Version)</h2>
-    <p class="tagline">Empowering Dreams. One Step at a Time.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FundVerse | Support the Project</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
 
-    <div class="progress-container">
-      <progress id="progressBar" value="0" max="20000"></progress>
-      <p id="raisedAmount">Raised: ₹0 / ₹20,000</p>
-    </div>
+  <body>
+    <div class="container">
+      <h1>FundVerse</h1>
+      <h2>Project: The Deserted Path (Comic Version)</h2>
+      <p class="tagline">Empowering Dreams. One Step at a Time.</p>
 
-    <form id="donationForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="email" id="email" placeholder="Email Address" required />
-      <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
-
-      <label for="paymentOption">Payment Option</label>
-      <select id="paymentOption" required>
-        <option value="">Select Option</option>
-        <option value="upiID">UPI ID</option>
-        <option value="upiQR">UPI QR</option>
-      </select>
-
-      <div id="upiDetails" class="hidden">
-        <p id="upiText"></p>
-        <canvas id="qrCanvas" class="hidden"></canvas>
+      <div class="progress-container">
+        <progress id="progressBar" value="0" max="20000"></progress>
+        <p id="raisedAmount">Raised: ₹0 / ₹20,000</p>
       </div>
 
-      <input type="text" id="txnId" placeholder="Transaction ID (After Payment)" required />
-      <p class="hint">💡 Find your Transaction ID in your UPI payment confirmation.</p>
+      <form id="donationForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email Address" required />
+        <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
 
-      <button type="submit">Contribute</button>
-    </form>
+        <label for="paymentOption">Payment Option</label>
+        <select id="paymentOption" required>
+          <option value="">Select Option</option>
+          <option value="upiID">UPI ID</option>
+          <option value="upiQR">UPI QR</option>
+        </select>
 
-    <footer>
-      <p>Contact Us</p>
-      <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
-      <p>© FundVerse <span id="year"></span> | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI</p>
-    </footer>
-  </div>
-</body>
+        <div id="upiDetails" class="upi-info"></div>
+
+        <label for="txnId">Transaction ID (After Payment)</label>
+        <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
+
+        <!-- reCAPTCHA -->
+        <div class="recaptcha-container">
+          <div
+            class="g-recaptcha"
+            data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"
+            data-callback="onRecaptchaSuccess"
+          ></div>
+        </div>
+
+        <button type="submit" id="submitBtn">Contribute</button>
+      </form>
+
+      <footer>
+        <p>
+          © FundVerse 2025 |
+          Managed by <strong>Blue Ocean Studios India</strong> |
+          Made in India 🇮🇳 |
+          All Rights Reserved |
+          Created by <strong>Kushal Mitra & AI</strong>
+        </p>
+        <p>
+          Contact us:
+          <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a>
+        </p>
+      </footer>
+    </div>
+
+    <!-- Firebase + Script -->
+    <script type="module" src="main.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  </body>
 </html>
