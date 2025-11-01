@@ -1,64 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse Admin Panel</title>
-  <link rel="stylesheet" href="admin.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FundVerse Admin Panel</title>
+    <link rel="stylesheet" href="admin.css" />
 
-<body>
-  <div class="container">
-    <!-- Login Section -->
-    <section id="login-section" class="card">
-      <h1>FundVerse Admin Login</h1>
-      <input type="email" id="admin-email" placeholder="Admin Email" />
-      <input type="password" id="admin-password" placeholder="Password" />
-      <button id="login-btn" class="btn">Login</button>
-      <p id="login-error" class="error"></p>
-    </section>
+    <!-- Firebase (v8 SDKs for compatibility with your setup) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  </head>
 
-    <!-- Dashboard -->
-    <section id="dashboard" style="display:none;">
-      <header class="header">
-        <h1>FundVerse Dashboard</h1>
-        <button id="logout-btn" class="logout-btn">Logout</button>
-      </header>
+  <body>
+    <div class="container">
+      <!-- Login Section -->
+      <section id="login-section" class="card">
+        <h1>FundVerse Admin Login</h1>
+        <input type="email" id="admin-email" placeholder="Admin Email" />
+        <input type="password" id="admin-password" placeholder="Password" />
+        <button id="login-btn" class="btn">Login</button>
+        <p id="login-error" class="error"></p>
+      </section>
 
-      <div class="summary">
-        <h2>Project Summary</h2>
-        <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
-        <p><strong>Goal:</strong> ₹20,000</p>
-        <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-        <div class="progress-container">
-          <div id="progress-bar" class="progress-bar"></div>
+      <!-- Dashboard -->
+      <section id="dashboard" style="display: none;">
+        <header class="header">
+          <h1>FundVerse Dashboard</h1>
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </header>
+
+        <div class="summary">
+          <h2>Project Summary</h2>
+          <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+          <p><strong>Goal:</strong> ₹20,000</p>
+          <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+          <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
         </div>
-      </div>
 
-      <div class="donations">
-        <h2>Donations</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Amount (₹)</th>
-              <th>Transaction ID</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="donations-table"></tbody>
-        </table>
-      </div>
-    </section>
+        <div class="donations">
+          <h2>Donations</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Amount (₹)</th>
+                <th>Transaction ID</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="donations-table"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <!-- Footer -->
-    <footer id="footer"></footer>
-  </div>
+      <!-- Footer -->
+      <footer id="footer"></footer>
+    </div>
 
-  <script type="module" src="admin.js"></script>
-</body>
+    <!-- Module Script -->
+    <script type="module" src="./admin.js"></script>
+  </body>
 </html>
