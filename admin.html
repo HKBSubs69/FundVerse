@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FundVerse Admin Panel</title>
+  <link rel="stylesheet" href="admin.css" />
+  <script type="module" src="admin.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>FundVerse Admin</h1>
+  </header>
+
+  <main>
+    <!-- Login Section -->
+    <section id="loginSection" class="card">
+      <h2>Admin Login</h2>
+      <input type="email" id="adminEmail" placeholder="Admin Email" required />
+      <input type="password" id="adminPassword" placeholder="Password" required />
+      <button id="loginBtn">Login</button>
+      <p id="loginMessage"></p>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboardSection" class="hidden">
+      <div class="top-bar">
+        <h2>Donation Dashboard</h2>
+        <button id="logoutBtn">Logout</button>
+      </div>
+
+      <div class="summary">
+        <p><b>Total Raised:</b> ₹<span id="totalRaised">0</span></p>
+        <p><b>Goal:</b> ₹20,000</p>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Amount (₹)</th>
+              <th>Transaction ID</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="donationTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© FundVerse Admin | Managed by Blue Ocean Studios India | Created by Kushal Mitra</p>
+  </footer>
+</body>
+</html>

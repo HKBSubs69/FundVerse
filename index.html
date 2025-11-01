@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FundVerse | The Deserted Path</title>
+  <link rel="stylesheet" href="main.css" />
+  <script type="module" src="main.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>FundVerse</h1>
+    <p>The Deserted Path (Comic Version)</p>
+  </header>
+
+  <main>
+    <section class="donate-section">
+      <h2>Support The Deserted Path Project</h2>
+      <p>Every contribution helps us bring this comic to life. ❤️</p>
+      <button id="donateBtn">Contribute Now</button>
+
+      <div class="progress-container">
+        <div id="progressBar"></div>
+      </div>
+      <p id="raisedAmount">₹0 raised of ₹20,000 goal</p>
+    </section>
+  </main>
+
+  <!-- Donation popup -->
+  <div id="popup" class="popup hidden">
+    <div class="popup-box">
+      <span id="closePopup">&times;</span>
+      <h3>Donate to FundVerse</h3>
+
+      <input type="number" id="amount" placeholder="Enter Amount (₹)" min="1" required />
+
+      <div class="method-container">
+        <button id="upiIdBtn">UPI ID</button>
+        <button id="upiQrBtn">UPI QR</button>
+      </div>
+
+      <div id="upiInfo" class="hidden">
+        <p><strong>UPI ID:</strong> <span id="upiIdText">7079441779@ikwik</span></p>
+        <button id="copyUpi">Copy UPI ID</button>
+      </div>
+
+      <div id="qrInfo" class="hidden">
+        <img id="qrImage" src="" alt="QR Code" />
+        <p>Scan this QR code to complete your payment.</p>
+      </div>
+
+      <input type="text" id="transactionId" placeholder="Enter Transaction ID (after payment)" required />
+      <small>Find it in your payment confirmation screen.</small>
+
+      <button id="submitDonation">Submit Donation</button>
+    </div>
+  </div>
+
+  <footer id="footerText"></footer>
+</body>
+</html>
