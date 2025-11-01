@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
 <body>
@@ -46,6 +44,7 @@
       <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
       <small>💡 Find your Transaction ID in your UPI payment history</small>
 
+      <!-- Google reCAPTCHA -->
       <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
 
       <button type="submit">Contribute</button>
@@ -59,11 +58,13 @@
 
   <footer id="footer"></footer>
 
+  <!-- QR Code Generator -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  <script src="main.js" type="module"></script>
+
+  <!-- Firebase + Donation Logic -->
+  <script type="module" src="main.js"></script>
+
+  <!-- reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-<script src="main.js" type="module"></script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
