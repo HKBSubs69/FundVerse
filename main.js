@@ -12,6 +12,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
@@ -60,16 +61,27 @@ form.addEventListener("submit", async (e) => {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const amount = parseInt(document.getElementById("amount").value);
-  const txnId = document.getElementById("txnId").value.trim();
+  const txnID = document.getElementById("txnId").value.trim();
 
-  if (!name || !email || !amount || !txnId) return alert("Please fill all fields!");
+  if (!name || !email || !amount || !txnID) return alert("Please fill all fields!");
+
+  const now = new Date();
+  const istTime = now.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   await addDoc(collection(db, "ComicProjectDonations"), {
     name,
     email,
     amount,
-    txnId,
-    timestamp: new Date().toISOString()
+    txnID,
+    timestamp: istTime
   });
 
   emailjs.send("service_vepkrhs", "template_rco2ar3", {
