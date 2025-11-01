@@ -1,13 +1,7 @@
-// ---- Firebase imports ----
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// ---- Your real config ----
+// Firebase Config (Your same keys)
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -17,102 +11,100 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// ---- Initialize ----
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const donationsRef = collection(db, "ComicProjectDonations");
 
-// ---- Elements ----
+// Elements
 const form = document.getElementById("donationForm");
-const upiDisplay = document.getElementById("upiDisplay");
-const qrDisplay = document.getElementById("qrDisplay");
 const paymentOption = document.getElementById("paymentOption");
-const raisedText = document.getElementById("raisedAmount");
+const paymentInfo = document.getElementById("paymentInfo");
+const amountInput = document.getElementById("amount");
 const progressBar = document.getElementById("progressBar");
-document.getElementById("year").textContent = new Date().getFullYear();
+const raisedText = document.getElementById("raisedText");
+const footerText = document.getElementById("footerText");
 
-// ---- Constants ----
+const GOAL = 20000;
 const upiID = "7079441779@ikwik";
-const goal = 20000;
 
-// ============================================================
-// 🔴 1.  Live Firestore listener for Raised + Progress
-// ============================================================
-onSnapshot(donationsRef, (snapshot) => {
-  let total = 0;
-  snapshot.forEach((d) => (total += Number(d.data().amount || 0)));
+// Auto Year Footer
+const year = new Date().getFullYear();
+footerText.innerHTML = `© FundVerse ${year} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-  const pct = Math.min((total / goal) * 100, 100);
-  progressBar.style.width = pct + "%";
-  raisedText.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${goal.toLocaleString("en-IN")}`;
-});
-
-// ============================================================
-// 🔴 2.  Show payment option (must enter amount first)
-// ============================================================
+// Payment Option
 paymentOption.addEventListener("change", () => {
-  const amount = parseFloat(document.getElementById("amount").value);
-  upiDisplay.classList.add("hidden");
-  qrDisplay.classList.add("hidden");
-
+  const amount = parseFloat(amountInput.value);
   if (!amount || amount <= 0) {
-    alert("Please enter a valid amount before choosing a payment method.");
+    alert("Please enter an amount first!");
     paymentOption.value = "";
     return;
   }
 
-  const link = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+  paymentInfo.innerHTML = "";
 
-  if (paymentOption.value === "upi_id") {
-    upiDisplay.classList.remove("hidden");
-    upiDisplay.innerHTML = `
-      <p><strong>UPI ID:</strong> ${upiID}</p>
-      <button class="btn-red" onclick="window.location.href='${link}'">
-        Pay ₹${amount} via UPI App
-      </button>`;
-  }
-
-  if (paymentOption.value === "upi_qr") {
-    qrDisplay.classList.remove("hidden");
-    qrDisplay.innerHTML = `
-      <p>Scan to pay ₹${amount}</p>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(link)}&size=220x220"
-           alt="UPI QR" style="display:block;margin:10px auto;border-radius:8px;">`;
+  if (paymentOption.value === "upiID") {
+    const link = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+    paymentInfo.innerHTML = `
+      <p>Click below to pay via your UPI app:</p>
+      <a href="${link}" class="upi-link">Pay Now (UPI ID: ${upiID})</a>
+    `;
+  } else if (paymentOption.value === "upiQR") {
+    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR&size=200x200`;
+    paymentInfo.innerHTML = `
+      <p>Scan this QR to pay ₹${amount}</p>
+      <img src="${qrURL}" alt="UPI QR Code" class="upi-qr" />
+    `;
   }
 });
 
-// ============================================================
-// 🔴 3.  Handle form submit
-// ============================================================
+// Form Submit
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  const amount = parseFloat(form.amount.value);
+  const txnID = form.txnID.value.trim();
+  if (!name || !email || !amount || !txnID) return alert("Please fill all details!");
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const amount = parseFloat(document.getElementById("amount").value);
-  const txnID = document.getElementById("txnID").value.trim();
-
-  if (!name || !email || !amount || !txnID) {
-    alert("Please complete all fields and payment before submitting.");
-    return;
-  }
+  const now = new Date();
+  const formattedDate = now.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    hour12: true,
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
   try {
-    await addDoc(donationsRef, {
-      name,
-      email,
-      amount,
-      txnID,
-      timestamp: new Date().toISOString()
+    await addDoc(collection(db, "ComicProjectDonations"), {
+      name, email, amount, txnID, date: formattedDate
     });
-
-    alert("🎉 Thank you for your contribution!");
     form.reset();
-    upiDisplay.classList.add("hidden");
-    qrDisplay.classList.add("hidden");
-    paymentOption.value = "";
+    paymentInfo.innerHTML = "";
+    showPopup();
   } catch (err) {
+    alert("Error saving donation.");
     console.error(err);
-    alert("Error saving donation. Try again later.");
   }
 });
+
+// Live Update Raised Amount
+onSnapshot(collection(db, "ComicProjectDonations"), (snapshot) => {
+  let total = 0;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    total += Number(data.amount) || 0;
+  });
+
+  const progress = Math.min((total / GOAL) * 100, 100);
+  progressBar.style.width = `${progress}%`;
+  raisedText.textContent = `Raised: ₹${total.toLocaleString()} / ₹${GOAL.toLocaleString()}`;
+});
+
+// Popup
+function showPopup() {
+  const popup = document.getElementById("thankYouPopup");
+  popup.classList.remove("hidden");
+  setTimeout(() => popup.classList.add("hidden"), 3000);
+}
