@@ -3,57 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse | Support The Deserted Path (Comic Version)</title>
+  <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <link rel="icon" href="favicon.png" />
+  <script type="module" src="main.js" defer></script>
 </head>
 <body>
   <div class="container">
     <h1 class="title">FundVerse</h1>
     <h2 class="subtitle">Project: The Deserted Path (Comic Version)</h2>
-    <p class="tagline"><em>Empowering Dreams. One Step at a Time.</em></p>
+    <p class="tagline">Empowering Dreams. One Step at a Time.</p>
 
-    <!-- Progress Section -->
     <div class="progress-container">
-      <div id="progress-fill" class="progress-fill"></div>
+      <progress id="progressBar" value="0" max="20000"></progress>
+      <p id="raisedAmount">Raised: ₹0 / ₹20,000</p>
     </div>
-    <p id="raised-amount" class="raised-text">Raised: ₹0 / ₹20,000</p>
 
-    <!-- Donation Form -->
-    <form id="donation-form">
+    <form id="donationForm">
       <input type="text" id="name" placeholder="Full Name" required />
       <input type="email" id="email" placeholder="Email Address" required />
       <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
 
-      <label for="payment-option">Payment Option</label>
-      <select id="payment-option" required>
+      <label for="paymentOption">Payment Option</label>
+      <select id="paymentOption" required>
         <option value="">Select Option</option>
-        <option value="upiQR">UPI QR</option>
         <option value="upiID">UPI ID</option>
+        <option value="upiQR">UPI QR</option>
       </select>
 
-      <div id="qr-container" class="qr-container"></div>
+      <div id="upiDetails" class="hidden">
+        <p id="upiText"></p>
+        <canvas id="qrCanvas" class="hidden"></canvas>
+      </div>
 
-      <label for="txn-id">Transaction ID (After Payment)</label>
-      <input type="text" id="txn-id" placeholder="Enter Transaction ID" required />
+      <input type="text" id="txnId" placeholder="Transaction ID (After Payment)" required />
+      <p class="hint">💡 Find your Transaction ID in your UPI payment confirmation.</p>
 
-      <button type="submit" class="btn">Contribute</button>
+      <button type="submit">Contribute</button>
     </form>
 
-    <!-- Contact Section -->
-    <div class="contact">
-      <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
-    </div>
-
-    <!-- Footer -->
     <footer>
-      <p>© FundVerse <span id="autoYear"></span> | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI</p>
+      <p>Contact Us</p>
+      <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
+      <p>© FundVerse <span id="year"></span> | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI</p>
     </footer>
   </div>
-
-  <script src="main.js"></script>
 </body>
 </html>
