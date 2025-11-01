@@ -1,5 +1,5 @@
 // -----------------------------
-// FundVerse Admin Panel Script (FINAL FIXED)
+// FundVerse Admin Panel Script (FINAL FIXED VERSION)
 // -----------------------------
 
 const firebaseConfig = {
@@ -56,6 +56,21 @@ auth.onAuthStateChanged(user => {
 
 logoutBtn.addEventListener("click", () => auth.signOut());
 
+// Helper function for Indian Time
+function formatIST(timestamp) {
+  if (!timestamp || !timestamp.seconds) return "—";
+  const date = new Date(timestamp.seconds * 1000);
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }) + " (IST)";
+}
+
 // Fetch donations
 function loadDonations() {
   db.collection("ComicProjectDonations")
@@ -66,20 +81,8 @@ function loadDonations() {
 
       snapshot.forEach(doc => {
         const d = doc.data();
-
-        // ✅ Support multiple field name styles
-        const txn =
-          d.transactionId ||
-          d.txnId ||
-          d.transaction_id ||
-          d.txnid ||
-          d.TXNID ||
-          "—";
-
-        const time = d.timestamp
-          ? new Date(d.timestamp.seconds * 1000).toLocaleString()
-          : "—";
-
+        const txn = d.txnId || "—";
+        const time = formatIST(d.timestamp);
         total += Number(d.amount) || 0;
 
         const tr = document.createElement("tr");
