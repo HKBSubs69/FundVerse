@@ -3,55 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse</title>
+  <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
-
 <body>
   <header>
-    <h1>FundVerse</h1>
+    <h1 class="glow">FundVerse</h1>
     <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
+    <p class="tagline">Empowering Dreams. One Step at a Time.</p>
   </header>
 
-  <main>
-    <section class="donation-box">
-      <h2>Contribute to this Project</h2>
-
-      <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-      <p id="raisedText">Raised: ₹0 / ₹20,000</p>
-
-      <form id="donationForm">
-        <input type="text" id="name" placeholder="Full Name" required />
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="number" id="amount" placeholder="Enter Amount (₹)" required />
-
-        <label for="paymentOption">Choose Payment Method:</label>
-        <select id="paymentOption" required>
-          <option value="">Select Option</option>
-          <option value="upiID">UPI ID</option>
-          <option value="upiQR">UPI QR</option>
-        </select>
-
-        <div id="paymentInfo" class="payment-info"></div>
-
-        <input type="text" id="txnID" placeholder="Transaction ID" required />
-        <button type="submit">Contribute</button>
-      </form>
-    </section>
-
-    <div id="thankYouPopup" class="popup hidden">
-      <p>🎉 Thank you for your contribution!</p>
+  <section class="progress-section">
+    <div class="progress-bar-container">
+      <div id="progress-bar"></div>
     </div>
-  </main>
+    <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
+  </section>
 
-  <footer>
-    <p id="footerText"></p>
-  </footer>
+  <section class="donation-section">
+    <h2>Support the Project</h2>
+    <form id="donationForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email Address" required />
+      <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
 
-  <script type="module" src="main.js"></script>
+      <label for="payment-option">Payment Option</label>
+      <select id="payment-option" required>
+        <option value="">Select Option</option>
+        <option value="upi-id">UPI ID</option>
+        <option value="upi-qr">UPI QR</option>
+      </select>
+
+      <div id="upi-display" class="hidden">
+        <p id="upi-text" class="clickable"></p>
+        <canvas id="upi-qr"></canvas>
+      </div>
+
+      <label for="txnId">Transaction ID (After Payment)</label>
+      <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
+      <small>💡 Find your Transaction ID in your UPI payment history</small>
+
+      <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+
+      <button type="submit">Contribute</button>
+    </form>
+  </section>
+
+  <section class="contact-section">
+    <h3>Contact Us</h3>
+    <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
+  </section>
+
+  <footer id="footer"></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="main.js" type="module"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
