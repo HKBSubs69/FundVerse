@@ -1,0 +1,11 @@
+# 🔐 Private Keys
+.env
+firebase.js
+config.js
+
+# ⚙️ System
+node_modules/
+dist/
+build/
+.DS_Store
+Thumbs.db
