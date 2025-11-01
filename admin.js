@@ -1,4 +1,8 @@
-// ✅ Firebase setup
+// -----------------------------
+// FundVerse Admin Panel Script
+// -----------------------------
+
+// ✅ Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -8,11 +12,14 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM elements
+// -----------------------------
+// DOM ELEMENTS
+// -----------------------------
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const emailField = document.getElementById("admin-email");
@@ -20,20 +27,31 @@ const passField = document.getElementById("admin-password");
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const errorMsg = document.getElementById("login-error");
+const donationsTable = document.getElementById("donations-table");
+const totalRaisedDisplay = document.getElementById("total-raised");
+const progressBar = document.getElementById("progress-bar");
 
-// login
+// -----------------------------
+// LOGIN FUNCTIONALITY
+// -----------------------------
 loginBtn.addEventListener("click", async () => {
+  const email = emailField.value.trim();
+  const password = passField.value.trim();
+
+  if (!email || !password) {
+    errorMsg.textContent = "Please enter both email and password.";
+    return;
+  }
+
   try {
-    await auth.signInWithEmailAndPassword(
-      emailField.value.trim(),
-      passField.value.trim()
-    );
+    await auth.signInWithEmailAndPassword(email, password);
+    errorMsg.textContent = "";
   } catch (err) {
     errorMsg.textContent = "❌ " + err.message;
   }
 });
 
-// listen for auth
+// Auto login state
 auth.onAuthStateChanged(user => {
   if (user) {
     loginSection.style.display = "none";
@@ -45,35 +63,46 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// logout
+// Logout
 logoutBtn.addEventListener("click", () => auth.signOut());
 
-// load donations
+// -----------------------------
+// FETCH & DISPLAY DONATIONS
+// -----------------------------
 function loadDonations() {
   db.collection("ComicProjectDonations")
     .orderBy("timestamp", "desc")
     .onSnapshot(snapshot => {
-      const tbody = document.getElementById("donations-table");
       let total = 0;
-      tbody.innerHTML = "";
+      donationsTable.innerHTML = "";
+
       snapshot.forEach(doc => {
         const d = doc.data();
-        total += Number(d.amount);
+
+        const txn = d.transactionId || d.txnId || "—";
+        const time = d.timestamp
+          ? new Date(d.timestamp.seconds * 1000).toLocaleString()
+          : "—";
+
+        total += Number(d.amount) || 0;
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${d.name}</td>
-          <td>${d.email}</td>
-          <td>₹${d.amount}</td>
-          <td>${d.txnId}</td>
-          <td>${new Date(d.timestamp).toLocaleString()}</td>`;
-        tbody.appendChild(tr);
+          <td>${d.name || "—"}</td>
+          <td>${d.email || "—"}</td>
+          <td>₹${d.amount || 0}</td>
+          <td>${txn}</td>
+          <td>${time}</td>
+        `;
+        donationsTable.appendChild(tr);
       });
-      document.getElementById("total-raised").textContent = "₹" + total;
-      document.getElementById("progress-bar").style.width =
-        Math.min((total / 20000) * 100, 100) + "%";
+
+      // Update total raised
+      totalRaisedDisplay.textContent = `₹${total.toLocaleString()}`;
+
+      // Update progress bar
+      const goal = 20000;
+      const percent = Math.min((total / goal) * 100, 100);
+      progressBar.style.width = percent + "%";
     });
 }
-
-// footer
-document.getElementById("footer").innerHTML =
-  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
