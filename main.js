@@ -1,4 +1,4 @@
-// ✅ Use Firebase 8 syntax for GitHub Pages (no module imports)
+// ✅ Firebase config (safe client keys)
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -8,7 +8,7 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
+// Initialize Firebase (v8 syntax)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -22,29 +22,30 @@ const upiDisplay = document.getElementById("upi-display");
 const upiText = document.getElementById("upi-text");
 const qrCanvas = document.getElementById("upi-qr");
 
-// Update progress bar
+// ✅ Function to update progress bar and total
 async function updateProgress() {
   try {
     const snapshot = await db.collection("ComicProjectDonations").get();
     let total = 0;
     snapshot.forEach((doc) => {
-      const amt = parseInt(doc.data().amount) || 0;
-      total += amt;
+      const data = doc.data();
+      total += Number(data.amount) || 0;
     });
     const percent = Math.min((total / goalAmount) * 100, 100);
     progressBar.style.width = `${percent}%`;
     raisedAmount.innerText = `Raised: ₹${total} / ₹${goalAmount}`;
-  } catch (e) {
-    console.error("Progress update error", e);
+  } catch (error) {
+    console.error("Progress update failed:", error);
   }
 }
 
-// Handle payment option
+// ✅ Show QR or UPI ID when user selects payment method
 document.getElementById("payment-option").addEventListener("change", (e) => {
   const option = e.target.value;
   const amount = document.getElementById("amount").value.trim();
+
   if (!amount || amount <= 0) {
-    alert("Please enter a valid amount first.");
+    alert("Please enter a valid amount before selecting payment method.");
     e.target.value = "";
     return;
   }
@@ -66,20 +67,21 @@ document.getElementById("payment-option").addEventListener("change", (e) => {
   }
 });
 
-// Submit form
+// ✅ Handle form submission
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
-  const amount = parseInt(document.getElementById("amount").value);
+  const amount = parseFloat(document.getElementById("amount").value);
   const txnId = document.getElementById("txnId").value.trim();
 
   if (!name || !email || !amount || !txnId) {
-    alert("Please fill all fields correctly!");
+    alert("Please fill all fields correctly before submitting.");
     return;
   }
 
+  // Format date for India
   const now = new Date();
   const formattedDate = now.toLocaleString("en-IN", {
     day: "2-digit",
@@ -88,7 +90,7 @@ form.addEventListener("submit", async (e) => {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
-    timeZone: "Asia/Kolkata"
+    timeZone: "Asia/Kolkata",
   });
 
   try {
@@ -98,7 +100,7 @@ form.addEventListener("submit", async (e) => {
       amount,
       txnId,
       date: formattedDate,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
     alert("🎉 Thank you for your contribution!");
@@ -106,14 +108,14 @@ form.addEventListener("submit", async (e) => {
     upiDisplay.classList.add("hidden");
     updateProgress();
   } catch (error) {
-    console.error("Donation error:", error);
-    alert("Error submitting donation. Please try again!");
+    console.error("Error adding donation:", error);
+    alert("Error submitting donation. Please try again.");
   }
 });
 
-// Footer auto year
+// ✅ Footer auto-year
 document.getElementById("footer").innerHTML =
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-// Initialize
+// ✅ Initialize
 updateProgress();
