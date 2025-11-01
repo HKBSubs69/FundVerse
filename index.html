@@ -5,23 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
+
+  <!-- Firebase & EmailJS -->
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
+
 <body>
+  <!-- Header -->
   <header>
     <h1 class="glow">FundVerse</h1>
     <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
     <p class="tagline">Empowering Dreams. One Step at a Time.</p>
   </header>
 
+  <!-- Progress Section -->
   <section class="progress-section">
-<p id="debug"></p>
     <div class="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
     <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
   </section>
 
+  <!-- Donation Form -->
   <section class="donation-section">
     <h2>Support the Project</h2>
     <form id="donationForm">
@@ -36,6 +43,7 @@
         <option value="upi-qr">UPI QR</option>
       </select>
 
+      <!-- Dynamic UPI Display -->
       <div id="upi-display" class="hidden">
         <p id="upi-text" class="clickable"></p>
         <canvas id="upi-qr"></canvas>
@@ -52,20 +60,18 @@
     </form>
   </section>
 
+  <!-- Contact Section -->
   <section class="contact-section">
     <h3>Contact Us</h3>
     <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
   </section>
 
+  <!-- Footer -->
   <footer id="footer"></footer>
 
-  <!-- QR Code Generator -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
-  <!-- Firebase + Donation Logic -->
-  <script type="module" src="main.js"></script>
-
-  <!-- reCAPTCHA -->
+  <script src="main.js" type="module"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
