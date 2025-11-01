@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Firestore Test</title></head>
+<body>
+<h3>Testing Firestore Connection…</h3>
+<pre id="out"></pre>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
+  authDomain: "fundverse-f3b0c.firebaseapp.com",
+  projectId: "fundverse-f3b0c",
+});
+const db = getFirestore(app);
+
+(async () => {
+  const out = document.getElementById("out");
+  try {
+    out.textContent = "Connecting…";
+    const snap = await getDocs(collection(db, "ComicProjectDonations"));
+    out.textContent = "Docs found: " + snap.size + "\n\n";
+    snap.forEach(d => out.textContent += JSON.stringify(d.data(), null, 2) + "\n\n");
+  } catch (e) {
+    out.textContent = "❌ " + e.message;
+  }
+})();
+</script>
+</body>
+</html>
