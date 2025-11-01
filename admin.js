@@ -1,83 +1,70 @@
-// ===========================
-// FundVerse Admin Panel (FINAL FIXED)
-// ===========================
+// ---------------------------
+// FundVerse Admin Dashboard
+// ---------------------------
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCw6vmrE7F1-sZmfY4_LFHDyEEcvZp4TQE",
-  authDomain: "fundverse-app.firebaseapp.com",
-  projectId: "fundverse-app",
-  storageBucket: "fundverse-app.appspot.com",
-  messagingSenderId: "1072202828884",
-  appId: "1:1072202828884:web:12828d1f96ed6bdf4eec82"
+  apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
+  authDomain: "fundverse-f3b0c.firebaseapp.com",
+  projectId: "fundverse-f3b0c",
+  storageBucket: "fundverse-f3b0c.firebasestorage.app",
+  messagingSenderId: "125480706897",
+  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-// Elements
-const donationTable = document.getElementById("donation-table");
-const totalRaisedElem = document.getElementById("total-raised");
-const progressBar = document.querySelector(".progress-bar-fill");
 const logoutBtn = document.getElementById("logout-btn");
+const donationTable = document.getElementById("donations-table");
+const totalRaised = document.getElementById("total-raised");
+const goalBar = document.getElementById("goal-bar");
+
 const GOAL_AMOUNT = 20000;
 
-// Load donations live
-function loadDonations() {
-  db.collection("ComicProjectDonations").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    donationTable.innerHTML = "";
-    let total = 0;
+// ---------------------------
+// Fetch & Display Donations
+// ---------------------------
+async function loadDonations() {
+  donationTable.innerHTML = "";
+  let total = 0;
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const name = data.name || "N/A";
-      const email = data.email || "N/A";
-      const amount = Number(data.amount) || 0;
-      const txnId = data.txnID || "Not Provided";
+  const snapshot = await db.collection("ComicProjectDonations").get();
+  snapshot.forEach((doc) => {
+    const d = doc.data();
+    total += parseFloat(d.amount) || 0;
 
-      let formattedDate = "Invalid Date";
-      if (data.timestamp && data.timestamp.toDate) {
-        const dateObj = data.timestamp.toDate();
-        formattedDate = dateObj.toLocaleString("en-IN", {
-          timeZone: "Asia/Kolkata",
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true
-        });
-      }
+    const row = document.createElement("tr");
+    const timestamp = d.timestamp
+      ? new Date(d.timestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+      : "Invalid Date";
 
-      total += amount;
-
-      donationTable.innerHTML += `
-        <tr>
-          <td>${name}</td>
-          <td>${email}</td>
-          <td>₹${amount}</td>
-          <td>${txnId}</td>
-          <td>${formattedDate}</td>
-        </tr>
-      `;
-    });
-
-    totalRaisedElem.textContent = `₹${total.toLocaleString()}`;
-    const progressPercent = Math.min((total / GOAL_AMOUNT) * 100, 100);
-    progressBar.style.width = `${progressPercent}%`;
-    progressBar.setAttribute("aria-valuenow", progressPercent);
+    row.innerHTML = `
+      <td>${d.name}</td>
+      <td>${d.email}</td>
+      <td>₹${d.amount}</td>
+      <td>${d.txnID || "N/A"}</td>
+      <td>${timestamp}</td>
+    `;
+    donationTable.appendChild(row);
   });
+
+  const percent = Math.min((total / GOAL_AMOUNT) * 100, 100).toFixed(1);
+  goalBar.style.width = `${percent}%`;
+  totalRaised.textContent = `₹${total}`;
 }
 
-// Logout (if Auth enabled)
+auth.onAuthStateChanged((user) => {
+  if (user) loadDonations();
+  else window.location.href = "login.html";
+});
+
+// ---------------------------
+// Logout
+// ---------------------------
 logoutBtn.addEventListener("click", () => {
-  firebase.auth().signOut().then(() => {
-    window.location.href = "index.html";
-  }).catch(err => console.error(err));
+  auth.signOut().then(() => (window.location.href = "login.html"));
 });
 
 // Auto Year
-document.getElementById("year").textContent = new Date().getFullYear();
-
-// Init
-loadDonations();
+document.getElementById("autoYear").textContent = new Date().getFullYear();
