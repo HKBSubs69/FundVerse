@@ -1,104 +1,86 @@
-// -----------------------------
-// FundVerse Admin Panel Script (FINAL FIXED VERSION)
-// -----------------------------
+// FundVerse Admin Panel (FINAL)
+// Shows live donations, totals, and supports secure Firebase integration
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
-  authDomain: "fundverse-f3b0c.firebaseapp.com",
-  projectId: "fundverse-f3b0c",
-  storageBucket: "fundverse-f3b0c.firebasestorage.app",
-  messagingSenderId: "125480706897",
-  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
+  apiKey: "AIzaSyCw6vmrE7F1-sZmfY4_LFHDyEEcvZp4TQE",
+  authDomain: "fundverse-app.firebaseapp.com",
+  projectId: "fundverse-app",
+  storageBucket: "fundverse-app.appspot.com",
+  messagingSenderId: "1072202828884",
+  appId: "1:1072202828884:web:12828d1f96ed6bdf4eec82"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Elements
-const loginSection = document.getElementById("login-section");
-const dashboard = document.getElementById("dashboard");
-const emailField = document.getElementById("admin-email");
-const passField = document.getElementById("admin-password");
-const loginBtn = document.getElementById("login-btn");
+const donationTable = document.getElementById("donation-table");
+const totalRaisedElem = document.getElementById("total-raised");
+const progressBar = document.querySelector(".progress-bar-fill");
 const logoutBtn = document.getElementById("logout-btn");
-const errorMsg = document.getElementById("login-error");
-const donationsTable = document.getElementById("donations-table");
-const totalRaisedDisplay = document.getElementById("total-raised");
-const progressBar = document.getElementById("progress-bar");
 
-// Login
-loginBtn.addEventListener("click", async () => {
-  const email = emailField.value.trim();
-  const password = passField.value.trim();
-  if (!email || !password) {
-    errorMsg.textContent = "Please enter both email and password.";
-    return;
-  }
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-    errorMsg.textContent = "";
-  } catch (err) {
-    errorMsg.textContent = "❌ " + err.message;
-  }
-});
+// Project goal
+const GOAL_AMOUNT = 20000;
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    loginSection.style.display = "none";
-    dashboard.style.display = "block";
-    loadDonations();
-  } else {
-    loginSection.style.display = "block";
-    dashboard.style.display = "none";
-  }
-});
-
-logoutBtn.addEventListener("click", () => auth.signOut());
-
-// Helper function for Indian Time
-function formatIST(timestamp) {
-  if (!timestamp || !timestamp.seconds) return "—";
-  const date = new Date(timestamp.seconds * 1000);
-  return date.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  }) + " (IST)";
-}
-
-// Fetch donations
+// Fetch Donations
 function loadDonations() {
-  db.collection("ComicProjectDonations")
-    .orderBy("timestamp", "desc")
-    .onSnapshot(snapshot => {
-      let total = 0;
-      donationsTable.innerHTML = "";
+  db.collection("ComicProjectDonations").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    let total = 0;
+    donationTable.innerHTML = "";
 
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        const txn = d.txnId || "—";
-        const time = formatIST(d.timestamp);
-        total += Number(d.amount) || 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const name = data.name || "N/A";
+      const email = data.email || "N/A";
+      const amount = Number(data.amount) || 0;
+      const txnId = data.txnId || "N/A";
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${d.name || "—"}</td>
-          <td>${d.email || "—"}</td>
-          <td>₹${d.amount || 0}</td>
-          <td>${txn}</td>
-          <td>${time}</td>
-        `;
-        donationsTable.appendChild(tr);
-      });
+      let formattedDate = "Invalid Date";
+      if (data.timestamp && data.timestamp.toDate) {
+        const dateObj = data.timestamp.toDate();
+        formattedDate = dateObj.toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+      }
 
-      totalRaisedDisplay.textContent = `₹${total.toLocaleString()}`;
-      const goal = 20000;
-      const percent = Math.min((total / goal) * 100, 100);
-      progressBar.style.width = percent + "%";
+      total += amount;
+
+      const row = `
+        <tr>
+          <td>${name}</td>
+          <td>${email}</td>
+          <td>₹${amount}</td>
+          <td>${txnId}</td>
+          <td>${formattedDate}</td>
+        </tr>
+      `;
+      donationTable.innerHTML += row;
     });
+
+    totalRaisedElem.textContent = `₹${total.toLocaleString()}`;
+    const progress = Math.min((total / GOAL_AMOUNT) * 100, 100);
+    progressBar.style.width = `${progress}%`;
+  });
 }
+
+// Logout (if Firebase Auth is used)
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    firebase.auth().signOut().then(() => {
+      window.location.href = "index.html";
+    }).catch(err => console.error(err));
+  });
+}
+
+// Auto Year Footer
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// Initialize
+loadDonations();
