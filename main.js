@@ -1,5 +1,4 @@
-// main.js — final fixed (module style)
-// this file expects index.html to include: <script type="module" src="main.js" defer></script>
+// main.js — FundVerse Final Secure Version (with dynamic QR + live progress + reCAPTCHA)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
@@ -7,11 +6,10 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  onSnapshot,
-  query,
-  orderBy
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// --- FIREBASE CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -20,143 +18,102 @@ const firebaseConfig = {
   messagingSenderId: "125480706897",
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const collRef = collection(db, "ComicProjectDonations");
 
-// DOM
-const donationForm = document.getElementById("donationForm");
+// --- DOM REFERENCES ---
+const form = document.getElementById("donationForm");
+const nameInput = document.getElementById("name");
+const emailInput = document.getElementById("email");
 const amountInput = document.getElementById("amount");
+const txnInput = document.getElementById("txnId");
 const paymentOption = document.getElementById("paymentOption");
 const upiDetails = document.getElementById("upiDetails");
-const upiText = document.getElementById("upiText");
-const qrCanvasOrImage = document.getElementById("qrCanvas"); // canvas element exists in your HTML
 const raisedAmount = document.getElementById("raisedAmount");
 const progressBar = document.getElementById("progressBar");
 
-// Use your UPI ID
-const UPI_ID = "7079441779@ikwik";
+// --- CONSTANTS ---
 const GOAL = 20000;
+const UPI_ID = "7079441779@ikwik";
+const UPI_NAME = "FundVerse";
 
-// helper to create upi link
-function makeUpiLink(amount) {
-  const pa = encodeURIComponent(UPI_ID);
-  const pn = encodeURIComponent("FundVerse");
-  const am = encodeURIComponent(amount);
-  // standard UPI deep link
-  return `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR`;
-}
-
-// Show QR or UPI ID
+// --- DYNAMIC QR + ID DISPLAY ---
 paymentOption.addEventListener("change", () => {
-  const sel = paymentOption.value;
-  const amt = (amountInput.value && Number(amountInput.value)) ? amountInput.value : 0;
-  if (!sel) {
-    upiDetails.classList.add("hidden");
-    upiText.innerHTML = "";
-    if (qrCanvasOrImage) qrCanvasOrImage.classList.add("hidden");
+  const method = paymentOption.value;
+  const amount = Number(amountInput.value || 0);
+  if (!method) {
+    upiDetails.innerHTML = "";
     return;
   }
 
-  const upiLink = makeUpiLink(amt);
+  const upiLink = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${encodeURIComponent(amount)}&cu=INR`;
 
-  if (sel === "upiID") {
-    upiDetails.classList.remove("hidden");
-    if (qrCanvasOrImage) qrCanvasOrImage.classList.add("hidden");
-    upiText.innerHTML = `<strong>UPI ID:</strong> <span style="color:var(--accent)">${UPI_ID}</span><br>
-      <button id="openUpiBtn" style="margin-top:10px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer">
-        Open UPI App
-      </button>`;
-    // attach click to open deep link
-    setTimeout(() => {
-      const btn = document.getElementById("openUpiBtn");
-      if (btn) btn.onclick = () => { window.location.href = upiLink; };
-    }, 50);
-  } else if (sel === "upiQR") {
-    upiDetails.classList.remove("hidden");
-    upiText.textContent = "Scan this QR to Pay:";
-    // create QR via QRServer (simple image)
-    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
-    if (qrCanvasOrImage) {
-      qrCanvasOrImage.classList.remove("hidden");
-      // if canvas exists, replace it with an image for simplicity
-      // ensure we have an <img id="qrImage"> inside upiDetails
-      let img = document.getElementById("qrImage");
-      if (!img) {
-        img = document.createElement("img");
-        img.id = "qrImage";
-        img.style.width = "220px";
-        img.style.height = "220px";
-        img.style.borderRadius = "12px";
-        img.style.marginTop = "10px";
-        img.alt = "QR Code";
-        // append to upiDetails after upiText
-        upiDetails.appendChild(img);
-      }
-      img.src = qrURL;
-    }
+  if (method === "upiID") {
+    upiDetails.innerHTML = `
+      <p><strong>UPI ID:</strong> ${UPI_ID}</p>
+      <p>Tap below to open your UPI app with the amount prefilled.</p>
+      <button id="openUpiBtn" style="background:#ff2e2e;color:#fff;border:none;border-radius:10px;padding:10px 14px;margin-top:6px;cursor:pointer">Open UPI App</button>
+      <p class="hint">After payment, enter your Transaction ID below.</p>
+    `;
+    document.getElementById("openUpiBtn").onclick = () => { window.location.href = upiLink; };
+  }
+
+  if (method === "upiQR") {
+    const qrURL = `https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl=${encodeURIComponent(upiLink)}`;
+    upiDetails.innerHTML = `
+      <p>Scan this QR to pay via any UPI app:</p>
+      <img src="${qrURL}" alt="UPI QR" style="width:220px;height:220px;border-radius:12px;margin:8px auto;display:block;background:#fff;padding:6px">
+      <p class="hint">After payment, check your app’s payment history and paste the Transaction ID below.</p>
+    `;
   }
 });
 
+// --- reCAPTCHA ---
+let recaptchaVerified = false;
+window.onRecaptchaSuccess = function () {
+  recaptchaVerified = true;
+};
 
-// Submit donation
-donationForm.addEventListener("submit", async (e) => {
+// --- FORM SUBMIT ---
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = (donationForm.name.value || "").trim();
-  const email = (donationForm.email.value || "").trim();
-  const amount = Number(donationForm.amount.value || 0);
-  const txn = (donationForm.txnId.value || "").trim();
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+  const amount = Number(amountInput.value);
+  const txn = txnInput.value.trim();
 
   if (!name || !email || !amount || !txn) {
-    alert("Please fill all fields (name, email, amount, transaction id).");
+    alert("Please fill all fields and Transaction ID after payment.");
+    return;
+  }
+
+  if (!recaptchaVerified) {
+    alert("Please verify reCAPTCHA before submitting.");
     return;
   }
 
   try {
-    // Save with server timestamp
-    await addDoc(collRef, {
-      name,
-      email,
-      amount,
-      txnID: txn,
-      timestamp: serverTimestamp()
+    await addDoc(collection(db, "ComicProjectDonations"), {
+      name, email, amount, txnID: txn, timestamp: serverTimestamp()
     });
-
-    alert("Thank you — donation recorded. You can now share the page.");
-    donationForm.reset();
-    upiDetails.classList.add("hidden");
-    const img = document.getElementById("qrImage");
-    if (img) img.remove();
+    alert("✅ Thank you! Your donation was recorded successfully.");
+    form.reset();
+    upiDetails.innerHTML = "";
+    grecaptcha.reset();
+    recaptchaVerified = false;
   } catch (err) {
     console.error("Error saving donation:", err);
-    alert("Error saving donation — try again later.");
+    alert("Something went wrong. Try again later.");
   }
 });
 
-
-// Live progress using onSnapshot
-const q = query(collRef, orderBy("timestamp", "desc"));
-onSnapshot(q, (snap) => {
+// --- LIVE PROGRESS BAR ---
+onSnapshot(collection(db, "ComicProjectDonations"), (snapshot) => {
   let total = 0;
-  snap.forEach(doc => {
-    const d = doc.data();
-    total += Number(d.amount) || 0;
-  });
-
-  // update raised text and progress
+  snapshot.forEach(doc => total += Number(doc.data().amount) || 0);
   raisedAmount.textContent = `Raised: ₹${total.toLocaleString()} / ₹${GOAL.toLocaleString()}`;
-
-  // if progressBar is <progress> element, set value attribute
-  if (progressBar) {
-    // if it's a <progress> element
-    if (progressBar.tagName && progressBar.tagName.toLowerCase() === "progress") {
-      progressBar.value = Math.min(total, GOAL);
-      progressBar.max = GOAL;
-    } else {
-      // fallback: a div-based bar
-      progressBar.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
-    }
-  }
+  const progress = Math.min((total / GOAL) * 100, 100);
+  progressBar.value = total;
+  progressBar.max = GOAL;
 });
