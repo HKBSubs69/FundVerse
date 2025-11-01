@@ -1,108 +1,82 @@
 body {
-  background: #0d0d0d;
+  font-family: 'Poppins', sans-serif;
+  background-color: #0d0d0d;
   color: white;
-  font-family: "Poppins", sans-serif;
-  text-align: center;
   margin: 0;
-  padding: 0;
+  text-align: center;
 }
 
-header {
-  padding: 20px 10px;
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.glow {
-  color: #ff1e1e;
-  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
-  font-size: 2em;
+.title {
+  font-size: 2.5rem;
+  color: #ff2e2e;
+  text-shadow: 0 0 10px red;
 }
 
 .subtitle {
-  color: #ff7676;
-  font-weight: bold;
+  color: #ff8080;
 }
 
-.tagline {
-  font-style: italic;
-  color: #ccc;
-  margin-bottom: 15px;
+.progress-container {
+  margin: 15px 0;
 }
 
-.progress-bar-container {
-  background: #222;
-  border-radius: 20px;
-  height: 20px;
-  margin: 10px auto;
-  width: 80%;
+progress {
+  width: 100%;
+  height: 12px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-#progress-bar {
-  background: #ff3131;
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
+progress::-webkit-progress-bar {
+  background: #333;
 }
 
-#raised-amount {
-  color: #ff4040;
-  margin-bottom: 20px;
-}
-
-.donation-section {
-  background: #111;
-  padding: 20px;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #ff1e1e44;
+progress::-webkit-progress-value {
+  background: #ff2e2e;
 }
 
 input, select, button {
-  width: 90%;
-  padding: 10px;
+  display: block;
+  width: 100%;
   margin: 8px 0;
+  padding: 10px;
   border-radius: 8px;
   border: none;
-  font-size: 1em;
-}
-
-input, select {
-  background: #222;
-  color: #fff;
+  font-size: 1rem;
 }
 
 button {
-  background: #ff1e1e;
+  background-color: #ff2e2e;
   color: white;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
 }
 
 button:hover {
-  background: #ff5050;
+  background-color: #ff4d4d;
+}
+
+footer {
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+a {
+  color: #007bff;
 }
 
 .hidden {
   display: none;
 }
 
-.clickable {
-  color: #ff4040;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-footer {
-  background: #111;
-  color: #bbb;
-  font-size: 0.85em;
-  padding: 15px;
-  margin-top: 30px;
-}
-
-.contact-section {
-  background: #0f0f0f;
-  padding: 15px;
-  border-top: 2px solid #ff1e1e33;
+#qrCanvas {
+  margin: 10px auto;
+  display: block;
 }
