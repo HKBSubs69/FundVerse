@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FundVerse | Comic Project</title>
 
   <link rel="stylesheet" href="main.css" />
+
+  <!-- Firebase v8 (non-module, works on GitHub Pages) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <!-- QRCode lib (used to draw dynamic QR on canvas) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+  <!-- EmailJS (if you use it later) -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
+
+  <!-- reCAPTCHA script (optional) -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-
 <body>
-  <!-- Loader -->
+
+  <!-- Loader (shows 1-2s then shows site) -->
   <div id="loader" class="loader">
     <div class="spinner"></div>
-    <p>✨ Fetching the latest stories of generosity...</p>
+    <p id="loader-text">✨ Fetching the latest stories of generosity...</p>
   </div>
 
-  <!-- Main Site -->
+  <!-- Main content (hidden while loader) -->
   <main id="main-content" class="hidden">
     <header>
       <h1 class="glow">FundVerse</h1>
@@ -40,7 +48,7 @@
       <form id="donationForm">
         <input type="text" id="name" placeholder="Full Name" required />
         <input type="email" id="email" placeholder="Email Address" required />
-        <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
+        <input type="number" id="amount" placeholder="Donation Amount (₹)" min="1" required />
 
         <label for="payment-option">Payment Option</label>
         <select id="payment-option" required>
@@ -51,15 +59,17 @@
 
         <div id="upi-display" class="hidden">
           <p id="upi-text" class="clickable"></p>
-          <canvas id="upi-qr"></canvas>
+          <canvas id="upi-qr" width="220" height="220"></canvas>
         </div>
 
         <label for="txnId">Transaction ID (After Payment)</label>
         <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
-        <small>💡 Find your Transaction ID in your UPI payment history</small>
+        <small id="txn-hint">💡 Find your Transaction ID in your UPI payment history</small>
 
-        <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
-        <button type="submit">Contribute</button>
+        <!-- Optional reCAPTCHA placeholder (you registered a key earlier) -->
+        <div id="recaptcha" class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+
+        <button id="donate-btn" type="submit">Contribute</button>
       </form>
     </section>
 
@@ -71,6 +81,7 @@
     <footer id="footer"></footer>
   </main>
 
+  <!-- main.js (non-module) -->
   <script src="main.js"></script>
 </body>
 </html>
