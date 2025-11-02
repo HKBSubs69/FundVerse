@@ -1,35 +1,34 @@
-/* ---------- Global ---------- */
+/* --- Global Styles --- */
 body {
-  background: #0d0d0d;
-  color: white;
-  font-family: "Poppins", sans-serif;
-  text-align: center;
   margin: 0;
   padding: 0;
+  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+  background-color: #000;
+  color: #fff;
+  overflow-x: hidden;
 }
 
-/* ---------- Loader Section ---------- */
-.loader {
+/* --- Loader Section --- */
+#loader {
   position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #000;
-  color: white;
+  background-color: #000;
   z-index: 9999;
-  text-align: center;
-  animation: fadeIn 1s ease;
+  transition: opacity 1s ease;
 }
 
 .spinner {
-  border: 5px solid #222;
-  border-top: 5px solid #ff1e1e;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #ff3b3b;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   animation: spin 1s linear infinite;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -39,16 +38,15 @@ body {
 }
 
 #loading-text {
-  margin-top: 20px;
-  font-size: 1.1em;
-  font-family: "Montserrat", sans-serif;
-  color: #ff4040;
-  line-height: 1.4;
-  width: 80%;
-  max-width: 350px;
+  color: #ff3b3b;
+  font-size: 1rem;
   text-align: center;
-  animation: fadeIn 1.2s ease-in-out;
-  white-space: pre-wrap; /* allows multi-line */
+  line-height: 1.5;
+  max-width: 90%;
+  word-wrap: break-word;
+  letter-spacing: 0.5px;
+  white-space: pre-wrap;
+  animation: fadeIn 0.8s ease;
 }
 
 @keyframes fadeIn {
@@ -60,116 +58,85 @@ body {
   }
 }
 
-/* ---------- Header ---------- */
-header {
-  padding: 20px 10px;
+/* --- Main Content (hidden initially) --- */
+.hidden {
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
-.glow {
-  color: #ff1e1e;
-  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
-  font-size: 2em;
+/* --- Progress Bar Section --- */
+.progress-section {
+  width: 90%;
+  max-width: 500px;
+  margin: 30px auto;
+  text-align: center;
 }
 
-.subtitle {
-  color: #ff7676;
-  font-weight: bold;
-}
-
-.tagline {
-  font-style: italic;
-  color: #ccc;
-  margin-bottom: 15px;
-}
-
-/* ---------- Progress Bar ---------- */
 .progress-bar-container {
-  width: 100%;
-  height: 15px;
-  background-color: #222;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   overflow: hidden;
+  height: 12px;
+  margin-top: 10px;
 }
 
 #progress-bar {
   height: 100%;
+  background: linear-gradient(90deg, #ff3b3b, #ff7a7a);
   width: 0%;
-  background: linear-gradient(90deg, #ff0000, #ff5555);
-  transition: width 0.3s ease;
+  transition: width 0.8s ease-in-out;
 }
 
-#raised-amount {
-  color: #ff4040;
-  margin-bottom: 20px;
-}
-
-/* ---------- Donation Section ---------- */
-.donation-section {
-  background: #111;
-  padding: 20px;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #ff1e1e44;
-}
-
+/* --- Buttons & Inputs --- */
+button,
 input,
-select,
-button {
-  width: 90%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
+select {
+  font-family: "Poppins", sans-serif;
+  outline: none;
   border: none;
-  font-size: 1em;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: 0.3s ease;
+}
+
+button {
+  background: #ff3b3b;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #ff5555;
 }
 
 input,
 select {
-  background: #222;
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-button {
-  background: #ff1e1e;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
-button:hover {
-  background: #ff5050;
+/* --- Responsive Typography --- */
+@media (max-width: 600px) {
+  #loading-text {
+    font-size: 0.9rem;
+    padding: 0 15px;
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
 }
 
-.hidden {
-  display: none;
-}
-
-.clickable {
-  color: #ff4040;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* ---------- Footer ---------- */
+/* --- Footer --- */
 footer {
-  background: #111;
-  color: #bbb;
-  font-size: 0.85em;
-  padding: 15px;
-  margin-top: 30px;
-}
-
-/* ---------- Contact Section ---------- */
-.contact-section {
-  background: #0f0f0f;
-  padding: 15px;
-  border-top: 2px solid #ff1e1e33;
-}
-
-/* ---------- Smooth Transition ---------- */
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.8s ease;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 40px;
 }
