@@ -8,7 +8,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// --- Firebase Configuration ---
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -18,7 +18,7 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
 };
 
-// --- Initialize Firebase & Firestore ---
+// --- Initialize Firebase ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -26,53 +26,49 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-// --- Creative loading lines ---
-const loadingLines = [
+// --- Loader Lines ---
+const lines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
   "Together, we make imagination real.",
   "Fueling art, passion, and purpose — one donation at a time.",
 ];
 
-// --- Single Line Typing Effect ---
-function showLoadingLine() {
-  const textElement = document.getElementById("loading-text");
-  if (!textElement) return;
+// --- Show Random Line Once ---
+function showLoading() {
+  const loader = document.getElementById("loader");
+  const textEl = document.getElementById("loading-text");
+  const main = document.getElementById("main-content");
 
-  const randomLine = loadingLines[Math.floor(Math.random() * loadingLines.length)];
+  const line = lines[Math.floor(Math.random() * lines.length)];
   let i = 0;
 
-  function typeChar() {
-    if (i < randomLine.length) {
-      textElement.textContent += randomLine.charAt(i);
+  function type() {
+    if (i < line.length) {
+      textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(typeChar, 40);
+      setTimeout(type, 40);
     } else {
-      // After typing is complete, show main site
+      // Done typing, wait then show main
       setTimeout(() => {
-        const loader = document.querySelector(".loader");
-        const main = document.getElementById("main-content");
-
-        loader.style.transition = "opacity 0.6s ease";
         loader.style.opacity = "0";
-
+        loader.style.transition = "opacity 0.8s ease";
         setTimeout(() => {
           loader.style.display = "none";
           main.classList.remove("hidden");
           main.style.opacity = "1";
-        }, 600);
-      }, 1200);
+        }, 800);
+      }, 1000);
     }
   }
 
-  typeChar();
+  type();
 }
 
-// --- Wait for DOM ---
+// --- Firestore Logic ---
 document.addEventListener("DOMContentLoaded", () => {
-  showLoadingLine();
+  showLoading();
 
-  // --- Firebase Logic ---
   const form = document.getElementById("donationForm");
   const progressBar = document.getElementById("progress-bar");
   const raisedAmount = document.getElementById("raised-amount");
@@ -88,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = doc.data();
         total += Number(data.amount) || 0;
       });
-
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
       raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
@@ -132,12 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const amount = parseFloat(document.getElementById("amount").value);
       const txnId = document.getElementById("txnId").value.trim();
-
       if (!name || !email || !amount || !txnId) {
         alert("Please fill all fields!");
         return;
@@ -163,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
           date: formattedDate,
           timestamp: serverTimestamp(),
         });
-
         alert("🎉 Thank you for your contribution!");
         form.reset();
         upiDisplay.classList.add("hidden");
@@ -176,9 +168,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const footer = document.getElementById("footer");
-  if (footer) {
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
-  }
+  if (footer)
+    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
 
   updateProgress();
 });
