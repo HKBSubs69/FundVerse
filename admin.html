@@ -17,7 +17,7 @@
   </div>
 
   <div class="container">
-    <!-- Login Section -->
+    <!-- Login -->
     <section id="login-section" class="card">
       <h1>FundVerse Admin Login</h1>
       <input type="email" id="admin-email" placeholder="Admin E-Mail" />
@@ -30,7 +30,10 @@
     <section id="dashboard" style="display:none;">
       <header class="header">
         <h1>FundVerse Dashboard</h1>
-        <button id="logout-btn" class="logout-btn">Logout</button>
+        <div class="header-actions">
+          <button id="download-btn" class="btn small">Download CSV</button>
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
       </header>
 
       <div class="summary">
@@ -44,7 +47,7 @@
       </div>
 
       <div class="controls">
-        <input type="text" id="searchBox" placeholder="Search by name, email, or txnID" />
+        <input type="text" id="searchBox" placeholder="Search name, e-mail, or txnID" />
         <select id="sortSelect">
           <option value="">Sort by</option>
           <option value="low">Amount: Low → High</option>
