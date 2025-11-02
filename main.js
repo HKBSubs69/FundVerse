@@ -1,5 +1,4 @@
-// main.js - final typing+loader fix + Firestore (v12 modular)
-// Replace entire file content with this code.
+// main.js - Stable final version (no emojis, mobile-safe, guaranteed loader finish)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
@@ -27,62 +26,36 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-/* ---------------- MESSAGES ---------------- */
+/* ---------------- LOADING TEXTS ---------------- */
 const messages = [
-  "💫 Making dreams possible, one donation at a time...",
-  "🎨 Empowering creativity — your support brings art to life!",
-  "🚀 Join the mission — every contribution fuels a new story!",
-  "❤️ Small acts of support build big dreams. Thank you!"
+  "Making dreams possible, one donation at a time...",
+  "Empowering creativity — your support brings stories to life.",
+  "Join the mission — every contribution fuels imagination.",
+  "Small acts of kindness build big dreams. Thank you for believing."
 ];
 
-/* ---------------- typingEffect helper ----------------
-   Returns a Promise that resolves when typing completes.
-   Accepts element, text, speed (ms per char).
-*/
-function typingEffectPromise(el, text, speed = 45) {
+/* ---------------- Typing effect ---------------- */
+function typeText(el, text, speed = 35) {
   return new Promise((resolve) => {
-    if (!el) {
-      resolve(); // nothing to type into
-      return;
-    }
-
-    el.textContent = ""; // clear
-    // caret span (visual)
-    let caret = document.createElement("span");
-    caret.style.borderRight = "3px solid #ff7676";
-    caret.style.display = "inline-block";
-    caret.style.width = "6px";
-    caret.style.marginLeft = "6px";
-    el.appendChild(caret);
-
+    if (!el) return resolve();
+    el.textContent = "";
     let i = 0;
     const timer = setInterval(() => {
-      if (i < text.length) {
-        // insert text before caret
-        const txtNode = document.createTextNode(text[i]);
-        el.insertBefore(txtNode, caret);
-        i++;
-      } else {
+      el.textContent = text.substring(0, i);
+      i++;
+      if (i > text.length) {
         clearInterval(timer);
-        // blink caret forever
-        let visible = true;
-        setInterval(() => {
-          caret.style.borderColor = visible ? "transparent" : "#ff7676";
-          visible = !visible;
-        }, 600);
         resolve();
       }
     }, speed);
   });
 }
 
-/* ---------------- DOM READY ---------------- */
+/* ---------------- MAIN SCRIPT ---------------- */
 document.addEventListener("DOMContentLoaded", async () => {
   const loader = document.getElementById("loader");
   const mainContent = document.getElementById("main-content");
   const loadingText = document.getElementById("loading-text");
-
-  // safe element refs
   const progressBar = document.getElementById("progress-bar");
   const raisedAmount = document.getElementById("raised-amount");
   const form = document.getElementById("donationForm");
@@ -92,133 +65,113 @@ document.addEventListener("DOMContentLoaded", async () => {
   const paymentOption = document.getElementById("payment-option");
   const footer = document.getElementById("footer");
 
-  // If critical elements are missing, proceed so page doesn't lock.
-  // Pick message
-  const msg = messages[Math.floor(Math.random() * messages.length)];
+  const message = messages[Math.floor(Math.random() * messages.length)];
 
-  // Kick off typing, but ensure we never hang: use Promise.race with fallback timeout
-  const typingPromise = typingEffectPromise(loadingText, msg, 45);
-  const fallbackTimeoutMs = 6000; // 6 seconds max typing wait
-  const typingDone = await Promise.race([
-    typingPromise,
-    new Promise((res) => setTimeout(res, fallbackTimeoutMs)),
+  // Typing effect with 5s fallback
+  await Promise.race([
+    typeText(loadingText, message, 35),
+    new Promise((res) => setTimeout(res, 5000)),
   ]);
 
-  // Now update progress and show main content
   async function updateProgress() {
-    if (!progressBar || !raisedAmount) return;
     try {
-      const snap = await getDocs(collection(db, "ComicProjectDonations"));
+      const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
       let total = 0;
-      snap.forEach((d) => {
-        const data = d.data();
+      snapshot.forEach((doc) => {
+        const data = doc.data();
         total += Number(data.amount) || 0;
       });
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
       raisedAmount.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${goalAmount.toLocaleString("en-IN")}`;
-    } catch (err) {
-      console.error("updateProgress error:", err);
+    } catch (error) {
+      console.error("Progress update failed:", error);
     }
   }
 
-  // After typing finishes (or fallback), call updateProgress then reveal page.
-  try {
-    await updateProgress();
-  } catch (err) {
-    console.error("progress update failed before reveal:", err);
-  }
+  await updateProgress();
 
-  // Reveal content (use small delay for smoothness)
+  // Hide loader after short delay
   setTimeout(() => {
-    if (loader) loader.style.display = "none";
-    if (mainContent) mainContent.classList.remove("hidden");
-  }, 300);
+    loader.style.display = "none";
+    mainContent.classList.remove("hidden");
+  }, 500);
 
-  /* ---------------- Payment option handling ---------------- */
+  /* ---------------- PAYMENT OPTIONS ---------------- */
   if (paymentOption) {
     paymentOption.addEventListener("change", (e) => {
       const option = e.target.value;
-      const amountVal = (document.getElementById("amount") || {}).value;
-      const amount = parseFloat(amountVal || 0);
+      const amount = parseFloat(document.getElementById("amount").value || 0);
       if (!amount || amount <= 0) {
         alert("Please enter a valid amount first.");
         e.target.value = "";
         return;
       }
-      if (upiDisplay) upiDisplay.classList.remove("hidden");
+
+      upiDisplay.classList.remove("hidden");
 
       if (option === "upi-id") {
-        if (upiText) upiText.textContent = upiID + " (tap to pay)";
-        if (qrCanvas) qrCanvas.style.display = "none";
-        if (upiText) upiText.onclick = () => {
-          const url = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent("FundVerse")}&am=${encodeURIComponent(amount)}&cu=INR`;
+        upiText.textContent = `${upiID} (tap to pay)`;
+        qrCanvas.style.display = "none";
+        upiText.onclick = () => {
+          const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
           window.location.href = url;
         };
       } else if (option === "upi-qr") {
-        if (upiText) upiText.textContent = "";
-        if (qrCanvas) {
-          qrCanvas.style.display = "block";
-          const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-          try {
-            QRCode.toCanvas(qrCanvas, qrData, { width: 220 });
-          } catch (err) {
-            console.error("QRCode error:", err);
-          }
-        }
+        upiText.textContent = "";
+        qrCanvas.style.display = "block";
+        const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+        QRCode.toCanvas(qrCanvas, qrData, { width: 220 });
       }
     });
   }
 
-  /* ---------------- Form submit ----------------
-     Stores txnID (exact field name) and formatted date
-  */
+  /* ---------------- FORM SUBMIT ---------------- */
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = (document.getElementById("name") || {}).value.trim();
-      const email = (document.getElementById("email") || {}).value.trim();
-      const amount = parseFloat((document.getElementById("amount") || {}).value || 0);
-      const txn = (document.getElementById("txnId") || {}).value.trim();
 
-      if (!name || !email || !amount || !txn) {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
+      const txnId = document.getElementById("txnId").value.trim();
+
+      if (!name || !email || !amount || !txnId) {
         alert("Please fill all fields!");
         return;
       }
 
       const now = new Date();
-      const options = {
-        day: "2-digit", month: "short", year: "numeric",
-        hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata"
-      };
-      let formatted = now.toLocaleString("en-IN", options);
-      // Ensure AM/PM uppercase
-      formatted = formatted.replace("am", "AM").replace("pm", "PM") + " (IST)";
+      const formattedDate = now.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
+      }).replace("am", "AM").replace("pm", "PM") + " (IST)";
 
       try {
         await addDoc(collection(db, "ComicProjectDonations"), {
           name,
           email,
           amount,
-          txnID: txn,     // store as txnID so admin can read it
-          date: formatted,
-          timestamp: serverTimestamp()
+          txnID: txnId,
+          date: formattedDate,
+          timestamp: serverTimestamp(),
         });
-        alert("🎉 Thank you for your contribution!");
+        alert("Thank you for your contribution!");
         form.reset();
-        if (upiDisplay) upiDisplay.classList.add("hidden");
-        // update progress after new donation
+        upiDisplay.classList.add("hidden");
         await updateProgress();
-      } catch (err) {
-        console.error("submit error:", err);
-        alert("Something went wrong while saving donation. Check console.");
+      } catch (error) {
+        console.error("Error adding donation:", error);
+        alert("Something went wrong. Try again!");
       }
     });
   }
 
-  /* ---------------- Footer auto-year ---------------- */
-  if (footer) {
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
-  }
-
-}); // end DOMContentLoaded
+  /* ---------------- FOOTER ---------------- */
+  footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
+});
