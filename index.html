@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
+  <!-- QR lib (global) — must load BEFORE main.js -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </head>
-
 <body>
-  <!-- Loader -->
+  <!-- Loader (visible first) -->
   <div id="loader" class="loader">
-    <div class="spinner"></div>
-    <p id="loading-text"></p>
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="loading-text" aria-live="polite"></p>
   </div>
 
-  <main id="main-content" class="hidden">
+  <!-- Main content (hidden until loader finishes) -->
+  <main id="main-content" class="hidden" role="main">
     <header>
       <h1 class="glow">FundVerse</h1>
       <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
       <p class="tagline">Empowering Dreams. One Step at a Time.</p>
     </header>
 
-    <section class="progress-section">
-      <div class="progress-bar-container">
-        <div id="progress-bar"></div>
+    <section class="progress-section" aria-label="progress">
+      <div class="progress-bar-container" aria-hidden="true">
+        <div id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
-      <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
+      <p id="raised-amount" aria-live="polite">Raised: ₹0 / ₹20,000</p>
     </section>
 
-    <section class="donation-section">
+    <section class="donation-section" aria-label="donation">
       <h2>Support the Project</h2>
-      <form id="donationForm">
+      <form id="donationForm" autocomplete="off" novalidate>
         <input type="text" id="name" placeholder="Full Name" required />
         <input type="email" id="email" placeholder="E-Mail Address" required />
-        <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
+        <input type="number" id="amount" placeholder="Donation Amount (₹)" required min="1" />
 
         <label for="payment-option">Payment Option</label>
         <select id="payment-option" required>
@@ -43,27 +44,32 @@
           <option value="upi-qr">UPI QR</option>
         </select>
 
-        <div id="upi-display" class="hidden">
-          <p id="upi-text" class="clickable"></p>
-          <canvas id="upi-qr"></canvas>
+        <div id="upi-display" class="hidden" aria-hidden="true">
+          <p id="upi-text" class="clickable" role="button" tabindex="0"></p>
+          <canvas id="upi-qr" width="220" height="220" style="display:none;"></canvas>
         </div>
 
         <label for="txnId">Transaction ID (After Payment)</label>
         <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
-        <small>💡 Find your Transaction ID in your UPI payment history</small>
+        <small id="txn-hint">Find your Transaction ID in your UPI payment history.</small>
 
-        <button type="submit">Contribute</button>
+        <!-- If you want reCAPTCHA, uncomment and include its script. For now it's optional. -->
+        <!-- <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div> -->
+
+        <button type="submit" id="contributeBtn">Contribute</button>
       </form>
     </section>
 
-    <section class="contact-section">
+    <section class="contact-section" aria-label="contact">
       <h3>Contact Us</h3>
-      <p><span class="email-label">E-Mail:</span> <a class="email-link" href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
+      <p><strong class="email-label">E-Mail:</strong>
+        <a class="email-link" href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
     </section>
 
-    <footer id="footer"></footer>
+    <footer id="footer" aria-label="footer"></footer>
   </main>
 
-  <script src="main.js" type="module"></script>
+  <!-- main.js must be module and loaded after QR lib -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
