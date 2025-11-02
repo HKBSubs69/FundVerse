@@ -1,109 +1,142 @@
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: #000;
-  color: white;
+/* main.css - FundVerse style (black + red) */
+:root {
+  --accent: #ff2a2a;
+  --accent-soft: #ff8080;
+  --bg: #000;
+  --panel: #111;
+  --muted: #ccc;
+}
+
+html,body {
   margin: 0;
-  text-align: center;
-}
-
-.glow {
-  font-size: 2.5rem;
+  padding: 0;
+  background: var(--bg);
   color: #fff;
-  text-shadow: 0 0 15px #ff0000;
+  font-family: "Poppins", sans-serif;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
-}
-
-.tagline {
-  font-size: 1rem;
-  color: #ff6666;
-}
-
-.progress-bar-container {
-  background: #333;
-  height: 20px;
-  width: 90%;
-  margin: 20px auto;
-  border-radius: 20px;
-}
-
-#progress-bar {
-  background: linear-gradient(90deg, #ff1a1a, #ff8080);
-  width: 0%;
-  height: 100%;
-  border-radius: 20px;
-  transition: width 0.5s ease;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px auto;
-}
-
-input, select, button {
-  width: 80%;
-  padding: 10px;
-  margin: 8px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-input, select {
-  background: #222;
-  color: white;
-}
-
-button {
-  background: #e60000;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #ff3333;
-}
-
-footer {
-  margin-top: 20px;
-  opacity: 0.8;
-  font-size: 0.9rem;
-}
-
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* Loader */
 .loader {
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background: #000;
-  color: #fff;
+  background: var(--bg);
+  text-align: center;
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #222;
-  border-top: 5px solid #ff0000;
+  width: 56px;
+  height: 56px;
+  border: 6px solid #222;
+  border-top: 6px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.loader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+/* Page layout */
+main {
+  padding: 28px 18px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* header */
+.glow {
+  font-size: 2.2rem;
+  color: #fff;
+  text-shadow: 0 0 14px var(--accent);
+  margin-bottom: 4px;
+}
+
+.subtitle { margin: 0; font-size: 1rem; color: #ddd; }
+.tagline { margin-top: 6px; color: var(--accent-soft); }
+
+/* Progress */
+.progress-bar-container {
+  background: #222;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 760px;
+  height: 18px;
+  margin: 18px auto;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  border-radius: 24px;
+  transition: width 0.6s ease;
+}
+
+#raised-amount { margin-top: 8px; color: #ddd; }
+
+/* Form */
+.donation-section {
+  margin-top: 22px;
+  background: var(--panel);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,0,0,0.08);
+}
+
+.donation-section h2 { color: var(--accent); margin-top: 0; }
+
+form { display: flex; flex-direction: column; align-items: center; }
+
+input, select, button {
+  width: 92%;
+  max-width: 600px;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+}
+
+input, select {
+  background: #1b1b1b;
+  color: #fff;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover { background: #ff5252; }
+
+/* UPI display */
+#upi-display { margin-top: 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#upi-text { background: #0f0f0f; padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,0,0,0.08); }
+#upi-qr { background: #fff; border-radius: 8px; }
+
+/* small text */
+small { color: #bbb; display: block; margin-top: 6px; }
+
+/* contact */
+.contact-section { margin-top: 18px; color: #ddd; }
+
+/* footer */
+footer { text-align: center; margin-top: 18px; color: var(--muted); font-size: 0.9rem; }
+
+/* responsive tweaks */
+@media (min-width: 760px) {
+  .donation-section { padding: 28px; }
+  form { align-items: center; }
 }
