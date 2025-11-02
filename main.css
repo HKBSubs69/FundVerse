@@ -1,107 +1,66 @@
 body {
-  background: #0d0d0d;
-  color: white;
-  font-family: "Poppins", sans-serif;
-  text-align: center;
   margin: 0;
-  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0b0b0b;
+  color: white;
+  text-align: center;
 }
 
-header {
-  padding: 20px 10px;
+/* Loader */
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #ff0000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.glow {
-  color: #ff1e1e;
-  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
-  font-size: 2em;
-}
+.hidden { display: none; }
 
-.subtitle {
-  color: #ff7676;
-  font-weight: bold;
-}
-
-.tagline {
-  font-style: italic;
-  color: #ccc;
-  margin-bottom: 15px;
-}
+.glow { color: #ff0000; text-shadow: 0 0 20px red; }
 
 .progress-bar-container {
-  width: 100%;
-  height: 15px;
-  background-color: #222;
+  width: 80%;
+  max-width: 400px;
+  height: 16px;
+  background: #222;
   border-radius: 10px;
+  margin: 10px auto;
   overflow: hidden;
 }
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #ff0000, #ff5555);
-  transition: width 0.3s ease;
-}
-
-#raised-amount {
-  color: #ff4040;
-  margin-bottom: 20px;
-}
-
-.donation-section {
-  background: #111;
-  padding: 20px;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #ff1e1e44;
-}
-
-input, select, button {
-  width: 90%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 1em;
-}
-
-input, select {
-  background: #222;
-  color: #fff;
+  background: linear-gradient(90deg, #ff0000, #ff5050);
+  transition: width 0.4s ease;
 }
 
 button {
-  background: #ff1e1e;
+  background: #e50914;
+  border: none;
   color: white;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  background: #ff5050;
-}
-
-.hidden {
-  display: none;
-}
-
-.clickable {
-  color: #ff4040;
-  text-decoration: underline;
+  padding: 10px 20px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 footer {
-  background: #111;
-  color: #bbb;
-  font-size: 0.85em;
-  padding: 15px;
-  margin-top: 30px;
-}
-
-.contact-section {
-  background: #0f0f0f;
-  padding: 15px;
-  border-top: 2px solid #ff1e1e33;
+  margin: 20px 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
 }
