@@ -1,186 +1,145 @@
-// --- Firebase v12 Modular SDK ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  serverTimestamp,
+import { 
+  getFirestore, collection, getDocs 
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { 
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
-// --- Firebase Config ---
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
   projectId: "fundverse-f3b0c",
   storageBucket: "fundverse-f3b0c.firebasestorage.app",
   messagingSenderId: "125480706897",
-  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
+  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// --- Initialize Firebase ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-// --- Constants ---
-const goalAmount = 20000;
-const upiID = "7079441779@ikwik";
+// Elements
+const loginSection = document.getElementById("login-section");
+const dashboard = document.getElementById("dashboard");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const loader = document.getElementById("loader");
+const donationsTable = document.getElementById("donations-table");
+const totalRaised = document.getElementById("total-raised");
+const progressBar = document.getElementById("progress-bar");
 
-// --- Loader Lines ---
-const lines = [
-  "Empowering creativity — your support brings stories to life.",
-  "Join the mission — every contribution fuels a dream.",
-  "Together, we make imagination real.",
-  "Fueling art, passion, and purpose — one donation at a time.",
-];
-
-// --- Show Random Line Once ---
-function showLoading() {
-  const loader = document.getElementById("loader");
-  const textEl = document.getElementById("loading-text");
-  const main = document.getElementById("main-content");
-
-  const line = lines[Math.floor(Math.random() * lines.length)];
-  let i = 0;
-
-  // Clear any old content before typing
-  textEl.textContent = "";
-
-  function type() {
-    if (i < line.length) {
-      textEl.textContent += line.charAt(i);
-      i++;
-      setTimeout(type, 80); // smooth, slower typing
-    } else {
-      // Wait a moment, then fade out the loader
-      setTimeout(() => {
-        loader.style.transition = "opacity 1s ease";
-        loader.style.opacity = "0";
-        setTimeout(() => {
-          loader.style.display = "none";
-          main.classList.remove("hidden");
-          main.style.opacity = "1";
-        }, 1000);
-      }, 1000);
-    }
-  }
-
-  type();
+// Loader Handling
+function showLoader() {
+  loader.style.display = "flex";
+  dashboard.style.display = "none";
+}
+function hideLoader() {
+  loader.style.display = "none";
+  dashboard.style.display = "block";
 }
 
-// --- Firestore Logic ---
-document.addEventListener("DOMContentLoaded", () => {
-  showLoading();
+// Auto Footer
+document.getElementById("footer").innerHTML =
+  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
 
-  const form = document.getElementById("donationForm");
-  const progressBar = document.getElementById("progress-bar");
-  const raisedAmount = document.getElementById("raised-amount");
-  const upiDisplay = document.getElementById("upi-display");
-  const upiText = document.getElementById("upi-text");
-  const qrCanvas = document.getElementById("upi-qr");
-
-  // --- Update Progress Function ---
-  async function updateProgress() {
-    try {
-      const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
-      let total = 0;
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        total += Number(data.amount) || 0;
-      });
-
-      const percent = Math.min((total / goalAmount) * 100, 100);
-      progressBar.style.width = `${percent}%`;
-      raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
-        "en-IN"
-      )} / ₹${goalAmount.toLocaleString("en-IN")}`;
-    } catch (error) {
-      console.error("Error updating progress:", error);
-    }
+// Login
+loginBtn.addEventListener("click", async () => {
+  const email = document.getElementById("admin-email").value.trim();
+  const password = document.getElementById("admin-password").value.trim();
+  const errorText = document.getElementById("login-error");
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorText.textContent = "Invalid credentials. Try again.";
   }
-
-  // --- Payment Option Handling ---
-  const paymentOption = document.getElementById("payment-option");
-  if (paymentOption) {
-    paymentOption.addEventListener("change", (e) => {
-      const option = e.target.value;
-      const amount = document.getElementById("amount").value.trim();
-
-      if (!amount || amount <= 0) {
-        alert("Please enter a valid amount first.");
-        e.target.value = "";
-        return;
-      }
-
-      upiDisplay.classList.remove("hidden");
-
-      if (option === "upi-id") {
-        upiText.textContent = upiID;
-        qrCanvas.classList.add("hidden");
-        upiText.onclick = () => {
-          const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-          window.location.href = url;
-        };
-      } else if (option === "upi-qr") {
-        upiText.textContent = "";
-        qrCanvas.classList.remove("hidden");
-        const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-        QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-      }
-    });
-  }
-
-  // --- Form Submission ---
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const amount = parseFloat(document.getElementById("amount").value);
-      const txnId = document.getElementById("txnId").value.trim();
-
-      if (!name || !email || !amount || !txnId) {
-        alert("Please fill all fields!");
-        return;
-      }
-
-      const now = new Date();
-      const formattedDate = now.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: "Asia/Kolkata",
-      });
-
-      try {
-        await addDoc(collection(db, "ComicProjectDonations"), {
-          name,
-          email,
-          amount,
-          txnId,
-          date: formattedDate,
-          timestamp: serverTimestamp(),
-        });
-
-        alert("🎉 Thank you for your contribution!");
-        form.reset();
-        upiDisplay.classList.add("hidden");
-        updateProgress();
-      } catch (error) {
-        console.error("Error adding donation:", error);
-        alert("Something went wrong. Try again!");
-      }
-    });
-  }
-
-  // --- Footer Auto Year ---
-  const footer = document.getElementById("footer");
-  if (footer)
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
-
-  updateProgress();
 });
+
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+// Auth State Persistence
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    loginSection.style.display = "none";
+    dashboard.style.display = "block";
+    showLoader();
+    await loadDonations();
+    setTimeout(hideLoader, 1000);
+  } else {
+    loginSection.style.display = "block";
+    dashboard.style.display = "none";
+  }
+});
+
+// Load Donations
+async function loadDonations() {
+  donationsTable.innerHTML = "";
+  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+  let total = 0;
+
+  const donations = [];
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    donations.push(data);
+    total += Number(data.amount) || 0;
+  });
+
+  // Apply filters/sorting
+  renderDonations(donations);
+  totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+  progressBar.style.width = `${Math.min((total / 20000) * 100, 100)}%`;
+}
+
+// Render Donations
+function renderDonations(donations) {
+  donationsTable.innerHTML = "";
+
+  // Sort
+  const sortValue = document.getElementById("sort-select").value;
+  if (sortValue === "asc") donations.sort((a, b) => a.amount - b.amount);
+  else if (sortValue === "desc") donations.sort((a, b) => b.amount - a.amount);
+
+  // Filter by date
+  const startDate = document.getElementById("filter-start").value;
+  const endDate = document.getElementById("filter-end").value;
+  let filtered = donations;
+
+  if (startDate && endDate) {
+    filtered = donations.filter((d) => {
+      const donationDate = new Date(d.date);
+      return donationDate >= new Date(startDate) && donationDate <= new Date(endDate);
+    });
+  }
+
+  // Search
+  const query = document.getElementById("search-box").value.toLowerCase();
+  if (query) {
+    filtered = filtered.filter((d) =>
+      d.name.toLowerCase().includes(query) ||
+      d.email.toLowerCase().includes(query) ||
+      d.txnId.toLowerCase().includes(query)
+    );
+  }
+
+  // Display
+  filtered.forEach((d) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.name}</td>
+      <td>${d.email}</td>
+      <td>₹${d.amount.toLocaleString("en-IN")}</td>
+      <td>${d.txnId || "—"}</td>
+      <td>${d.date || "—"}</td>
+    `;
+    donationsTable.appendChild(tr);
+  });
+}
+
+// Event Listeners for filter/sort/search
+document.getElementById("sort-select").addEventListener("change", loadDonations);
+document.getElementById("filter-btn").addEventListener("click", loadDonations);
+document.getElementById("search-box").addEventListener("input", loadDonations);
