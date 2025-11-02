@@ -1,61 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js" type="module"></script>
 </head>
 <body>
-  <!-- Loader -->
+  <!-- Loader (fades out after 2s) -->
   <div id="loader" class="loader">
-    <div class="spinner"></div>
+    <div class="spinner" aria-hidden="true"></div>
     <p>Fetching Donations...</p>
   </div>
 
-  <div class="container hidden" id="main-content">
+  <!-- Main container (hidden until loader finishes) -->
+  <div id="main-content" class="hidden container">
+
     <!-- Login Section -->
-    <section id="login-section" class="card">
-      <h1>FundVerse Admin Login</h1>
-      <input type="email" id="admin-email" placeholder="Admin E-Mail" />
-      <input type="password" id="admin-password" placeholder="Password" />
-      <button id="login-btn" class="btn">Login</button>
-      <p id="login-error" class="error"></p>
+    <section id="login-section" class="card" aria-labelledby="login-title">
+      <h1 id="login-title">FundVerse Admin Login</h1>
+      <input type="email" id="admin-email" placeholder="Admin E-Mail" autocomplete="username" />
+      <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password" />
+      <button id="login-btn" class="btn" type="button">Login</button>
+      <p id="login-error" class="error" role="alert" aria-live="polite"></p>
     </section>
 
-    <!-- Dashboard -->
-    <section id="dashboard" style="display:none;">
-      <header class="header">
+    <!-- Dashboard (hidden until auth or manual reveal) -->
+    <section id="dashboard" style="display: none;">
+      <header class="header" role="banner">
         <h1>FundVerse Dashboard</h1>
         <div class="header-actions">
-          <button id="download-btn" class="btn small">Download CSV</button>
-          <button id="logout-btn" class="logout-btn">Logout</button>
+          <button id="download-btn" class="btn small" type="button">Download CSV</button>
+          <button id="logout-btn" class="logout-btn" type="button">Logout</button>
         </div>
       </header>
 
-      <div class="summary">
+      <div class="summary" role="region" aria-label="project summary">
         <h2>Project Summary</h2>
         <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
         <p><strong>Goal:</strong> ₹20,000</p>
         <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-        <div class="progress-container">
-          <div id="progress-bar" class="progress-bar"></div>
+        <div class="progress-container" aria-hidden="true">
+          <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
 
-      <div class="controls">
-        <input type="text" id="searchBox" placeholder="Search name, e-mail, or txnID" />
-        <select id="sortSelect">
+      <div class="controls" role="search">
+        <input id="searchBox" type="text" placeholder="Search name, e-mail, or txnID" />
+        <select id="sortSelect" aria-label="Sort donations">
           <option value="">Sort by</option>
           <option value="low">Amount: Low → High</option>
           <option value="high">Amount: High → Low</option>
         </select>
       </div>
 
-      <div class="donations">
+      <div class="donations" role="region" aria-label="donations table">
         <h2>Donations</h2>
         <table>
           <thead>
@@ -72,9 +71,10 @@
       </div>
     </section>
 
-    <footer id="footer"></footer>
+    <footer id="footer" role="contentinfo"></footer>
   </div>
 
+  <!-- Admin script (module) -->
   <script type="module" src="admin.js"></script>
 </body>
 </html>
