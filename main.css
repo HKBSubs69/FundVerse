@@ -1,62 +1,64 @@
-/* ---------- Global ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Montserrat:wght@500&display=swap');
-
+/* ---- Global Styles ---- */
 body {
   background: #0d0d0d;
   color: white;
-  font-family: "Poppins", sans-serif;
+  font-family: "Poppins", "Roboto", "Segoe UI", sans-serif;
   text-align: center;
   margin: 0;
   padding: 0;
 }
 
-/* ---------- Loader ---------- */
+/* ---- Loader (Fetching Screen) ---- */
 .loader {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background-color: #0d0d0d;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: #0d0d0d;
   z-index: 9999;
-  transition: opacity 0.4s ease;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
 }
 
 .spinner {
+  border: 4px solid #333;
+  border-top: 4px solid #ff3333;
+  border-radius: 50%;
   width: 55px;
   height: 55px;
-  border: 4px solid #222;
-  border-top: 4px solid #ff1e1e;
-  border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 
-/* --- Typing text --- */
 #loading-text {
   color: #ff4d4d;
-  font-family: "Montserrat", sans-serif;
-  font-size: 1rem;
-  width: 80%;
-  max-width: 500px;
-  line-height: 1.5;
-  white-space: normal; /* allows wrapping */
-  word-wrap: break-word; /* ensures long text breaks */
+  font-size: 1.1rem;
+  line-height: 1.6;
   text-align: center;
-  overflow: visible;
+  max-width: 90%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 auto;
+  opacity: 0.9;
+  transition: opacity 0.5s ease;
 }
 
-/* ---------- Header ---------- */
+/* ---- Header ---- */
 header {
   padding: 20px 10px;
 }
@@ -78,13 +80,14 @@ header {
   margin-bottom: 15px;
 }
 
-/* ---------- Progress Section ---------- */
+/* ---- Progress Bar ---- */
 .progress-bar-container {
   width: 100%;
   height: 15px;
   background-color: #222;
   border-radius: 10px;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 #progress-bar {
@@ -99,7 +102,7 @@ header {
   margin-bottom: 20px;
 }
 
-/* ---------- Donation Section ---------- */
+/* ---- Donation Section ---- */
 .donation-section {
   background: #111;
   padding: 20px;
@@ -132,14 +135,14 @@ button {
   color: white;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
   background: #ff5050;
+  transform: scale(1.03);
 }
 
-/* ---------- UPI / Misc ---------- */
 .hidden {
   display: none;
 }
@@ -150,29 +153,31 @@ button:hover {
   cursor: pointer;
 }
 
-/* ---------- Contact Section ---------- */
+/* ---- Contact Section ---- */
 .contact-section {
   background: #0f0f0f;
   padding: 15px;
   border-top: 2px solid #ff1e1e33;
 }
 
-/* ---------- Footer ---------- */
+/* ---- Footer ---- */
 footer {
   background: #111;
   color: #bbb;
   font-size: 0.85em;
   padding: 15px;
   margin-top: 30px;
+  line-height: 1.4;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 480px) {
-  #loading-text {
-    font-size: 0.9rem;
-    width: 85%;
-  }
-  .donation-section {
-    padding: 15px;
-  }
+/* ---- Animation ---- */
+.fade-in {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: scale(0.98);
 }
