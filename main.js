@@ -26,7 +26,12 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-// --- Loader Lines ---
+// --- Load QRCode Library ---
+const qrScript = document.createElement("script");
+qrScript.src = "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js";
+document.head.appendChild(qrScript);
+
+// --- Loader Sentences ---
 const lines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
@@ -53,7 +58,7 @@ function showLoading() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 60); // balanced typing speed
+      setTimeout(type, 55); // smooth typing speed
     } else {
       setTimeout(() => {
         loader.style.opacity = "0";
@@ -63,13 +68,13 @@ function showLoading() {
           main.classList.remove("hidden");
           main.style.opacity = "1";
         }, 800);
-      }, 1000);
+      }, 900);
     }
   }
   type();
 }
 
-// --- Firestore Logic ---
+// --- Firestore + UPI Logic ---
 document.addEventListener("DOMContentLoaded", () => {
   showLoading();
 
@@ -81,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const qrCanvas = document.getElementById("upi-qr");
   const paymentOption = document.getElementById("payment-option");
 
-  // --- Update progress bar ---
+  // --- Update Progress Bar ---
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -100,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Handle UPI Selection ---
+  // --- Handle Payment Option Change ---
   if (paymentOption) {
     paymentOption.addEventListener("change", async (e) => {
       const option = e.target.value;
@@ -113,31 +118,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       upiDisplay.classList.remove("hidden");
+
+      // Wait until QRCode script is fully loaded
+      await new Promise((resolve) => {
+        if (window.QRCode) resolve();
+        else qrScript.onload = resolve;
+      });
+
       const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
 
       if (option === "upi-id") {
-        // Show UPI ID with style
         qrCanvas.style.display = "none";
         upiText.style.display = "block";
-        upiText.innerHTML = `<strong>Send Payment To:</strong><br><span style="color:#3b82f6;font-weight:600;">${upiID}</span>`;
+        upiText.innerHTML = `
+          <strong style="color:#fff;">Send Payment To:</strong><br>
+          <span style="color:#3b82f6;font-weight:600;">${upiID}</span>`;
         upiText.onclick = () => (window.location.href = qrData);
       } else if (option === "upi-qr") {
-        // Generate and show QR code
         upiText.textContent = "Scan this QR to Pay:";
         qrCanvas.style.display = "block";
-
-        try {
-          const ctx = qrCanvas.getContext("2d");
-          ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-          await QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-        } catch (error) {
-          console.error("QR Generation Error:", error);
-        }
+        const ctx = qrCanvas.getContext("2d");
+        ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+        QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
       }
     });
   }
 
-  // --- Submit Form ---
+  // --- Handle Form Submission ---
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -185,9 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Footer ---
   const footer = document.getElementById("footer");
-  if (footer) {
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by <span style="color:#3b82f6;">Blue Ocean Studios India</span> | Made in India | Created by <span style="color:#3b82f6;">Kushal Mitra</span> & AI`;
-  }
+  if (footer)
+    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by <span style="color:#3b82f6;">Blue Ocean Studios India</span> | Made in India 🇮🇳 | Created by <span style="color:#3b82f6;">Kushal Mitra</span> & AI`;
 
   updateProgress();
 });
