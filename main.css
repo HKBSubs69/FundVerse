@@ -52,31 +52,33 @@ body {
 
 /* --- Header --- */
 header {
+  padding: 22px 8px 6px;
   text-align: center;
-  padding: 24px 10px 8px;
 }
 
+/* Main Title */
 header .glow {
   color: #ff1e1e;
-  font-size: 2.3rem;
-  font-weight: 800;
-  text-shadow: 0 0 8px #ff1e1e, 0 0 20px #ff1e1e;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-header .subtitle {
-  color: #ff4d4d;
-  font-size: 1.05rem;
-  font-weight: 600;
+  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e, 0 0 30px #ff1e1e;
+  font-size: 2.2rem;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
+/* Subtitle */
+header .subtitle {
+  color: #ff4d4d;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+/* Tagline */
 header .tagline {
   color: #cfcfcf;
   font-style: italic;
   font-size: 1rem;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 /* --- Progress --- */
