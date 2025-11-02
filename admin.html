@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FundVerse Admin Panel</title>
+  <title>FundVerse Admin Dashboard</title>
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
@@ -13,8 +13,8 @@
     <p>Fetching Donations...</p>
   </div>
 
-  <div id="main-content" class="hidden">
-    <!-- Login Section -->
+  <main id="main-content" class="hidden">
+    <!-- Login -->
     <section id="login-section" class="card">
       <h1>FundVerse Admin Login</h1>
       <input type="email" id="admin-email" placeholder="Admin E-Mail" required />
@@ -43,15 +43,6 @@
         </div>
       </div>
 
-      <div class="controls">
-        <input id="searchBox" type="text" placeholder="Search name, e-mail, or txnID" />
-        <select id="sortSelect">
-          <option value="">Sort by</option>
-          <option value="low">Amount: Low → High</option>
-          <option value="high">Amount: High → Low</option>
-        </select>
-      </div>
-
       <div class="donations">
         <h2>Donations</h2>
         <table>
@@ -70,8 +61,123 @@
     </section>
 
     <footer id="footer"></footer>
-  </div>
+  </main>
 
-  <script type="module" src="admin.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+    // --- Firebase Config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
+      authDomain: "fundverse-f3b0c.firebaseapp.com",
+      projectId: "fundverse-f3b0c",
+      storageBucket: "fundverse-f3b0c.firebasestorage.app",
+      messagingSenderId: "125480706897",
+      appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
+    };
+
+    // --- Initialize Firebase ---
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // --- Elements ---
+    const loader = document.getElementById("loader");
+    const main = document.getElementById("main-content");
+    const loginSection = document.getElementById("login-section");
+    const dashboard = document.getElementById("dashboard");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const emailInput = document.getElementById("admin-email");
+    const passInput = document.getElementById("admin-password");
+    const loginError = document.getElementById("login-error");
+    const donationsTable = document.getElementById("donations-table");
+    const totalRaised = document.getElementById("total-raised");
+    const progressBar = document.getElementById("progress-bar");
+    const footer = document.getElementById("footer");
+
+    // --- Loader fade out ---
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        loader.style.opacity = "0";
+        loader.style.transition = "opacity 1s ease";
+        setTimeout(() => {
+          loader.style.display = "none";
+          main.classList.remove("hidden");
+        }, 1000);
+      }, 1500);
+    });
+
+    // --- Auth persistence ---
+    setPersistence(auth, browserLocalPersistence);
+
+    // --- Auth State ---
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginSection.style.display = "none";
+        dashboard.style.display = "block";
+        loadDonations();
+      } else {
+        dashboard.style.display = "none";
+        loginSection.style.display = "block";
+      }
+    });
+
+    // --- Login ---
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passInput.value.trim();
+      if (!email || !password) {
+        loginError.textContent = "Please enter both E-Mail and password.";
+        return;
+      }
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        loginError.textContent = "";
+      } catch {
+        loginError.textContent = "Invalid credentials.";
+      }
+    });
+
+    // --- Logout ---
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    // --- Fetch Donations ---
+    async function loadDonations() {
+      const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+      let total = 0;
+      donationsTable.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        total += Number(data.amount) || 0;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.name}</td>
+          <td>${data.email}</td>
+          <td>₹${data.amount}</td>
+          <td>${data.txnId}</td>
+          <td>${data.date}</td>`;
+        donationsTable.appendChild(row);
+      });
+      totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+      const percent = Math.min((total / 20000) * 100, 100);
+      progressBar.style.width = percent + "%";
+    }
+
+    // --- Footer ---
+    if (footer)
+      footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
+  </script>
 </body>
 </html>
