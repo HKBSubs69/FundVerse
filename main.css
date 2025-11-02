@@ -1,237 +1,154 @@
-/* === Global Styles === */
-* {
+body {
+  background: #0d0d0d;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
 }
 
-body {
-  background-color: #000;
-  color: #fff;
-  text-align: center;
-  overflow-x: hidden;
-}
-
-/* === Loader === */
-#loader {
+/* Loader */
+.loader {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #0d0d0d;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  transition: opacity 0.5s ease;
 }
 
-.loader-spinner {
-  border: 6px solid rgba(255, 255, 255, 0.1);
-  border-top: 6px solid #ff3b3b;
+.spinner {
+  border: 4px solid #222;
+  border-top: 4px solid #ff1e1e;
   border-radius: 50%;
-  width: 55px;
-  height: 55px;
-  animation: spin 1.1s linear infinite;
-  margin-bottom: 20px;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+#loading-text {
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #ff7070;
+  font-family: "Poppins", sans-serif;
+  max-width: 80%;
+  line-height: 1.5;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Typing text under spinner */
-#loading-text {
-  font-size: 1.05rem;
-  color: #f0f0f0;
-  margin-top: 15px;
-  line-height: 1.5;
-  max-width: 85%;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  text-align: center;
+.hidden { display: none; }
+
+header {
+  padding: 20px 10px;
 }
 
-/* === Main Content === */
-#main-content {
-  opacity: 0;
-  transition: opacity 0.6s ease-in-out;
+.glow {
+  color: #ff1e1e;
+  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
+  font-size: 2em;
 }
 
-#main-content.hidden {
-  display: none;
+.subtitle {
+  color: #ff7676;
+  font-weight: bold;
 }
 
-/* === Header === */
-h1 {
-  color: #ff3b3b;
-  font-size: 2.2rem;
-  margin-top: 30px;
-  text-shadow: 0 0 10px #ff3b3b;
-}
-
-h2,
-h3 {
-  color: #fff;
-}
-
-/* === Progress Bar === */
-.progress-bar-container {
-  width: 90%;
-  max-width: 500px;
-  height: 10px;
-  background-color: #1a1a1a;
-  border-radius: 5px;
-  margin: 10px auto;
-  overflow: hidden;
-}
-
-#progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #ff0000, #ff4d4d);
-  transition: width 0.5s ease-in-out;
-}
-
-#raised-amount {
-  color: #ff4d4d;
-  font-weight: 600;
-  margin-top: 8px;
-}
-
-/* === Form === */
-form {
-  background-color: #0d0d0d;
-  width: 90%;
-  max-width: 500px;
-  margin: 25px auto;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.25);
-}
-
-form h2 {
-  font-size: 1.4rem;
-  color: #fff;
+.tagline {
+  font-style: italic;
+  color: #ccc;
   margin-bottom: 15px;
 }
 
-input,
-select {
+.progress-bar-container {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
+  height: 15px;
+  background-color: #222;
   border-radius: 10px;
+  overflow: hidden;
+}
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff0000, #ff5555);
+  transition: width 0.3s ease;
+}
+
+#raised-amount {
+  color: #ff4040;
+  margin-bottom: 20px;
+}
+
+.donation-section {
+  background: #111;
+  padding: 20px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px #ff1e1e44;
+}
+
+input, select, button {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
   border: none;
-  background-color: #1a1a1a;
+  font-size: 1em;
+}
+
+input, select {
+  background: #222;
   color: #fff;
-  font-size: 1rem;
-  outline: none;
-}
-
-input::placeholder {
-  color: #777;
-}
-
-select {
-  cursor: pointer;
 }
 
 button {
-  width: 100%;
-  background-color: #ff3b3b;
+  background: #ff1e1e;
   color: white;
-  font-weight: 600;
-  padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-weight: bold;
 }
 
 button:hover {
-  background-color: #ff4d4d;
+  background: #ff5050;
 }
 
-/* === UPI Section === */
-#upi-display {
-  margin-top: 12px;
-  margin-bottom: 10px;
-}
-
-.upi-glow {
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: #00bfff;
+.clickable {
+  color: #ff4040;
   text-decoration: underline;
   cursor: pointer;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-.upi-glow:hover {
-  color: #1ec9ff;
-  text-shadow: 0 0 8px rgba(0, 191, 255, 0.6);
+.contact-section {
+  background: #0f0f0f;
+  padding: 15px;
+  border-top: 2px solid #ff1e1e33;
 }
 
-/* === Footer === */
-footer {
-  margin-top: 35px;
-  color: #ccc;
-  font-size: 0.9rem;
-  padding-bottom: 20px;
-  line-height: 1.5;
+.email-label {
+  color: white;
 }
 
-footer span {
-  color: #00bfff;
-  font-weight: 500;
-}
-
-/* === Contact Section === */
-#contact-section {
-  margin-top: 30px;
-}
-
-#contact-section h3 {
-  color: #fff;
-  margin-bottom: 8px;
-}
-
-#contact-section p {
-  color: #ddd;
-}
-
-#contact-section a {
-  color: #00bfff;
+.email-link {
+  color: #1e90ff;
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
 }
 
-#contact-section a:hover {
-  color: #1ec9ff;
+.email-link:hover {
+  text-decoration: underline;
 }
 
-/* === Responsive === */
-@media (max-width: 768px) {
-  #loading-text {
-    font-size: 1rem;
-  }
-
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  form {
-    padding: 20px;
-  }
+footer {
+  background: #111;
+  color: #bbb;
+  font-size: 0.85em;
+  padding: 15px;
+  margin-top: 30px;
 }
