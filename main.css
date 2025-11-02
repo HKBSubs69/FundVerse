@@ -1,6 +1,6 @@
 body {
   background: #0d0d0d;
-  color: white;
+  color: #ffffff;
   font-family: "Poppins", sans-serif;
   text-align: center;
   margin: 0;
@@ -33,7 +33,7 @@ body {
 }
 
 @keyframes spin {
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
@@ -48,7 +48,6 @@ body {
   display: none;
 }
 
-/* Header */
 header {
   padding: 20px 10px;
 }
@@ -70,7 +69,6 @@ header {
   margin-bottom: 15px;
 }
 
-/* Progress */
 .progress-bar-container {
   width: 100%;
   height: 15px;
@@ -91,7 +89,6 @@ header {
   margin-bottom: 20px;
 }
 
-/* Donation Section */
 .donation-section {
   background: #111;
   padding: 20px;
@@ -99,7 +96,7 @@ header {
   width: 90%;
   max-width: 400px;
   border-radius: 15px;
-  box-shadow: 0 0 15px #ff1e1e44;
+  box-shadow: 0 0 15px rgba(255, 30, 30, 0.3);
 }
 
 input,
@@ -121,7 +118,7 @@ select {
 
 button {
   background: #ff1e1e;
-  color: white;
+  color: #fff;
   cursor: pointer;
   font-weight: bold;
 }
@@ -147,5 +144,5 @@ footer {
 .contact-section {
   background: #0f0f0f;
   padding: 15px;
-  border-top: 2px solid #ff1e1e33;
+  border-top: 2px solid rgba(255, 30, 30, 0.2);
 }
