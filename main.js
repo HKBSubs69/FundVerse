@@ -26,55 +26,42 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-// --- Typing effect lines ---
-const typingLines = [
+// --- Creative loading lines ---
+const loadingLines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
   "Together, we make imagination real.",
+  "Fueling art, passion, and purpose — one donation at a time.",
 ];
 
-// --- Typing effect + Loader ---
-function startTypingEffect() {
+// --- Single Line Typing Effect ---
+function showLoadingLine() {
   const textElement = document.getElementById("loading-text");
   if (!textElement) return;
 
-  let lineIndex = 0;
-  let charIndex = 0;
-  let currentLine = typingLines[lineIndex];
-  textElement.textContent = "";
+  const randomLine = loadingLines[Math.floor(Math.random() * loadingLines.length)];
+  let i = 0;
 
   function typeChar() {
-    if (charIndex < currentLine.length) {
-      textElement.innerHTML += currentLine.charAt(charIndex);
-      charIndex++;
-      setTimeout(typeChar, 50);
+    if (i < randomLine.length) {
+      textElement.textContent += randomLine.charAt(i);
+      i++;
+      setTimeout(typeChar, 40);
     } else {
-      // Line completed — wait before next
+      // After typing is complete, show main site
       setTimeout(() => {
-        lineIndex++;
-        if (lineIndex < typingLines.length) {
-          // New line starts after a short pause
-          charIndex = 0;
-          currentLine = typingLines[lineIndex];
-          textElement.innerHTML = "<br>"; // newline for multi-line wrap
-          typeChar();
-        } else {
-          // All lines done → hide loader & show main site
-          setTimeout(() => {
-            const loader = document.querySelector(".loader");
-            const main = document.getElementById("main-content");
+        const loader = document.querySelector(".loader");
+        const main = document.getElementById("main-content");
 
-            loader.style.transition = "opacity 0.6s ease";
-            loader.style.opacity = "0";
+        loader.style.transition = "opacity 0.6s ease";
+        loader.style.opacity = "0";
 
-            setTimeout(() => {
-              loader.style.display = "none";
-              main.classList.remove("hidden");
-              main.style.opacity = "1";
-            }, 600);
-          }, 1000);
-        }
-      }, 1000);
+        setTimeout(() => {
+          loader.style.display = "none";
+          main.classList.remove("hidden");
+          main.style.opacity = "1";
+        }, 600);
+      }, 1200);
     }
   }
 
@@ -83,7 +70,7 @@ function startTypingEffect() {
 
 // --- Wait for DOM ---
 document.addEventListener("DOMContentLoaded", () => {
-  startTypingEffect();
+  showLoadingLine();
 
   // --- Firebase Logic ---
   const form = document.getElementById("donationForm");
@@ -93,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
 
-  // --- Update Progress ---
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -113,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Payment Option Handling ---
   const paymentOption = document.getElementById("payment-option");
   if (paymentOption) {
     paymentOption.addEventListener("change", (e) => {
@@ -144,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Form Submission ---
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -191,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Footer Auto Year ---
   const footer = document.getElementById("footer");
   if (footer) {
     footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
