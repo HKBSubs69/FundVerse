@@ -30,24 +30,26 @@ const GOAL_AMOUNT = 20000;
 
 // --- Admin Check Function ---
 async function isAdmin(email) {
-  const snapshot = await db.collection("AdminUsers").where("email", "==", email).get();
+  const snapshot = await db.collection("AdminUsers")
+    .where("email", "==", email.toLowerCase())
+    .get();
   return !snapshot.empty;
 }
 
 // --- Login ---
 loginBtn.addEventListener("click", async () => {
-  const email = emailInput.value.trim();
+  const email = emailInput.value.trim().toLowerCase();
   const password = passInput.value.trim();
   errorBox.textContent = "";
 
   try {
     const userCred = await auth.signInWithEmailAndPassword(email, password);
     const user = userCred.user;
-
     const validAdmin = await isAdmin(user.email);
+
     if (!validAdmin) {
       await auth.signOut();
-      throw new Error("Access denied: Not authorized as admin");
+      throw new Error("Access Denied: Not authorized as admin");
     }
 
     showDashboard();
@@ -56,11 +58,12 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-// --- Stay Logged In ---
+// --- Stay Logged In (until logout or tab close) ---
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     const validAdmin = await isAdmin(user.email);
     if (validAdmin) showDashboard();
+    else window.location.href = "index.html"; // Redirect non-admin
   }
 });
 
@@ -80,31 +83,35 @@ async function showDashboard() {
 
 // --- Load Donations ---
 async function loadDonations() {
-  const snapshot = await db.collection("ComicProjectDonations").get();
-  donationsTable.innerHTML = "";
+  try {
+    const snapshot = await db.collection("ComicProjectDonations").get();
+    donationsTable.innerHTML = "";
 
-  let total = 0;
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    total += Number(data.amount) || 0;
+    let total = 0;
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      total += Number(data.amount) || 0;
 
-    const row = document.createElement("tr");
-    const date = data.date || "N/A";
-    const txnID = data.txnId || data.txnID || "N/A";
+      const txn = data.txnID || data.txnId || "N/A";
+      const date = data.date || "N/A";
 
-    row.innerHTML = `
-      <td>${data.name}</td>
-      <td>${data.email}</td>
-      <td>₹${data.amount}</td>
-      <td>${txnID}</td>
-      <td>${date}</td>
-    `;
-    donationsTable.appendChild(row);
-  });
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.name}</td>
+        <td>${data.email}</td>
+        <td>₹${data.amount}</td>
+        <td>${txn}</td>
+        <td>${date}</td>
+      `;
+      donationsTable.appendChild(row);
+    });
 
-  totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
-  const percent = Math.min((total / GOAL_AMOUNT) * 100, 100);
-  progressBar.style.width = `${percent}%`;
+    totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+    const percent = Math.min((total / GOAL_AMOUNT) * 100, 100);
+    progressBar.style.width = `${percent}%`;
+  } catch (err) {
+    console.error("Error loading donations:", err);
+  }
 }
 
 // --- Footer ---
