@@ -22,11 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- Constants ---
-const goalAmount = 20000;
-const upiID = "7079441779@ikwik";
-
-// --- Loader Lines ---
+// --- Loader Sentences ---
 const lines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
@@ -34,7 +30,7 @@ const lines = [
   "Fueling art, passion, and purpose — one donation at a time.",
 ];
 
-// --- Show Random Line Once ---
+// --- Loader Function ---
 function showLoading() {
   const loader = document.getElementById("loader");
   const textEl = document.getElementById("loading-text");
@@ -44,14 +40,12 @@ function showLoading() {
   textEl.textContent = "";
   let i = 0;
 
-  // Normal readable typing speed
   function type() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 60); // balanced speed
+      setTimeout(type, 60);
     } else {
-      // Fade out loader after text completes
       setTimeout(() => {
         loader.style.opacity = "0";
         loader.style.transition = "opacity 1s ease";
@@ -63,7 +57,6 @@ function showLoading() {
       }, 1200);
     }
   }
-
   type();
 }
 
@@ -86,95 +79,86 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = doc.data();
         total += Number(data.amount) || 0;
       });
-
-      const percent = Math.min((total / goalAmount) * 100, 100);
+      const percent = Math.min((total / 20000) * 100, 100);
       progressBar.style.width = `${percent}%`;
-      raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
-        "en-IN"
-      )} / ₹${goalAmount.toLocaleString("en-IN")}`;
+      raisedAmount.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${(20000).toLocaleString("en-IN")}`;
     } catch (error) {
       console.error("Error updating progress:", error);
     }
   }
 
   const paymentOption = document.getElementById("payment-option");
-  if (paymentOption) {
-    paymentOption.addEventListener("change", (e) => {
-      const option = e.target.value;
-      const amount = document.getElementById("amount").value.trim();
+  paymentOption?.addEventListener("change", (e) => {
+    const option = e.target.value;
+    const amount = document.getElementById("amount").value.trim();
 
-      if (!amount || amount <= 0) {
-        alert("Please enter a valid amount first.");
-        e.target.value = "";
-        return;
-      }
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid amount first.");
+      e.target.value = "";
+      return;
+    }
 
-      upiDisplay.classList.remove("hidden");
+    upiDisplay.classList.remove("hidden");
 
-      if (option === "upi-id") {
-        upiText.textContent = upiID;
-        qrCanvas.classList.add("hidden");
-        upiText.onclick = () => {
-          const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-          window.location.href = url;
-        };
-      } else if (option === "upi-qr") {
-        upiText.textContent = "";
-        qrCanvas.classList.remove("hidden");
-        const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-        QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-      }
+    if (option === "upi-id") {
+      upiText.innerHTML = `<strong>Send to:</strong> <span style="color:#ff6666; font-weight:bold;">${upiID}</span>`;
+      qrCanvas.classList.add("hidden");
+      upiText.onclick = () => {
+        const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+        window.location.href = url;
+      };
+    } else if (option === "upi-qr") {
+      upiText.textContent = "";
+      qrCanvas.classList.remove("hidden");
+      const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+      QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
+    }
+  });
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const txnID = document.getElementById("txnId").value.trim();
+
+    if (!name || !email || !amount || !txnID) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    const now = new Date();
+    const formattedDate = now.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
     });
-  }
 
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const amount = parseFloat(document.getElementById("amount").value);
-      const txnID = document.getElementById("txnId").value.trim();
-
-      if (!name || !email || !amount || !txnID) {
-        alert("Please fill all fields!");
-        return;
-      }
-
-      const now = new Date();
-      const formattedDate = now.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: "Asia/Kolkata",
+    try {
+      await addDoc(collection(db, "ComicProjectDonations"), {
+        name,
+        email,
+        amount,
+        txnID,
+        date: formattedDate,
+        timestamp: serverTimestamp(),
       });
+      alert("🎉 Thank you for your contribution!");
+      form.reset();
+      upiDisplay.classList.add("hidden");
+      updateProgress();
+    } catch (error) {
+      console.error("Error adding donation:", error);
+      alert("Something went wrong. Try again!");
+    }
+  });
 
-      try {
-        await addDoc(collection(db, "ComicProjectDonations"), {
-          name,
-          email,
-          amount,
-          txnID, // Corrected capitalization here
-          date: formattedDate,
-          timestamp: serverTimestamp(),
-        });
-
-        alert("🎉 Thank you for your contribution!");
-        form.reset();
-        upiDisplay.classList.add("hidden");
-        updateProgress();
-      } catch (error) {
-        console.error("Error adding donation:", error);
-        alert("Something went wrong. Try again!");
-      }
-    });
-  }
-
-  const footer = document.getElementById("footer");
-  if (footer)
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
+  document.getElementById("footer").innerHTML =
+    `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
 
   updateProgress();
 });
