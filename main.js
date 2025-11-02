@@ -44,14 +44,14 @@ function showLoading() {
   textEl.textContent = "";
   let i = 0;
 
-  // Typing effect (smooth + readable)
+  // Normal readable typing speed
   function type() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 60); // smooth readable speed
+      setTimeout(type, 60); // balanced speed
     } else {
-      // After text completes, fade out loader
+      // Fade out loader after text completes
       setTimeout(() => {
         loader.style.opacity = "0";
         loader.style.transition = "opacity 1s ease";
@@ -78,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
 
-  // --- Update Progress ---
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -98,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Payment Option Logic ---
   const paymentOption = document.getElementById("payment-option");
   if (paymentOption) {
     paymentOption.addEventListener("change", (e) => {
@@ -115,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (option === "upi-id") {
         upiText.textContent = upiID;
-        upiText.classList.add("upi-glow");
         qrCanvas.classList.add("hidden");
         upiText.onclick = () => {
           const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
@@ -123,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       } else if (option === "upi-qr") {
         upiText.textContent = "";
-        upiText.classList.remove("upi-glow");
         qrCanvas.classList.remove("hidden");
         const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
         QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
@@ -131,17 +127,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Form Submission ---
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const amount = parseFloat(document.getElementById("amount").value);
-      const txnId = document.getElementById("txnId").value.trim();
+      const txnID = document.getElementById("txnId").value.trim();
 
-      if (!name || !email || !amount || !txnId) {
+      if (!name || !email || !amount || !txnID) {
         alert("Please fill all fields!");
         return;
       }
@@ -162,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
           name,
           email,
           amount,
-          txnId,
+          txnID, // Corrected capitalization here
           date: formattedDate,
           timestamp: serverTimestamp(),
         });
@@ -178,11 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Footer ---
   const footer = document.getElementById("footer");
   if (footer)
     footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
 
-  // --- Initialize ---
   updateProgress();
 });
