@@ -153,6 +153,22 @@
       await signOut(auth);
     });
 
+    // --- Format Date ---
+    function formatDate(dateObj) {
+      if (!dateObj) return "—";
+      const date = new Date(dateObj);
+      const options = {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
+      };
+      return date.toLocaleString("en-IN", options).replace(",", "") + " (IST)";
+    }
+
     // --- Fetch Donations ---
     async function loadDonations() {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -161,13 +177,20 @@
       snapshot.forEach((doc) => {
         const data = doc.data();
         total += Number(data.amount) || 0;
+
+        const formattedDate = data.date
+          ? data.date
+          : data.timestamp
+          ? formatDate(data.timestamp.toDate())
+          : "—";
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${data.name || "-"}</td>
           <td>${data.email || "-"}</td>
           <td>₹${data.amount || 0}</td>
           <td>${data.txnID || "—"}</td>
-          <td>${data.date || "—"}</td>`;
+          <td>${formattedDate}</td>`;
         donationsTable.appendChild(row);
       });
       totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
