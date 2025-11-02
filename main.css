@@ -1,209 +1,22 @@
-/* --- General Page Styles --- */
-body {
-  background-color: #0d0d0d;
-  color: #fff;
-  font-family: "Poppins", sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-}
-
-/* --- Header --- */
-header {
-  padding: 30px 15px 10px;
-}
-
-.glow {
-  font-size: 2.2em;
-  font-weight: bold;
-  color: #ff1e1e;
-  text-shadow: 0 0 15px #ff1e1e, 0 0 30px #ff1e1e;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  color: #ff5555;
-  font-weight: 600;
-  font-size: 1.1em;
-  margin: 5px 0;
-}
-
-.tagline {
-  color: #cccccc;
-  font-style: italic;
-  font-size: 0.95em;
-  margin-top: 5px;
-}
-
-/* --- Progress Section --- */
-.progress-section {
-  margin: 25px auto 15px;
-  width: 85%;
-  max-width: 400px;
-}
-
-.progress-bar-container {
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  height: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(255, 30, 30, 0.2);
-}
-
-#progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #ff0000, #ff5555);
-  transition: width 0.5s ease;
-}
-
-#raised-amount {
-  color: #ff4040;
-  font-weight: 600;
-  margin-top: 10px;
-}
-
-/* --- Donation Section --- */
-.donation-section {
-  background: #111;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(255, 30, 30, 0.3);
-  padding: 25px 20px;
-  margin: 25px auto;
-  width: 90%;
-  max-width: 420px;
-}
-
-.donation-section h2 {
-  font-size: 1.4em;
-  margin-bottom: 15px;
-  color: #fff;
-}
-
-input,
-select,
-button {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 1em;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-input,
-select {
-  background-color: #1e1e1e;
-  color: #eee;
-}
-
-input::placeholder {
-  color: #999;
-}
-
-button {
-  background: #ff1e1e;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(255, 30, 30, 0.4);
-}
-
-button:hover {
-  background: #ff4040;
-}
-
-/* --- UPI Display Container --- */
-#upi-display {
-  display: none;
-  text-align: center;
-  margin-top: 12px;
-  transition: all 0.3s ease-in-out;
-}
-
-/* --- Stylish UPI ID Text --- */
-#upi-text {
-  display: inline-block;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #00bfff; /* bright cyan-blue */
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #ff2e2e;
-  padding: 8px 14px;
-  border-radius: 10px;
-  text-shadow: 0 0 8px rgba(0, 191, 255, 0.6);
-  cursor: pointer;
-  transition: all 0.25s ease-in-out;
-}
-
-#upi-text:hover {
-  background: rgba(255, 46, 46, 0.1);
-  color: #ff4747;
-  text-shadow: 0 0 10px rgba(255, 80, 80, 0.7);
-  transform: scale(1.05);
-}
-
-/* --- QR Canvas Centering --- */
-#upi-qr {
-  display: block;
-  margin: 12px auto 0;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 10px;
-}
-
-/* --- Contact Section --- */
-.contact-section {
-  background: #0e0e0e;
-  padding: 20px;
-  border-top: 1px solid #ff1e1e44;
-  color: #ccc;
-}
-
-.contact-section a {
-  color: #ff4040;
-  text-decoration: none;
-}
-
-.contact-section a:hover {
-  text-decoration: underline;
-}
-
-/* --- Footer --- */
-footer {
-  font-size: 0.85em;
-  color: #999;
-  padding: 15px;
-  margin-top: 25px;
-  border-top: 1px solid #1a1a1a;
-}
-
 /* --- Loader --- */
 #loader {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
+  inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  transition: opacity 0.5s ease;
+  background: #000;
+  z-index: 9999;
 }
 
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.15);
-  border-top: 4px solid #ff3b3b;
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-top: 5px solid #ff2e2e;
   border-radius: 50%;
-  width: 55px;
-  height: 55px;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -213,10 +26,88 @@ footer {
 }
 
 #loading-text {
-  color: #ff3b3b;
-  font-size: 1rem;
+  color: #fff;
+  font-size: 1.1rem;
+  margin-top: 20px;
   text-align: center;
-  width: 85%;
-  line-height: 1.4em;
+  font-family: "Poppins", sans-serif;
+  line-height: 1.5;
+}
+
+/* --- Email Styling --- */
+input[type="email"] {
+  color: #00bfff !important;
+  border: 1px solid #222;
+}
+
+input[type="email"]::placeholder {
+  color: #888 !important;
+}
+
+label[for="email"],
+label:has(+ #email) {
+  color: #fff !important;
+  font-weight: 500;
+}
+
+label[for="email"]::after {
+  content: " (E-Mail)";
+  color: #ff4747;
+}
+
+/* --- UPI Display --- */
+#upi-display {
+  display: none;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* --- UPI ID Glowing Text --- */
+.upi-glow {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #00bfff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #00bfff;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.5);
+  cursor: pointer;
+  animation: pulse 2s infinite alternate;
+  transition: 0.3s ease;
+}
+
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 12px rgba(0, 191, 255, 0.5);
+  }
+  to {
+    box-shadow: 0 0 22px rgba(0, 191, 255, 0.9);
+  }
+}
+
+.upi-glow:hover {
+  background: rgba(0, 191, 255, 0.1);
+  color: #ff4747;
+  border-color: #ff4747;
+  text-shadow: 0 0 10px rgba(255, 80, 80, 0.9);
+  transform: scale(1.05);
+}
+
+/* --- QR --- */
+#upi-qr {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Footer Email --- */
+footer a,
+footer span,
+footer p {
+  color: #00bfff !important;
   font-weight: 500;
 }
