@@ -1,4 +1,18 @@
-// Firebase v8 Admin Script
+// Firebase modular (v12)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -8,10 +22,12 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
+// Elements
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const loginBtn = document.getElementById("login-btn");
@@ -23,8 +39,8 @@ const loginError = document.getElementById("login-error");
 
 const goalAmount = 20000;
 
-// Keep admin logged in
-auth.onAuthStateChanged((user) => {
+// Listen for login state
+onAuthStateChanged(auth, (user) => {
   if (user) {
     loginSection.style.display = "none";
     dashboard.style.display = "block";
@@ -35,62 +51,70 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-loginBtn.addEventListener("click", () => {
+// Login button
+loginBtn.addEventListener("click", async () => {
   const email = document.getElementById("admin-email").value;
   const password = document.getElementById("admin-password").value;
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      loginError.textContent = "";
-    })
-    .catch((error) => {
-      loginError.textContent = "Access Denied! Invalid credentials.";
-    });
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    loginError.textContent = "";
+  } catch (error) {
+    loginError.textContent = "Access Denied! Invalid credentials.";
+  }
 });
 
-logoutBtn.addEventListener("click", () => {
-  auth.signOut();
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
 });
 
-// Fetch donations
+// Load Firestore data
 async function loadDonations() {
-  const snapshot = await db.collection("ComicProjectDonations").get();
-  let total = 0;
-  donationsTable.innerHTML = "";
+  try {
+    const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+    let total = 0;
+    donationsTable.innerHTML = "";
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    const amount = Number(data.amount) || 0;
-    total += amount;
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const amount = Number(data.amount) || 0;
+      total += amount;
 
-    const txn = data.txnID || "N/A";
-    const date = data.date
-      ? data.date
-      : new Date(data.timestamp?.seconds * 1000 || Date.now()).toLocaleString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-          timeZone: "Asia/Kolkata"
-        }).replace("am", "AM").replace("pm", "PM");
+      const txn = data.txnID || "N/A";
+      const date = data.date
+        ? data.date
+        : new Date(data.timestamp?.seconds * 1000 || Date.now())
+            .toLocaleString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: "Asia/Kolkata",
+            })
+            .replace("am", "AM")
+            .replace("pm", "PM");
 
-    const row = `
-      <tr>
-        <td>${data.name || "—"}</td>
-        <td>${data.email || "—"}</td>
-        <td>₹${amount.toLocaleString("en-IN")}</td>
-        <td>${txn}</td>
-        <td>${date}</td>
-      </tr>
-    `;
-    donationsTable.innerHTML += row;
-  });
+      const row = `
+        <tr>
+          <td>${data.name || "—"}</td>
+          <td>${data.email || "—"}</td>
+          <td>₹${amount.toLocaleString("en-IN")}</td>
+          <td>${txn}</td>
+          <td>${date}</td>
+        </tr>
+      `;
+      donationsTable.innerHTML += row;
+    });
 
-  totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
-  const percent = Math.min((total / goalAmount) * 100, 100);
-  progressBar.style.width = `${percent}%`;
+    totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+    const percent = Math.min((total / goalAmount) * 100, 100);
+    progressBar.style.width = `${percent}%`;
+  } catch (err) {
+    console.error("Error loading donations:", err);
+  }
 }
 
 // Footer
