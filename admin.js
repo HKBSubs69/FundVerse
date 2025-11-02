@@ -1,5 +1,5 @@
-// --- Firebase Config ---
-const firebaseConfig = {
+// === Firebase Config ===
+var firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
   projectId: "fundverse-f3b0c",
@@ -7,113 +7,109 @@ const firebaseConfig = {
   messagingSenderId: "125480706897",
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
-
-// --- Initialize Firebase ---
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+var db = firebase.firestore();
+var auth = firebase.auth();
 
-// --- DOM Elements ---
-const loginSection = document.getElementById("login-section");
-const dashboard = document.getElementById("dashboard");
-const loginBtn = document.getElementById("login-btn");
-const logoutBtn = document.getElementById("logout-btn");
-const emailInput = document.getElementById("admin-email");
-const passInput = document.getElementById("admin-password");
-const errorBox = document.getElementById("login-error");
-const donationsTable = document.getElementById("donations-table");
-const totalRaised = document.getElementById("total-raised");
-const progressBar = document.getElementById("progress-bar");
+// === DOM ===
+var loginSection = document.getElementById("login-section");
+var dashboard = document.getElementById("dashboard");
+var loginBtn = document.getElementById("login-btn");
+var logoutBtn = document.getElementById("logout-btn");
+var emailInput = document.getElementById("admin-email");
+var passInput = document.getElementById("admin-password");
+var errorBox = document.getElementById("login-error");
+var donationsTable = document.getElementById("donations-table");
+var totalRaised = document.getElementById("total-raised");
+var progressBar = document.getElementById("progress-bar");
 
-// --- Constants ---
-const GOAL_AMOUNT = 20000;
+var GOAL_AMOUNT = 20000;
 
-// --- Admin Check Function ---
-async function isAdmin(email) {
-  const snapshot = await db.collection("AdminUsers")
+// === Check if email is admin ===
+function isAdmin(email) {
+  return db.collection("AdminUsers")
     .where("email", "==", email.toLowerCase())
-    .get();
-  return !snapshot.empty;
+    .get()
+    .then(snap => !snap.empty);
 }
 
-// --- Login ---
-loginBtn.addEventListener("click", async () => {
-  const email = emailInput.value.trim().toLowerCase();
-  const password = passInput.value.trim();
+// === Login ===
+loginBtn.addEventListener("click", function () {
+  var email = emailInput.value.trim().toLowerCase();
+  var password = passInput.value.trim();
   errorBox.textContent = "";
 
-  try {
-    const userCred = await auth.signInWithEmailAndPassword(email, password);
-    const user = userCred.user;
-    const validAdmin = await isAdmin(user.email);
-
-    if (!validAdmin) {
-      await auth.signOut();
-      throw new Error("Access Denied: Not authorized as admin");
-    }
-
-    showDashboard();
-  } catch (err) {
-    errorBox.textContent = err.message;
-  }
+  auth.signInWithEmailAndPassword(email, password)
+    .then(async cred => {
+      var user = cred.user;
+      var valid = await isAdmin(user.email);
+      if (!valid) {
+        auth.signOut();
+        throw new Error("Access Denied: Not Authorized as Admin");
+      }
+      showDashboard();
+    })
+    .catch(err => {
+      errorBox.textContent = err.message;
+    });
 });
 
-// --- Stay Logged In (until logout or tab close) ---
-auth.onAuthStateChanged(async (user) => {
+// === Keep session active ===
+auth.onAuthStateChanged(async function (user) {
   if (user) {
-    const validAdmin = await isAdmin(user.email);
-    if (validAdmin) showDashboard();
-    else window.location.href = "index.html"; // Redirect non-admin
+    var valid = await isAdmin(user.email);
+    if (valid) showDashboard();
+    else window.location.href = "index.html";
   }
 });
 
-// --- Logout ---
-logoutBtn.addEventListener("click", async () => {
-  await auth.signOut();
-  dashboard.classList.add("hidden");
-  loginSection.style.display = "block";
+// === Logout ===
+logoutBtn.addEventListener("click", function () {
+  auth.signOut().then(() => {
+    dashboard.classList.add("hidden");
+    loginSection.style.display = "block";
+  });
 });
 
-// --- Show Dashboard ---
-async function showDashboard() {
+// === Show Dashboard ===
+function showDashboard() {
   loginSection.style.display = "none";
   dashboard.classList.remove("hidden");
   loadDonations();
 }
 
-// --- Load Donations ---
-async function loadDonations() {
-  try {
-    const snapshot = await db.collection("ComicProjectDonations").get();
-    donationsTable.innerHTML = "";
+// === Load Donations ===
+function loadDonations() {
+  db.collection("ComicProjectDonations").get()
+    .then(snapshot => {
+      donationsTable.innerHTML = "";
+      var total = 0;
 
-    let total = 0;
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      total += Number(data.amount) || 0;
+      snapshot.forEach(doc => {
+        var d = doc.data();
+        total += Number(d.amount) || 0;
+        var txn = d.txnID || d.txnId || "N/A";
+        var date = d.date || "N/A";
 
-      const txn = data.txnID || data.txnId || "N/A";
-      const date = data.date || "N/A";
+        var row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${d.name}</td>
+          <td>${d.email}</td>
+          <td>₹${d.amount}</td>
+          <td>${txn}</td>
+          <td>${date}</td>
+        `;
+        donationsTable.appendChild(row);
+      });
 
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${data.name}</td>
-        <td>${data.email}</td>
-        <td>₹${data.amount}</td>
-        <td>${txn}</td>
-        <td>${date}</td>
-      `;
-      donationsTable.appendChild(row);
-    });
-
-    totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
-    const percent = Math.min((total / GOAL_AMOUNT) * 100, 100);
-    progressBar.style.width = `${percent}%`;
-  } catch (err) {
-    console.error("Error loading donations:", err);
-  }
+      totalRaised.textContent = "₹" + total.toLocaleString("en-IN");
+      var percent = Math.min((total / GOAL_AMOUNT) * 100, 100);
+      progressBar.style.width = percent + "%";
+    })
+    .catch(err => console.error("Error loading donations:", err));
 }
 
-// --- Footer ---
+// === Footer ===
 document.getElementById("footer").innerHTML =
-  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
+  "© FundVerse " + new Date().getFullYear() +
+  " | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI";
