@@ -3,58 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse Admin Panel</title>
+  <title>FundVerse Admin Dashboard</title>
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-  <div class="container">
-    <!-- Login -->
-    <section id="login-section" class="card centered">
-      <h1 class="title">FundVerse Admin Login</h1>
-      <input type="email" id="admin-email" placeholder="Admin Email" class="input-field" />
-      <input type="password" id="admin-password" placeholder="Password" class="input-field" />
-      <button id="login-btn" class="btn primary">Login</button>
-      <p id="login-error" class="error"></p>
-    </section>
+  <section id="dashboard" class="card">
+    <header class="header">
+      <h1 class="title">FundVerse Dashboard</h1>
+      <button id="logout-btn" class="btn logout">Logout</button>
+    </header>
 
-    <!-- Dashboard -->
-    <section id="dashboard" class="card" style="display:none;">
-      <header class="header">
-        <h1 class="title">FundVerse Dashboard</h1>
-        <button id="logout-btn" class="btn logout">Logout</button>
-      </header>
-
-      <div class="summary">
-        <h2 class="section-title">Project Summary</h2>
-        <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
-        <p><strong>Goal:</strong> ₹20,000</p>
-        <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-        <div class="progress-container">
-          <div id="progress-bar" class="progress-bar"></div>
-        </div>
+    <div class="summary">
+      <h2 class="section-title">Project Summary</h2>
+      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+      <p><strong>Goal:</strong> ₹20,000</p>
+      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+      <div class="progress-container">
+        <div id="progress-bar" class="progress-bar"></div>
       </div>
+    </div>
 
-      <div class="donations">
-        <h2 class="section-title">Donations</h2>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Amount (₹)</th>
-                <th>Transaction ID</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="donations-table"></tbody>
-          </table>
-        </div>
+    <div class="donations">
+      <h2 class="section-title">Donations</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Amount (₹)</th>
+              <th>Transaction ID</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="donations-table"></tbody>
+        </table>
       </div>
-    </section>
+    </div>
 
     <footer id="footer" class="footer"></footer>
-  </div>
+  </section>
 
   <script type="module" src="admin.js"></script>
 </body>
