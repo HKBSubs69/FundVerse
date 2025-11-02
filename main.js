@@ -83,12 +83,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // --- Delay to simulate loading ---
-  setTimeout(async () => {
-    await updateProgress();
+ // --- Wait for typing to finish, then load site ---
+typingEffect(loadingText, randomMsg, 50, async () => {
+  await updateProgress();
+  setTimeout(() => {
     loader.style.display = "none";
     mainContent.classList.remove("hidden");
-  }, 2000);
+  }, 300); // small smooth delay after typing ends
+});
 
   // --- Handle Payment Options ---
   const paymentOption = document.getElementById("payment-option");
