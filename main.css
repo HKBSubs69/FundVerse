@@ -6,23 +6,24 @@ body {
   text-align: center;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* ---- Loader (Fetching Screen) ---- */
 .loader {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100vh;
   background: #0d0d0d;
   z-index: 9999;
   text-align: center;
-  opacity: 1;
   transition: opacity 0.5s ease;
 }
 
@@ -33,29 +34,26 @@ body {
   width: 55px;
   height: 55px;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
+/* ---- Loading Text ---- */
 #loading-text {
   color: #ff4d4d;
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1.15rem;
+  line-height: 1.7;
   text-align: center;
-  max-width: 90%;
+  max-width: 85%;
   white-space: pre-wrap;
   word-break: break-word;
+  opacity: 0.95;
   margin: 0 auto;
-  opacity: 0.9;
-  transition: opacity 0.5s ease;
+  font-family: "Roboto", "Poppins", sans-serif;
 }
 
 /* ---- Header ---- */
