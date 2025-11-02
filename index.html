@@ -13,70 +13,67 @@
 </head>
 
 <body>
-
-  <!-- Spinner / Loader -->
+  <!-- Loader -->
   <div id="loader" class="loader">
     <div class="spinner"></div>
     <p id="typing-text"></p>
   </div>
 
-  <!-- Header -->
-  <header class="hidden">
-    <h1 class="glow">FundVerse</h1>
-    <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
-    <p class="tagline">Empowering Dreams. One Step at a Time.</p>
-  </header>
+  <main id="main-content" class="hidden">
+    <header>
+      <h1 class="glow">FundVerse</h1>
+      <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
+      <p class="tagline">Empowering Dreams. One Step at a Time.</p>
+    </header>
 
-  <!-- Progress Section -->
-  <section class="progress-section hidden">
-    <div class="progress-bar-container">
-      <div id="progress-bar"></div>
-    </div>
-    <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
-  </section>
-
-  <!-- Donation Form -->
-  <section class="donation-section hidden">
-    <h2>Support the Project</h2>
-    <form id="donationForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="email" id="email" placeholder="Email Address" required />
-      <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
-
-      <label for="payment-option">Payment Option</label>
-      <select id="payment-option" required>
-        <option value="">Select Option</option>
-        <option value="upi-id">UPI ID</option>
-        <option value="upi-qr">UPI QR</option>
-      </select>
-
-      <!-- Dynamic UPI Display -->
-      <div id="upi-display" class="hidden">
-        <p id="upi-text" class="clickable"></p>
-        <canvas id="upi-qr"></canvas>
+    <section class="progress-section">
+      <div class="progress-bar-container">
+        <div id="progress-bar"></div>
       </div>
+      <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
+    </section>
 
-      <label for="txnId">Transaction ID (After Payment)</label>
-      <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
-      <small>💡 Find your Transaction ID in your UPI payment history</small>
+    <section class="donation-section">
+      <h2>Support the Project</h2>
+      <form id="donationForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email Address" required />
+        <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
 
-      <!-- Google reCAPTCHA -->
-      <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+        <label for="payment-option">Payment Option</label>
+        <select id="payment-option" required>
+          <option value="">Select Option</option>
+          <option value="upi-id">UPI ID</option>
+          <option value="upi-qr">UPI QR</option>
+        </select>
 
-      <button type="submit">Contribute</button>
-    </form>
-  </section>
+        <div id="upi-display" class="hidden">
+          <p id="upi-text" class="clickable"></p>
+          <canvas id="upi-qr"></canvas>
+        </div>
 
-  <!-- Contact Section -->
-  <section class="contact-section hidden">
-    <h3>Contact Us</h3>
-    <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
-  </section>
+        <label for="txnId">Transaction ID (After Payment)</label>
+        <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
+        <small>Find your Transaction ID in your UPI payment history.</small>
 
-  <!-- Footer -->
-  <footer id="footer" class="hidden"></footer>
+        <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
 
-  <!-- Scripts -->
+        <button type="submit">Contribute</button>
+      </form>
+    </section>
+
+    <section class="contact-section">
+      <h3>Contact Us</h3>
+      <p>Email:
+        <a href="mailto:blueoceanstudiosindia@gmail.com">
+          blueoceanstudiosindia@gmail.com
+        </a>
+      </p>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
+
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <script src="main.js" type="module"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
