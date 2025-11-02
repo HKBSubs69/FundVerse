@@ -3,46 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse Admin Dashboard</title>
+  <title>FundVerse Admin</title>
   <link rel="stylesheet" href="admin.css" />
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      max-width: 420px;
+      margin: 8vh auto;
+      padding: 2rem;
+      border: 2px solid #f00;
+      border-radius: 12px;
+      background: #111;
+      box-shadow: 0 0 20px #900;
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    input { background: #222; color: #fff; }
+    button { background: #e60000; color: #fff; font-weight: bold; cursor: pointer; }
+    .logout { float: right; margin-right: 5%; }
+    .hidden { display: none; }
+    table {
+      width: 95%;
+      margin: 1rem auto;
+      border-collapse: collapse;
+      color: #fff;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+    th { background: #b30000; }
+    .progress-container {
+      width: 90%;
+      background: #333;
+      border-radius: 20px;
+      margin: 1rem auto;
+      height: 16px;
+    }
+    .progress-bar {
+      height: 16px;
+      background: #f00;
+      width: 0%;
+      border-radius: 20px;
+    }
+    footer {
+      font-size: 0.8rem;
+      margin-top: 2rem;
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
-  <section id="dashboard" class="card">
-    <header class="header">
-      <h1 class="title">FundVerse Dashboard</h1>
-      <button id="logout-btn" class="btn logout">Logout</button>
+
+  <!-- Login -->
+  <div id="login-card" class="card">
+    <h1>FundVerse Admin Login</h1>
+    <input type="email" id="admin-email" placeholder="Admin Email" required />
+    <input type="password" id="admin-password" placeholder="Password" required />
+    <button id="login-btn">Login</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden">
+    <header>
+      <h1>FundVerse Dashboard</h1>
+      <button id="logout-btn" class="logout">Logout</button>
     </header>
 
-    <div class="summary">
-      <h2 class="section-title">Project Summary</h2>
-      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
-      <p><strong>Goal:</strong> ₹20,000</p>
-      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-      <div class="progress-container">
-        <div id="progress-bar" class="progress-bar"></div>
-      </div>
+    <h2>Project Summary</h2>
+    <p><b>Project:</b> The Deserted Path (Comic Version)</p>
+    <p><b>Goal:</b> ₹20,000</p>
+    <p><b>Total Raised:</b> <span id="total-raised">₹0</span></p>
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar"></div>
     </div>
 
-    <div class="donations">
-      <h2 class="section-title">Donations</h2>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Amount (₹)</th>
-              <th>Transaction ID</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="donations-table"></tbody>
-        </table>
-      </div>
-    </div>
+    <h2>Donations</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Amount (₹)</th>
+          <th>Transaction ID</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="donations-table"></tbody>
+    </table>
 
-    <footer id="footer" class="footer"></footer>
-  </section>
+    <footer>
+      © FundVerse 2025 | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI
+    </footer>
+  </div>
 
   <script type="module" src="admin.js"></script>
 </body>
