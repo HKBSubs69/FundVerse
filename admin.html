@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-
-  <!-- Meta -->
-  <meta name="description" content="FundVerse Admin Panel - Secure Dashboard for managing comic project donations." />
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js" type="module"></script>
 </head>
-
 <body>
   <!-- Loader -->
   <div id="loader" class="loader">
@@ -17,68 +16,62 @@
     <p>Fetching Donations...</p>
   </div>
 
-  <!-- Login Section -->
-  <section id="login-section" class="card">
-    <h1>FundVerse Admin Login</h1>
-    <input type="email" id="admin-email" placeholder="Admin Email" required />
-    <input type="password" id="admin-password" placeholder="Password" required />
-    <button id="login-btn" class="btn">Login</button>
-    <p id="login-error" class="error"></p>
-  </section>
+  <div class="container">
+    <!-- Login Section -->
+    <section id="login-section" class="card">
+      <h1>FundVerse Admin Login</h1>
+      <input type="email" id="admin-email" placeholder="Admin E-Mail" />
+      <input type="password" id="admin-password" placeholder="Password" />
+      <button id="login-btn" class="btn">Login</button>
+      <p id="login-error" class="error"></p>
+    </section>
 
-  <!-- Dashboard -->
-  <section id="dashboard" class="hidden">
-    <header class="header">
-      <h1>FundVerse Dashboard</h1>
-      <button id="logout-btn" class="logout-btn">Logout</button>
-    </header>
+    <!-- Dashboard -->
+    <section id="dashboard" style="display:none;">
+      <header class="header">
+        <h1>FundVerse Dashboard</h1>
+        <button id="logout-btn" class="logout-btn">Logout</button>
+      </header>
 
-    <!-- Summary -->
-    <div class="summary">
-      <h2>Project Summary</h2>
-      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
-      <p><strong>Goal:</strong> ₹20,000</p>
-      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-      <div class="progress-container">
-        <div id="progress-bar" class="progress-bar"></div>
+      <div class="summary">
+        <h2>Project Summary</h2>
+        <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+        <p><strong>Goal:</strong> ₹20,000</p>
+        <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Controls -->
-    <div class="controls">
-      <input type="text" id="search-box" placeholder="Search by name, email or Txn ID" />
-      <select id="sort-select">
-        <option value="default">Sort By</option>
-        <option value="asc">Lowest → Highest</option>
-        <option value="desc">Highest → Lowest</option>
-      </select>
-      <input type="date" id="filter-start" />
-      <input type="date" id="filter-end" />
-      <button id="filter-btn">Apply Filter</button>
-    </div>
+      <div class="controls">
+        <input type="text" id="searchBox" placeholder="Search by name, email, or txnID" />
+        <select id="sortSelect">
+          <option value="">Sort by</option>
+          <option value="low">Amount: Low → High</option>
+          <option value="high">Amount: High → Low</option>
+        </select>
+      </div>
 
-    <!-- Donations Table -->
-    <div class="donations">
-      <h2>Donation Records</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Amount (₹)</th>
-            <th>Transaction ID</th>
-            <th>Date & Time</th>
-          </tr>
-        </thead>
-        <tbody id="donations-table"></tbody>
-      </table>
-    </div>
+      <div class="donations">
+        <h2>Donations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>E-Mail</th>
+              <th>Amount (₹)</th>
+              <th>Transaction ID</th>
+              <th>Date & Time</th>
+            </tr>
+          </thead>
+          <tbody id="donations-table"></tbody>
+        </table>
+      </div>
+    </section>
 
-    <!-- Footer -->
     <footer id="footer"></footer>
-  </section>
+  </div>
 
-  <!-- Script -->
   <script type="module" src="admin.js"></script>
 </body>
 </html>
