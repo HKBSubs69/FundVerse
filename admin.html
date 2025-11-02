@@ -3,187 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FundVerse Admin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #0a0a0a;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      width: 95%;
-      max-width: 900px;
-      background: #121212;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-      padding: 2rem;
-      margin-top: 3vh;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    .btn {
-      background: #e50914;
-      border: none;
-      color: white;
-      font-weight: bold;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 10px;
-      font-size: 1rem;
-    }
-    .btn:hover { background: #b00710; }
+  <title>FundVerse Admin Panel</title>
+  <link rel="stylesheet" href="admin.css" />
 
-    #login-card {
-      background: #1a1a1a;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-      padding: 2rem;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      margin-top: 10vh;
-    }
-    #login-card input {
-      width: 90%;
-      margin: 10px 0;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #2a2a2a;
-      color: white;
-      font-size: 1rem;
-    }
-
-    .progress-container {
-      width: 100%;
-      height: 16px;
-      background: #333;
-      border-radius: 20px;
-      overflow: hidden;
-      margin: 1rem 0;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #ff0000, #ff5050);
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-
-    .filters {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      margin: 10px 0;
-    }
-    select {
-      background: #1a1a1a;
-      color: white;
-      border: 1px solid #333;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: #1a1a1a;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      border-bottom: 1px solid #333;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background: #b30000;
-      color: white;
-      text-transform: uppercase;
-    }
-    tr:hover { background: #222; }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      text-align: center;
-      opacity: 0.8;
-    }
-
-    .hidden { display: none; }
-  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js" type="module"></script>
 </head>
-<body>
 
-  <!-- Login -->
-  <div id="login-card">
-    <h1>FundVerse Admin Login</h1>
-    <input type="email" id="admin-email" placeholder="Admin Email" required />
-    <input type="password" id="admin-password" placeholder="Password" required />
-    <button class="btn" id="login-btn">Login</button>
+<body>
+  <!-- Loader -->
+  <div id="loader" class="loader">
+    <div class="spinner"></div>
+    <p>Fetching Donations...</p>
   </div>
+
+  <!-- Login Section -->
+  <section id="login-section" class="card">
+    <h1>FundVerse Admin Login</h1>
+    <input type="email" id="admin-email" placeholder="Admin Email" />
+    <input type="password" id="admin-password" placeholder="Password" />
+    <button id="login-btn" class="btn">Login</button>
+    <p id="login-error" class="error"></p>
+  </section>
 
   <!-- Dashboard -->
-  <div id="dashboard" class="container hidden">
-    <h1>FundVerse Dashboard</h1>
-    <button class="btn" id="logout-btn" style="float: right; margin-top: -60px;">Logout</button>
-    
-    <h2>Project Summary</h2>
-    <p><b>Project:</b> The Deserted Path (Comic Version)</p>
-    <p><b>Goal:</b> ₹20,000</p>
-    <p><b>Total Raised:</b> <span id="total-raised">₹0</span></p>
-    
-    <div class="progress-container">
-      <div id="progress-bar" class="progress-bar"></div>
-    </div>
+  <section id="dashboard" style="display:none;">
+    <header class="header">
+      <h1>FundVerse Dashboard</h1>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </header>
 
-    <div class="filters">
-      <div>
-        <label>Sort by Amount:</label>
-        <select id="sort-amount">
-          <option value="none">None</option>
-          <option value="high">Highest First</option>
-          <option value="low">Lowest First</option>
-        </select>
-      </div>
-      <div>
-        <label>Filter by Date:</label>
-        <select id="filter-date">
-          <option value="none">None</option>
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
+    <div class="summary">
+      <h2>Project Summary</h2>
+      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+      <p><strong>Goal:</strong> ₹20,000</p>
+      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+      <div class="progress-container">
+        <div id="progress-bar" class="progress-bar"></div>
       </div>
     </div>
 
-    <h2>Donations</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Amount (₹)</th>
-          <th>Transaction ID</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="donations-table"></tbody>
-    </table>
-  </div>
+    <!-- Search / Filter / Sort -->
+    <div class="controls">
+      <input type="text" id="search-box" placeholder="Search by name, email or Txn ID" />
+      <select id="sort-select">
+        <option value="default">Sort By</option>
+        <option value="asc">Lowest → Highest</option>
+        <option value="desc">Highest → Lowest</option>
+      </select>
+      <input type="date" id="filter-start" />
+      <input type="date" id="filter-end" />
+      <button id="filter-btn">Apply Filter</button>
+    </div>
 
-  <footer>
-    © FundVerse 2025 | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI
-  </footer>
+    <!-- Donations Table -->
+    <div class="donations">
+      <h2>Donations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Amount (₹)</th>
+            <th>Transaction ID</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="donations-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+  </section>
 
   <script type="module" src="admin.js"></script>
 </body>
