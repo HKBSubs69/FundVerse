@@ -1,4 +1,4 @@
-// main.js (module)
+// --- Firebase v12 Modular SDK ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
   getFirestore,
@@ -8,7 +8,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// Firebase config (your config)
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -18,12 +18,15 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
 };
 
+// --- Initialize Firebase ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// --- Constants ---
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
+// --- Loader Lines ---
 const lines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
@@ -31,6 +34,7 @@ const lines = [
   "Fueling art, passion, and purpose — one donation at a time.",
 ];
 
+// --- Show Loader Once ---
 function showLoading() {
   const loader = document.getElementById("loader");
   const textEl = document.getElementById("loading-text");
@@ -65,6 +69,7 @@ function showLoading() {
   type();
 }
 
+// --- Firestore Logic ---
 document.addEventListener("DOMContentLoaded", () => {
   showLoading();
 
@@ -75,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
 
+  // --- Update progress bar ---
   async function updateProgress() {
     if (!progressBar || !raisedAmount) return;
     try {
@@ -86,16 +92,18 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
-      raisedAmount.textContent = `Raised: ₹${total.toLocaleString("en-IN")} / ₹${goalAmount.toLocaleString("en-IN")}`;
+      raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
+        "en-IN"
+      )} / ₹${goalAmount.toLocaleString("en-IN")}`;
     } catch (err) {
       console.error("updateProgress error:", err);
     }
   }
 
-  // payment option handler
+  // --- Payment Option Change ---
   const paymentOption = document.getElementById("payment-option");
   if (paymentOption) {
-    paymentOption.addEventListener("change", (e) => {
+    paymentOption.addEventListener("change", async (e) => {
       const option = e.target.value;
       const amount = document.getElementById("amount")?.value?.trim() || "";
       if (!amount || Number(amount) <= 0) {
@@ -106,31 +114,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
       upiDisplay?.classList.remove("hidden");
 
+      const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+
       if (option === "upi-id") {
+        // Show UPI ID clickable link
         if (upiText) {
           upiText.innerHTML = `<strong>Send to:</strong> <span style="color:#3b82f6;font-weight:700;">${upiID}</span>`;
           upiText.onclick = () => {
-            const url = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent("FundVerse")}&am=${encodeURIComponent(amount)}&cu=INR`;
-            window.location.href = url;
+            window.location.href = qrData;
           };
         }
         if (qrCanvas) qrCanvas.style.display = "none";
       } else if (option === "upi-qr") {
-        if (upiText) upiText.textContent = "";
+        // Show Dynamic QR
+        if (upiText) upiText.innerHTML = "";
         if (qrCanvas) {
           qrCanvas.style.display = "block";
-          const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
           try {
-            QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
+            // clear previous QR if any
+            const ctx = qrCanvas.getContext("2d");
+            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+            await QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
           } catch (err) {
-            console.error("qrcode error:", err);
+            console.error("QR generation failed:", err);
           }
         }
       }
     });
   }
 
-  // form submit
+  // --- Submit Form ---
   form?.addEventListener("submit", async (evt) => {
     evt.preventDefault();
     const name = document.getElementById("name")?.value?.trim() || "";
@@ -145,13 +158,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const now = new Date();
     const formattedDate = now.toLocaleString("en-IN", {
-      day: "2-digit", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata"
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
     });
 
     try {
       await addDoc(collection(db, "ComicProjectDonations"), {
-        name, email, amount, txnID, date: formattedDate, timestamp: serverTimestamp()
+        name,
+        email,
+        amount,
+        txnID,
+        date: formattedDate,
+        timestamp: serverTimestamp(),
       });
       alert("🎉 Thank you for your contribution!");
       form.reset();
@@ -163,12 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // footer text
+  // --- Footer ---
   const footer = document.getElementById("footer");
   if (footer) {
     footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by <span style="color:#3b82f6;">Blue Ocean Studios India</span> | Made in India | Created by <span style="color:#3b82f6;">Kushal Mitra</span> & AI`;
   }
 
-  // initial progress
   updateProgress();
 });
