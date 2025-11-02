@@ -1,3 +1,22 @@
+window.addEventListener("load", () => {
+  const loader = document.getElementById("loader");
+  const main = document.getElementById("main-content");
+
+  // simple creative message (shown once)
+  const lines = [
+    "Bringing dreams to life — please wait a moment.",
+    "Setting up FundVerse for you!",
+    "Empowering creativity... almost ready!"
+  ];
+  const randomLine = lines[Math.floor(Math.random() * lines.length)];
+  document.getElementById("loading-text").textContent = randomLine;
+
+  // remove loader after 1.8s
+  setTimeout(() => {
+    loader.style.display = "none";
+    main.classList.add("visible");
+  }, 1800);
+});
 // --- Firebase v12 Modular SDK ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
