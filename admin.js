@@ -1,28 +1,10 @@
-// ---------------------------
-// FundVerse Admin Dashboard
-// Secure Auto-Login + txnID Fix
-// ---------------------------
+// -------------------------------
+// admin.js (Firebase v8) 
+// Secure Admin: requires Auth + whitelist in Firestore
+// -------------------------------
 
-// Firebase imports (v9+ modular)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-  setPersistence,
-  browserSessionPersistence
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-
-// ---------------------------
-// Firebase Configuration
-// ---------------------------
-const firebaseConfig = {
+/* FIREBASE CONFIG */
+var firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
   projectId: "fundverse-f3b0c",
@@ -31,34 +13,43 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// ---------------------------
-// Elements
-// ---------------------------
+/* DOM elements */
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const loginError = document.getElementById("login-error");
-const totalRaisedText = document.getElementById("total-raised");
-const progressBar = document.getElementById("progress-bar");
+
 const donationsTable = document.getElementById("donations-table");
+const totalRaisedEl = document.getElementById("total-raised");
+const progressBar = document.getElementById("progress-bar");
 const footer = document.getElementById("footer");
 
-// Goal amount
-const goalAmount = 20000;
+const GOAL_AMOUNT = 20000;
 
-// ---------------------------
-// Helper: Format date in IST
-// ---------------------------
+/* helper: format Firestore timestamp to IST string */
 function formatTimestampToIST(timestamp) {
   if (!timestamp) return "—";
-  const date = new Date(timestamp.seconds * 1000);
-  return date.toLocaleString("en-IN", {
+  // if it's a Firestore Timestamp object
+  if (timestamp.seconds) {
+    const d = new Date(timestamp.seconds * 1000);
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata"
+    }) + " (IST)";
+  }
+  // fallback
+  const d = new Date(timestamp);
+  return d.toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -66,89 +57,117 @@ function formatTimestampToIST(timestamp) {
     minute: "2-digit",
     hour12: true,
     timeZone: "Asia/Kolkata"
-  });
+  }) + " (IST)";
 }
 
-// ---------------------------
-// Fetch Donations
-// ---------------------------
-async function fetchDonations() {
-  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
-  donationsTable.innerHTML = "";
+/* load donations and compute totals (only callable when admin authorized) */
+async function loadDonations() {
+  try {
+    const snap = await db.collection("ComicProjectDonations").orderBy("timestamp", "desc").get();
+    donationsTable.innerHTML = "";
+    let total = 0;
 
-  let total = 0;
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    const name = data.name || "—";
-    const email = data.email || "—";
-    const amount = data.amount || 0;
-    const txnID = data.txnID || "—";
-    const timestamp = data.timestamp;
+    snap.forEach(doc => {
+      const d = doc.data();
+      const name = d.name || "—";
+      const email = d.email || "—";
+      const amount = d.amount || 0;
+      // Accept txnID field name exactly as you said
+      const txn = d.txnID || d.txnId || "—";
+      const ts = d.timestamp || d.date || null;
 
-    total += Number(amount);
+      total += Number(amount);
 
-    const row = `
-      <tr>
+      const row = `<tr>
         <td>${name}</td>
         <td>${email}</td>
         <td>₹${amount}</td>
-        <td>${txnID}</td>
-        <td>${formatTimestampToIST(timestamp)}</td>
-      </tr>
-    `;
-    donationsTable.insertAdjacentHTML("beforeend", row);
-  });
+        <td>${txn}</td>
+        <td>${formatTimestampToIST(ts)}</td>
+      </tr>`;
+      donationsTable.insertAdjacentHTML("beforeend", row);
+    });
 
-  totalRaisedText.textContent = `₹${total.toLocaleString("en-IN")}`;
-  const percent = Math.min((total / goalAmount) * 100, 100);
-  progressBar.style.width = `${percent}%`;
+    totalRaisedEl.textContent = `₹${total.toLocaleString("en-IN")}`;
+    const percent = Math.min((total / GOAL_AMOUNT) * 100, 100);
+    progressBar.style.width = `${percent}%`;
+  } catch (err) {
+    console.error("loadDonations error:", err);
+  }
 }
 
-// ---------------------------
-// Auto Footer Year
-// ---------------------------
-footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
+/* --- Admin whitelist check:
+   We'll allow dashboard only if signed-in user's UID exists
+   as a document under collection 'AdminUsers' (doc id = uid).
+   To add yourself: after you sign in once, create a document
+   in Firestore: AdminUsers -> <your-uid> (empty doc is fine).
+*/
+async function isAdminAllowed(uid) {
+  try {
+    if (!uid) return false;
+    const doc = await db.collection("AdminUsers").doc(uid).get();
+    return doc.exists;
+  } catch (e) {
+    console.error("isAdminAllowed error:", e);
+    return false;
+  }
+}
 
-// ---------------------------
-// Authentication System
-// ---------------------------
+/* Auth flow */
 
-// Keep user signed in during session (auto-login on refresh)
-setPersistence(auth, browserSessionPersistence);
+/* Keep session persistence so refresh keeps you logged in */
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+  .catch(err => console.warn("persistence error", err));
 
-onAuthStateChanged(auth, (user) => {
+/* On auth change: check admin whitelist and show/hide dashboard */
+auth.onAuthStateChanged(async (user) => {
   if (user) {
+    // check whitelist
+    const allowed = await isAdminAllowed(user.uid);
+    if (!allowed) {
+      // not allowed -> sign out immediately and show message
+      await auth.signOut();
+      loginError.textContent = "Access denied. Contact site owner.";
+      loginSection.style.display = "block";
+      dashboard.style.display = "none";
+      return;
+    }
+    // allowed -> show dashboard
     loginSection.style.display = "none";
     dashboard.style.display = "block";
-    fetchDonations();
+    loginError.textContent = "";
+    await loadDonations();
   } else {
+    // not signed in
     loginSection.style.display = "block";
     dashboard.style.display = "none";
   }
 });
 
-// Login event
+/* Login button */
 loginBtn.addEventListener("click", async () => {
+  loginError.textContent = "";
   const email = document.getElementById("admin-email").value.trim();
-  const password = document.getElementById("admin-password").value.trim();
-
-  if (!email || !password) {
-    loginError.textContent = "Please enter both email and password.";
+  const pw = document.getElementById("admin-password").value.trim();
+  if (!email || !pw) {
+    loginError.textContent = "Enter email and password.";
     return;
   }
-
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    loginError.textContent = "";
-  } catch (error) {
-    console.error("Login failed:", error.message);
-    loginError.textContent = "Invalid credentials or permission denied.";
+    await auth.signInWithEmailAndPassword(email, pw);
+    // auth.onAuthStateChanged will handle whitelist & dashboard
+  } catch (err) {
+    console.error("login error", err);
+    loginError.textContent = "Login failed. Check credentials.";
   }
 });
 
-// Logout
+/* Logout button */
 logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
+  await auth.signOut();
   loginSection.style.display = "block";
   dashboard.style.display = "none";
 });
+
+/* footer */
+footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
