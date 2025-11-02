@@ -12,15 +12,15 @@ body {
 
 .container {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .card {
   background: #111;
   border: 1px solid #ff2a2a;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 25px;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.25);
   margin-bottom: 20px;
 }
 
@@ -31,7 +31,8 @@ body {
 .title {
   color: #ff2a2a;
   margin-bottom: 20px;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
+  font-weight: bold;
 }
 
 .input-field {
@@ -40,7 +41,7 @@ body {
   padding: 12px;
   margin-bottom: 15px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #222;
   color: #fff;
   font-size: 1rem;
@@ -50,7 +51,7 @@ body {
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s;
@@ -66,10 +67,10 @@ body {
 }
 
 .btn.logout {
-  background: #444;
+  background: #333;
   color: #fff;
   width: auto;
-  padding: 8px 16px;
+  padding: 8px 18px;
 }
 
 .header {
@@ -101,20 +102,32 @@ body {
   transition: width 0.4s ease;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  font-size: 0.95rem;
 }
 
 th, td {
   padding: 10px;
   border-bottom: 1px solid #222;
+  white-space: nowrap;
 }
 
 th {
   background: #ff2a2a;
   color: #000;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+td {
+  color: #ddd;
 }
 
 .error {
