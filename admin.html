@@ -5,35 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
+
+  <!-- Firebase v8 (non-modular, works directly in browser) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <style>
     body {
+      margin: 0;
       font-family: "Poppins", sans-serif;
       background: #000;
       color: #fff;
-      margin: 0;
-      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-
     .card {
       background: #121212;
       border: 1px solid #e50914;
       border-radius: 15px;
       padding: 25px;
       box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+      width: 90%;
       max-width: 420px;
-      margin: 100px auto;
+      margin: 80px auto 0 auto;
       text-align: center;
     }
-
     h1 {
       color: #e50914;
       margin-bottom: 20px;
     }
-
     input {
       width: 100%;
       padding: 12px;
@@ -45,11 +47,9 @@
       font-size: 15px;
       outline: none;
     }
-
     input:focus {
       border: 1px solid #e50914;
     }
-
     .btn {
       width: 100%;
       padding: 12px;
@@ -62,92 +62,27 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
     .btn:hover {
       background-color: #ff0d19;
     }
-
     .error {
       color: #ff4444;
       font-size: 0.9rem;
       margin-top: 10px;
     }
-
-    .dashboard {
-      display: none;
-      max-width: 900px;
-      margin: 50px auto;
-      padding: 20px;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #e50914;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-
-    .logout-btn {
-      background: #e50914;
-      border: none;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #151515;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #333;
-      text-align: left;
-    }
-
-    th {
-      background: #e50914;
-    }
-
-    tr:nth-child(even) {
-      background: #111;
-    }
-
-    .progress-container {
-      background: #222;
-      border-radius: 5px;
-      height: 12px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-
-    .progress-bar {
-      background: #e50914;
-      height: 100%;
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-
     footer {
+      margin-top: auto;
       text-align: center;
       padding: 20px;
       font-size: 0.9rem;
       color: #bbb;
       border-top: 1px solid #222;
-      margin-top: 40px;
     }
   </style>
 </head>
 
 <body>
-  <!-- Login Section -->
+  <!-- LOGIN -->
   <section id="login-section" class="card">
     <h1>FundVerse Admin Login</h1>
     <input type="email" id="admin-email" placeholder="Admin Email" required />
@@ -156,31 +91,32 @@
     <p id="login-error" class="error"></p>
   </section>
 
-  <!-- Dashboard -->
-  <section id="dashboard" class="dashboard">
-    <div class="header">
-      <h1>FundVerse Dashboard</h1>
-      <button id="logout-btn" class="logout-btn">Logout</button>
+  <!-- DASHBOARD (hidden until login) -->
+  <section id="dashboard" style="display:none; padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e50914;margin-bottom:20px;">
+      <h2>FundVerse Dashboard</h2>
+      <button id="logout-btn" class="btn" style="width:auto;padding:8px 14px;">Logout</button>
     </div>
 
-    <div class="summary">
-      <h2>Project Summary</h2>
-      <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+    <div>
+      <h3>Project Summary</h3>
       <p><strong>Goal:</strong> ₹20,000</p>
       <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-      <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+      <div style="background:#222;height:12px;border-radius:5px;overflow:hidden;">
+        <div id="progress-bar" style="background:#e50914;height:100%;width:0%;transition:width 0.4s ease;"></div>
+      </div>
     </div>
 
-    <div class="donations">
-      <h2>Donations</h2>
-      <table>
+    <div style="margin-top:20px;">
+      <h3>Donations</h3>
+      <table style="width:100%;border-collapse:collapse;">
         <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Amount (₹)</th>
-            <th>Transaction ID</th>
-            <th>Date</th>
+          <tr style="background:#e50914;">
+            <th style="padding:8px;text-align:left;">Name</th>
+            <th style="padding:8px;text-align:left;">Email</th>
+            <th style="padding:8px;text-align:left;">Amount (₹)</th>
+            <th style="padding:8px;text-align:left;">Transaction ID</th>
+            <th style="padding:8px;text-align:left;">Date</th>
           </tr>
         </thead>
         <tbody id="donations-table"></tbody>
@@ -190,6 +126,7 @@
 
   <footer id="footer"></footer>
 
-  <script src="admin.js" defer></script>
+  <!-- Load JS (non-module) -->
+  <script src="admin.js"></script>
 </body>
 </html>
