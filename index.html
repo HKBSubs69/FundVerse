@@ -1,87 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
-
   <link rel="stylesheet" href="main.css" />
 
-  <!-- Firebase v8 (non-module, works on GitHub Pages) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-  <!-- QRCode lib (used to draw dynamic QR on canvas) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
-  <!-- EmailJS (if you use it later) -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
-
-  <!-- reCAPTCHA script (optional) -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Firebase & EmailJS -->
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
+
 <body>
 
-  <!-- Loader (shows 1-2s then shows site) -->
+  <!-- Spinner / Loader -->
   <div id="loader" class="loader">
     <div class="spinner"></div>
-    <p id="loader-text">✨ Fetching the latest stories of generosity...</p>
+    <p id="typing-text"></p>
   </div>
 
-  <!-- Main content (hidden while loader) -->
-  <main id="main-content" class="hidden">
-    <header>
-      <h1 class="glow">FundVerse</h1>
-      <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
-      <p class="tagline">Empowering Dreams. One Step at a Time.</p>
-    </header>
+  <!-- Header -->
+  <header class="hidden">
+    <h1 class="glow">FundVerse</h1>
+    <p class="subtitle">Project: The Deserted Path (Comic Version)</p>
+    <p class="tagline">Empowering Dreams. One Step at a Time.</p>
+  </header>
 
-    <section class="progress-section">
-      <div class="progress-bar-container">
-        <div id="progress-bar"></div>
+  <!-- Progress Section -->
+  <section class="progress-section hidden">
+    <div class="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
+  </section>
+
+  <!-- Donation Form -->
+  <section class="donation-section hidden">
+    <h2>Support the Project</h2>
+    <form id="donationForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email Address" required />
+      <input type="number" id="amount" placeholder="Donation Amount (₹)" required />
+
+      <label for="payment-option">Payment Option</label>
+      <select id="payment-option" required>
+        <option value="">Select Option</option>
+        <option value="upi-id">UPI ID</option>
+        <option value="upi-qr">UPI QR</option>
+      </select>
+
+      <!-- Dynamic UPI Display -->
+      <div id="upi-display" class="hidden">
+        <p id="upi-text" class="clickable"></p>
+        <canvas id="upi-qr"></canvas>
       </div>
-      <p id="raised-amount">Raised: ₹0 / ₹20,000</p>
-    </section>
 
-    <section class="donation-section">
-      <h2>Support the Project</h2>
-      <form id="donationForm">
-        <input type="text" id="name" placeholder="Full Name" required />
-        <input type="email" id="email" placeholder="Email Address" required />
-        <input type="number" id="amount" placeholder="Donation Amount (₹)" min="1" required />
+      <label for="txnId">Transaction ID (After Payment)</label>
+      <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
+      <small>💡 Find your Transaction ID in your UPI payment history</small>
 
-        <label for="payment-option">Payment Option</label>
-        <select id="payment-option" required>
-          <option value="">Select Option</option>
-          <option value="upi-id">UPI ID</option>
-          <option value="upi-qr">UPI QR</option>
-        </select>
+      <!-- Google reCAPTCHA -->
+      <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
 
-        <div id="upi-display" class="hidden">
-          <p id="upi-text" class="clickable"></p>
-          <canvas id="upi-qr" width="220" height="220"></canvas>
-        </div>
+      <button type="submit">Contribute</button>
+    </form>
+  </section>
 
-        <label for="txnId">Transaction ID (After Payment)</label>
-        <input type="text" id="txnId" placeholder="Enter Transaction ID" required />
-        <small id="txn-hint">💡 Find your Transaction ID in your UPI payment history</small>
+  <!-- Contact Section -->
+  <section class="contact-section hidden">
+    <h3>Contact Us</h3>
+    <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
+  </section>
 
-        <!-- Optional reCAPTCHA placeholder (you registered a key earlier) -->
-        <div id="recaptcha" class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+  <!-- Footer -->
+  <footer id="footer" class="hidden"></footer>
 
-        <button id="donate-btn" type="submit">Contribute</button>
-      </form>
-    </section>
-
-    <section class="contact-section">
-      <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a></p>
-    </section>
-
-    <footer id="footer"></footer>
-  </main>
-
-  <!-- main.js (non-module) -->
-  <script src="main.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="main.js" type="module"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
