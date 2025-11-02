@@ -1,3 +1,4 @@
+/* --- Base --- */
 body {
   background: #0d0d0d;
   color: white;
@@ -8,15 +9,49 @@ body {
 }
 
 h1, h2 {
-  color: #ff1e1e;
+  color: #ff2a2a;
 }
 
+.container {
+  padding-bottom: 60px;
+}
+
+/* --- Loader --- */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #ff1e1e;
+  font-size: 1.1em;
+  z-index: 9999;
+  transition: opacity 0.6s ease;
+}
+
+.spinner {
+  border: 4px solid #222;
+  border-top: 4px solid #ff1e1e;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Card / Login --- */
 .card {
   background: #111;
-  padding: 20px;
+  padding: 25px;
   border-radius: 12px;
   max-width: 350px;
-  margin: 100px auto;
+  margin: 110px auto;
   box-shadow: 0 0 15px #ff1e1e33;
 }
 
@@ -35,10 +70,16 @@ button {
   color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
 button:hover {
   background: #ff4040;
+}
+
+.btn.small {
+  padding: 6px 12px;
+  font-size: 0.9em;
 }
 
 .error {
@@ -46,23 +87,31 @@ button:hover {
   font-size: 0.9em;
 }
 
+/* --- Header --- */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #111;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .logout-btn {
   background: #ff1e1e;
   border: none;
-  padding: 8px 15px;
+  padding: 8px 14px;
   border-radius: 6px;
   color: white;
   cursor: pointer;
 }
 
+/* --- Summary --- */
 .summary {
   background: #141414;
   margin: 20px auto;
@@ -71,6 +120,7 @@ button:hover {
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 0 10px #ff1e1e33;
+  text-align: left;
 }
 
 .progress-container {
@@ -79,6 +129,7 @@ button:hover {
   background: #222;
   border-radius: 10px;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 .progress-bar {
@@ -88,6 +139,7 @@ button:hover {
   transition: width 0.5s ease;
 }
 
+/* --- Controls --- */
 .controls {
   margin: 15px auto;
   display: flex;
@@ -96,6 +148,7 @@ button:hover {
   flex-wrap: wrap;
 }
 
+/* --- Table --- */
 table {
   width: 95%;
   margin: 15px auto;
@@ -115,41 +168,19 @@ th {
   color: #ff4040;
 }
 
-.loader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #0d0d0d;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #ff1e1e;
-  font-size: 1.1em;
-  z-index: 9999;
-  transition: opacity 0.6s ease;
+td {
+  color: #ddd;
 }
 
-.spinner {
-  border: 4px solid #222;
-  border-top: 4px solid #ff1e1e;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+tr:hover {
+  background: #1a1a1a;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
+/* --- Footer --- */
 footer {
   background: #111;
   color: #aaa;
   padding: 10px;
   font-size: 0.85em;
-  margin-top: 20px;
+  margin-top: 30px;
 }
