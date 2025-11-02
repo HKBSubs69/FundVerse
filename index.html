@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
+
   <link rel="stylesheet" href="main.css" />
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -11,12 +12,15 @@
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
+
 <body>
+  <!-- Loader -->
   <div id="loader" class="loader">
     <div class="spinner"></div>
-    <p>Fetching latest donations...</p>
+    <p>✨ Fetching the latest stories of generosity...</p>
   </div>
 
+  <!-- Main Site -->
   <main id="main-content" class="hidden">
     <header>
       <h1 class="glow">FundVerse</h1>
