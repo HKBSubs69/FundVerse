@@ -48,7 +48,7 @@ function showLoading() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 45); // smoother speed (not laggy)
+      setTimeout(type, 45);
     } else {
       setTimeout(() => {
         loader.style.transition = "opacity 0.8s ease";
@@ -112,7 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
       upiDisplay.classList.remove("hidden");
 
       if (option === "upi-id") {
-        upiText.innerHTML = `<span style="color:#00bfff;font-weight:600;font-size:1.05rem;text-shadow:0 0 10px rgba(0,191,255,0.6);">${upiID}</span>`;
+        upiText.innerHTML = `
+          <span class="upi-glow" title="Tap to Pay">${upiID}</span>
+        `;
         qrCanvas.classList.add("hidden");
         upiText.onclick = () => {
           const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
@@ -157,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
           name,
           email,
           amount,
-          txnID: txnId, // store under txnID
+          txnID: txnId,
           date: formattedDate,
           timestamp: serverTimestamp(),
         });
