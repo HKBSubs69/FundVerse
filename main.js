@@ -15,7 +15,7 @@ const firebaseConfig = {
   projectId: "fundverse-f3b0c",
   storageBucket: "fundverse-f3b0c.firebasestorage.app",
   messagingSenderId: "125480706897",
-  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
+  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
 };
 
 // --- Initialize Firebase & Firestore ---
@@ -30,7 +30,7 @@ const upiID = "7079441779@ikwik";
 const typingLines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
-  "Together, we make imagination real."
+  "Together, we make imagination real.",
 ];
 
 // --- Typing effect + Loader ---
@@ -45,40 +45,47 @@ function startTypingEffect() {
 
   function typeChar() {
     if (charIndex < currentLine.length) {
-      textElement.textContent += currentLine.charAt(charIndex);
+      textElement.innerHTML += currentLine.charAt(charIndex);
       charIndex++;
-      setTimeout(typeChar, 60);
+      setTimeout(typeChar, 50);
     } else {
-      // Pause, then next line
+      // Line completed — wait before next
       setTimeout(() => {
         lineIndex++;
         if (lineIndex < typingLines.length) {
+          // New line starts after a short pause
           charIndex = 0;
-          textElement.textContent = "";
           currentLine = typingLines[lineIndex];
+          textElement.innerHTML = "<br>"; // newline for multi-line wrap
           typeChar();
         } else {
-          // Done typing all lines, show main site
+          // All lines done → hide loader & show main site
           setTimeout(() => {
-            document.querySelector(".loader").style.opacity = "0";
+            const loader = document.querySelector(".loader");
+            const main = document.getElementById("main-content");
+
+            loader.style.transition = "opacity 0.6s ease";
+            loader.style.opacity = "0";
+
             setTimeout(() => {
-              document.querySelector(".loader").style.display = "none";
-              document.getElementById("main-content").classList.remove("hidden");
-            }, 500);
-          }, 800);
+              loader.style.display = "none";
+              main.classList.remove("hidden");
+              main.style.opacity = "1";
+            }, 600);
+          }, 1000);
         }
-      }, 800);
+      }, 1000);
     }
   }
 
   typeChar();
 }
 
-// --- Wait for DOM to load ---
+// --- Wait for DOM ---
 document.addEventListener("DOMContentLoaded", () => {
   startTypingEffect();
 
-  // Elements
+  // --- Firebase Logic ---
   const form = document.getElementById("donationForm");
   const progressBar = document.getElementById("progress-bar");
   const raisedAmount = document.getElementById("raised-amount");
@@ -86,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
 
-  // --- Update Progress Function ---
+  // --- Update Progress ---
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -98,7 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
-      raisedAmount.textContent = `Raised: ₹${total.toLocaleString('en-IN')} / ₹${goalAmount.toLocaleString('en-IN')}`;
+      raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
+        "en-IN"
+      )} / ₹${goalAmount.toLocaleString("en-IN")}`;
     } catch (error) {
       console.error("Error updating progress:", error);
     }
@@ -188,6 +197,5 @@ document.addEventListener("DOMContentLoaded", () => {
     footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
   }
 
-  // --- Initialize Progress ---
   updateProgress();
 });
