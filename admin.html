@@ -2,22 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FundVerse Admin Panel</title>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="admin.css" />
+
+  <!-- Firebase SDKs (v8 – works on GitHub Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
+
 <body>
   <div class="container">
-    <!-- Login -->
+    <!-- LOGIN SECTION -->
     <section id="login-section" class="card">
       <h1 class="glow">FundVerse Admin Login</h1>
-      <input id="admin-email" type="email" placeholder="Admin email" />
-      <input id="admin-password" type="password" placeholder="Password" />
+      <input type="email" id="admin-email" placeholder="Admin Email" />
+      <input type="password" id="admin-password" placeholder="Password" />
       <button id="login-btn" class="btn">Login</button>
       <p id="login-error" class="error"></p>
     </section>
 
-    <!-- Dashboard (hidden until authorized) -->
+    <!-- DASHBOARD SECTION -->
     <section id="dashboard" class="hidden">
       <header class="header">
         <h1 class="glow">FundVerse Dashboard</h1>
@@ -54,12 +62,7 @@
     <footer id="footer"></footer>
   </div>
 
-  <!-- Firebase v8 SDKs (works on GitHub Pages) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <!-- Admin script (v8-compatible) -->
+  <!-- Main JS -->
   <script src="admin.js"></script>
 </body>
 </html>
