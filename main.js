@@ -53,7 +53,7 @@ function showLoading() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 55);
+      setTimeout(type, 60); // balanced typing speed
     } else {
       setTimeout(() => {
         loader.style.opacity = "0";
@@ -63,7 +63,7 @@ function showLoading() {
           main.classList.remove("hidden");
           main.style.opacity = "1";
         }, 800);
-      }, 1100);
+      }, 1000);
     }
   }
   type();
@@ -79,10 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiDisplay = document.getElementById("upi-display");
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
+  const paymentOption = document.getElementById("payment-option");
 
   // --- Update progress bar ---
   async function updateProgress() {
-    if (!progressBar || !raisedAmount) return;
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
       let total = 0;
@@ -96,95 +96,92 @@ document.addEventListener("DOMContentLoaded", () => {
         "en-IN"
       )} / ₹${goalAmount.toLocaleString("en-IN")}`;
     } catch (err) {
-      console.error("updateProgress error:", err);
+      console.error("Error updating progress:", err);
     }
   }
 
-  // --- Payment Option Change ---
-  const paymentOption = document.getElementById("payment-option");
+  // --- Handle UPI Selection ---
   if (paymentOption) {
     paymentOption.addEventListener("change", async (e) => {
       const option = e.target.value;
-      const amount = document.getElementById("amount")?.value?.trim() || "";
-      if (!amount || Number(amount) <= 0) {
+      const amount = document.getElementById("amount").value.trim();
+
+      if (!amount || amount <= 0) {
         alert("Please enter a valid amount first.");
         e.target.value = "";
         return;
       }
 
-      upiDisplay?.classList.remove("hidden");
-
+      upiDisplay.classList.remove("hidden");
       const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
 
       if (option === "upi-id") {
-        // Show UPI ID clickable link
-        if (upiText) {
-          upiText.innerHTML = `<strong>Send to:</strong> <span style="color:#3b82f6;font-weight:700;">${upiID}</span>`;
-          upiText.onclick = () => {
-            window.location.href = qrData;
-          };
-        }
-        if (qrCanvas) qrCanvas.style.display = "none";
+        // Show UPI ID with style
+        qrCanvas.style.display = "none";
+        upiText.style.display = "block";
+        upiText.innerHTML = `<strong>Send Payment To:</strong><br><span style="color:#3b82f6;font-weight:600;">${upiID}</span>`;
+        upiText.onclick = () => (window.location.href = qrData);
       } else if (option === "upi-qr") {
-        // Show Dynamic QR
-        if (upiText) upiText.innerHTML = "";
-        if (qrCanvas) {
-          qrCanvas.style.display = "block";
-          try {
-            // clear previous QR if any
-            const ctx = qrCanvas.getContext("2d");
-            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-            await QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-          } catch (err) {
-            console.error("QR generation failed:", err);
-          }
+        // Generate and show QR code
+        upiText.textContent = "Scan this QR to Pay:";
+        qrCanvas.style.display = "block";
+
+        try {
+          const ctx = qrCanvas.getContext("2d");
+          ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+          await QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
+        } catch (error) {
+          console.error("QR Generation Error:", error);
         }
       }
     });
   }
 
   // --- Submit Form ---
-  form?.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-    const name = document.getElementById("name")?.value?.trim() || "";
-    const email = document.getElementById("email")?.value?.trim() || "";
-    const amount = parseFloat(document.getElementById("amount")?.value || "0");
-    const txnID = document.getElementById("txnId")?.value?.trim() || "";
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    if (!name || !email || !amount || !txnID) {
-      alert("Please fill all fields!");
-      return;
-    }
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
+      const txnID = document.getElementById("txnId").value.trim();
 
-    const now = new Date();
-    const formattedDate = now.toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata",
-    });
+      if (!name || !email || !amount || !txnID) {
+        alert("Please fill all fields!");
+        return;
+      }
 
-    try {
-      await addDoc(collection(db, "ComicProjectDonations"), {
-        name,
-        email,
-        amount,
-        txnID,
-        date: formattedDate,
-        timestamp: serverTimestamp(),
+      const now = new Date();
+      const formattedDate = now.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
       });
-      alert("🎉 Thank you for your contribution!");
-      form.reset();
-      upiDisplay?.classList.add("hidden");
-      await updateProgress();
-    } catch (err) {
-      console.error("save donation error:", err);
-      alert("Unable to save donation. Try again.");
-    }
-  });
+
+      try {
+        await addDoc(collection(db, "ComicProjectDonations"), {
+          name,
+          email,
+          amount,
+          txnID,
+          date: formattedDate,
+          timestamp: serverTimestamp(),
+        });
+        alert("🎉 Thank you for your contribution!");
+        form.reset();
+        upiDisplay.classList.add("hidden");
+        updateProgress();
+      } catch (error) {
+        console.error("Error adding donation:", error);
+        alert("Something went wrong. Try again!");
+      }
+    });
+  }
 
   // --- Footer ---
   const footer = document.getElementById("footer");
