@@ -5,128 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-
-  <!-- Firebase v8 (non-modular, works directly in browser) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #000;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .card {
-      background: #121212;
-      border: 1px solid #e50914;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
-      width: 90%;
-      max-width: 420px;
-      margin: 80px auto 0 auto;
-      text-align: center;
-    }
-    h1 {
-      color: #e50914;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 6px;
-      background: #1b1b1b;
-      color: #fff;
-      font-size: 15px;
-      outline: none;
-    }
-    input:focus {
-      border: 1px solid #e50914;
-    }
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #e50914;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .btn:hover {
-      background-color: #ff0d19;
-    }
-    .error {
-      color: #ff4444;
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-    footer {
-      margin-top: auto;
-      text-align: center;
-      padding: 20px;
-      font-size: 0.9rem;
-      color: #bbb;
-      border-top: 1px solid #222;
-    }
-  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 
 <body>
-  <!-- LOGIN -->
-  <section id="login-section" class="card">
-    <h1>FundVerse Admin Login</h1>
-    <input type="email" id="admin-email" placeholder="Admin Email" required />
-    <input type="password" id="admin-password" placeholder="Password" required />
-    <button id="login-btn" class="btn">Login</button>
-    <p id="login-error" class="error"></p>
-  </section>
+  <div class="container">
+    
+    <!-- LOGIN SECTION -->
+    <section id="login-section" class="card centered">
+      <h1 class="title">FundVerse Admin Login</h1>
+      <input type="email" id="admin-email" placeholder="Admin Email" class="input-field" />
+      <input type="password" id="admin-password" placeholder="Password" class="input-field" />
+      <button id="login-btn" class="btn primary">Login</button>
+      <p id="login-error" class="error"></p>
+    </section>
 
-  <!-- DASHBOARD (hidden until login) -->
-  <section id="dashboard" style="display:none; padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e50914;margin-bottom:20px;">
-      <h2>FundVerse Dashboard</h2>
-      <button id="logout-btn" class="btn" style="width:auto;padding:8px 14px;">Logout</button>
-    </div>
+    <!-- DASHBOARD SECTION -->
+    <section id="dashboard" class="card" style="display:none;">
+      <header class="header">
+        <h1 class="title">FundVerse Dashboard</h1>
+        <button id="logout-btn" class="btn logout">Logout</button>
+      </header>
 
-    <div>
-      <h3>Project Summary</h3>
-      <p><strong>Goal:</strong> ₹20,000</p>
-      <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-      <div style="background:#222;height:12px;border-radius:5px;overflow:hidden;">
-        <div id="progress-bar" style="background:#e50914;height:100%;width:0%;transition:width 0.4s ease;"></div>
+      <div class="summary">
+        <h2 class="section-title">Project Summary</h2>
+        <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
+        <p><strong>Goal:</strong> ₹20,000</p>
+        <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
+
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
       </div>
-    </div>
 
-    <div style="margin-top:20px;">
-      <h3>Donations</h3>
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:#e50914;">
-            <th style="padding:8px;text-align:left;">Name</th>
-            <th style="padding:8px;text-align:left;">Email</th>
-            <th style="padding:8px;text-align:left;">Amount (₹)</th>
-            <th style="padding:8px;text-align:left;">Transaction ID</th>
-            <th style="padding:8px;text-align:left;">Date</th>
-          </tr>
-        </thead>
-        <tbody id="donations-table"></tbody>
-      </table>
-    </div>
-  </section>
+      <div class="donations">
+        <h2 class="section-title">Donations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Amount (₹)</th>
+              <th>Transaction ID</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="donations-table"></tbody>
+        </table>
+      </div>
+    </section>
 
-  <footer id="footer"></footer>
+    <!-- FOOTER -->
+    <footer id="footer" class="footer"></footer>
+  </div>
 
-  <!-- Load JS (non-module) -->
   <script src="admin.js"></script>
 </body>
 </html>
