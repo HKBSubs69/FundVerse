@@ -12,6 +12,10 @@ h1, h2 {
   color: #ff2a2a;
 }
 
+.hidden {
+  display: none;
+}
+
 .container {
   padding-bottom: 60px;
 }
@@ -28,7 +32,8 @@ h1, h2 {
   color: #ff1e1e;
   font-size: 1.1em;
   z-index: 9999;
-  transition: opacity 0.6s ease;
+  opacity: 1;
+  transition: opacity 0.8s ease;
 }
 
 .spinner {
@@ -45,7 +50,7 @@ h1, h2 {
   to { transform: rotate(360deg); }
 }
 
-/* --- Card / Login --- */
+/* --- Login --- */
 .card {
   background: #111;
   padding: 25px;
