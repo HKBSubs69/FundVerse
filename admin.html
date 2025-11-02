@@ -163,11 +163,11 @@
         total += Number(data.amount) || 0;
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${data.name}</td>
-          <td>${data.email}</td>
-          <td>₹${data.amount}</td>
-          <td>${data.txnId}</td>
-          <td>${data.date}</td>`;
+          <td>${data.name || "-"}</td>
+          <td>${data.email || "-"}</td>
+          <td>₹${data.amount || 0}</td>
+          <td>${data.txnID || "—"}</td>
+          <td>${data.date || "—"}</td>`;
         donationsTable.appendChild(row);
       });
       totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
