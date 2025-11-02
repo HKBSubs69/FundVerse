@@ -58,7 +58,7 @@ function showLoading() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 55); // smooth typing speed
+      setTimeout(type, 55);
     } else {
       setTimeout(() => {
         loader.style.opacity = "0";
@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       upiDisplay.classList.remove("hidden");
 
-      // Wait until QRCode script is fully loaded
       await new Promise((resolve) => {
         if (window.QRCode) resolve();
         else qrScript.onload = resolve;
@@ -131,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         qrCanvas.style.display = "none";
         upiText.style.display = "block";
         upiText.innerHTML = `
-          <strong style="color:#fff;">Send Payment To:</strong><br>
+          <strong>Send Payment To:</strong><br>
           <span style="color:#3b82f6;font-weight:600;">${upiID}</span>`;
         upiText.onclick = () => (window.location.href = qrData);
       } else if (option === "upi-qr") {
@@ -190,10 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Footer ---
+  // --- Footer (no colors) ---
   const footer = document.getElementById("footer");
   if (footer)
-    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by <span style="color:#3b82f6;">Blue Ocean Studios India</span> | Made in India 🇮🇳 | Created by <span style="color:#3b82f6;">Kushal Mitra</span> & AI`;
+    footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
 
   updateProgress();
 });
