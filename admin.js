@@ -1,5 +1,5 @@
-// --- Firebase Configuration ---
-var firebaseConfig = {
+// Firebase v8 Admin Script
+const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
   projectId: "fundverse-f3b0c",
@@ -8,108 +8,91 @@ var firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// --- Initialize Firebase ---
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-const adminEmail = "kushalmitra2008@gmail.com"; // ✅ only this email allowed
-
-// --- DOM Elements ---
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
-const errorMsg = document.getElementById("login-error");
-const totalRaisedEl = document.getElementById("total-raised");
-const progressBar = document.getElementById("progress-bar");
 const donationsTable = document.getElementById("donations-table");
+const totalRaised = document.getElementById("total-raised");
+const progressBar = document.getElementById("progress-bar");
+const loginError = document.getElementById("login-error");
 
-// --- Auth State Persistence ---
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(() => console.log("✅ Persistence: LOCAL"))
-  .catch((e) => console.error("Persistence error:", e));
+const goalAmount = 20000;
 
-// --- Auth State Listener ---
+// Keep admin logged in
 auth.onAuthStateChanged((user) => {
-  if (user && user.email === adminEmail) {
-    console.log("✅ Admin logged in:", user.email);
+  if (user) {
     loginSection.style.display = "none";
     dashboard.style.display = "block";
     loadDonations();
   } else {
-    console.log("❌ No admin user or unauthorized email.");
-    auth.signOut();
     dashboard.style.display = "none";
     loginSection.style.display = "block";
   }
 });
 
-// --- Login Function ---
-loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("admin-email").value.trim();
-  const password = document.getElementById("admin-password").value.trim();
+loginBtn.addEventListener("click", () => {
+  const email = document.getElementById("admin-email").value;
+  const password = document.getElementById("admin-password").value;
 
-  try {
-    const result = await auth.signInWithEmailAndPassword(email, password);
-    if (result.user.email === adminEmail) {
-      loginSection.style.display = "none";
-      dashboard.style.display = "block";
-      loadDonations();
-    } else {
-      errorMsg.textContent = "Access denied: Not an authorized admin.";
-      await auth.signOut();
-    }
-  } catch (error) {
-    console.error(error);
-    errorMsg.textContent = "Login failed: " + error.message;
-  }
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      loginError.textContent = "";
+    })
+    .catch((error) => {
+      loginError.textContent = "Access Denied! Invalid credentials.";
+    });
 });
 
-// --- Logout Function ---
 logoutBtn.addEventListener("click", () => {
   auth.signOut();
-  dashboard.style.display = "none";
-  loginSection.style.display = "block";
 });
 
-// --- Load Donations ---
+// Fetch donations
 async function loadDonations() {
-  try {
-    const snapshot = await db.collection("ComicProjectDonations").orderBy("timestamp", "desc").get();
-    let total = 0;
-    donationsTable.innerHTML = "";
+  const snapshot = await db.collection("ComicProjectDonations").get();
+  let total = 0;
+  donationsTable.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      total += Number(data.amount) || 0;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const amount = Number(data.amount) || 0;
+    total += amount;
 
-      const date = data.date || (data.timestamp?.toDate ? 
-        data.timestamp.toDate().toLocaleString("en-IN", { 
-          day: "2-digit", month: "short", year: "numeric", 
-          hour: "2-digit", minute: "2-digit", hour12: true 
-        }) : "N/A");
+    const txn = data.txnID || "N/A";
+    const date = data.date
+      ? data.date
+      : new Date(data.timestamp?.seconds * 1000 || Date.now()).toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: "Asia/Kolkata"
+        }).replace("am", "AM").replace("pm", "PM");
 
-      const row = `
-        <tr style="border-bottom:1px solid #222;">
-          <td style="padding:8px;">${data.name || "-"}</td>
-          <td style="padding:8px;">${data.email || "-"}</td>
-          <td style="padding:8px;">₹${data.amount || 0}</td>
-          <td style="padding:8px;">${data.txnId || "N/A"}</td>
-          <td style="padding:8px;">${date}</td>
-        </tr>`;
-      donationsTable.innerHTML += row;
-    });
+    const row = `
+      <tr>
+        <td>${data.name || "—"}</td>
+        <td>${data.email || "—"}</td>
+        <td>₹${amount.toLocaleString("en-IN")}</td>
+        <td>${txn}</td>
+        <td>${date}</td>
+      </tr>
+    `;
+    donationsTable.innerHTML += row;
+  });
 
-    totalRaisedEl.textContent = "₹" + total.toLocaleString("en-IN");
-    const goal = 20000;
-    progressBar.style.width = Math.min((total / goal) * 100, 100) + "%";
-
-  } catch (error) {
-    console.error("Error loading donations:", error);
-  }
+  totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+  const percent = Math.min((total / goalAmount) * 100, 100);
+  progressBar.style.width = `${percent}%`;
 }
 
-// --- Footer ---
-document.getElementById("footer").innerHTML =
+// Footer
+document.getElementById("footer").innerHTML = 
   `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
