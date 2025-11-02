@@ -1,142 +1,151 @@
-/* main.css - FundVerse style (black + red) */
-:root {
-  --accent: #ff2a2a;
-  --accent-soft: #ff8080;
-  --bg: #000;
-  --panel: #111;
-  --muted: #ccc;
-}
-
-html,body {
+body {
+  background: #0d0d0d;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
   margin: 0;
   padding: 0;
-  background: var(--bg);
-  color: #fff;
-  font-family: "Poppins", sans-serif;
 }
-
-.hidden { display: none; }
 
 /* Loader */
 .loader {
+  position: fixed;
+  top: 0;
+  left: 0;
   height: 100vh;
+  width: 100%;
+  background: #0d0d0d;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  background: var(--bg);
-  text-align: center;
+  align-items: center;
+  z-index: 100;
 }
 
 .spinner {
-  width: 56px;
-  height: 56px;
   border: 6px solid #222;
-  border-top: 6px solid var(--accent);
+  border-top: 6px solid #ff1e1e;
   border-radius: 50%;
+  width: 60px;
+  height: 60px;
   animation: spin 1s linear infinite;
-  margin-bottom: 14px;
+  margin-bottom: 15px;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
-.loader p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1.05rem;
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-/* Page layout */
-main {
-  padding: 28px 18px;
-  max-width: 920px;
-  margin: 0 auto;
+#typing-text {
+  font-size: 1rem;
+  color: #ff5555;
+  min-height: 24px;
 }
 
-/* header */
+.hidden {
+  display: none;
+}
+
+/* Header */
+header {
+  padding: 20px 10px;
+}
+
 .glow {
-  font-size: 2.2rem;
-  color: #fff;
-  text-shadow: 0 0 14px var(--accent);
-  margin-bottom: 4px;
+  color: #ff1e1e;
+  text-shadow: 0 0 10px #ff1e1e, 0 0 20px #ff1e1e;
+  font-size: 2em;
 }
 
-.subtitle { margin: 0; font-size: 1rem; color: #ddd; }
-.tagline { margin-top: 6px; color: var(--accent-soft); }
+.subtitle {
+  color: #ff7676;
+  font-weight: bold;
+}
+
+.tagline {
+  font-style: italic;
+  color: #ccc;
+  margin-bottom: 15px;
+}
 
 /* Progress */
 .progress-bar-container {
-  background: #222;
-  border-radius: 24px;
   width: 100%;
-  max-width: 760px;
-  height: 18px;
-  margin: 18px auto;
+  height: 15px;
+  background-color: #222;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
-  border-radius: 24px;
-  transition: width 0.6s ease;
+  background: linear-gradient(90deg, #ff0000, #ff5555);
+  transition: width 0.3s ease;
 }
 
-#raised-amount { margin-top: 8px; color: #ddd; }
+#raised-amount {
+  color: #ff4040;
+  margin-bottom: 20px;
+}
 
-/* Form */
+/* Donation Section */
 .donation-section {
-  margin-top: 22px;
-  background: var(--panel);
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,0,0,0.08);
+  background: #111;
+  padding: 20px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px #ff1e1e44;
 }
 
-.donation-section h2 { color: var(--accent); margin-top: 0; }
-
-form { display: flex; flex-direction: column; align-items: center; }
-
-input, select, button {
-  width: 92%;
-  max-width: 600px;
-  padding: 12px;
+input,
+select,
+button {
+  width: 90%;
+  padding: 10px;
   margin: 8px 0;
   border-radius: 8px;
   border: none;
-  font-size: 1rem;
+  font-size: 1em;
 }
 
-input, select {
-  background: #1b1b1b;
+input,
+select {
+  background: #222;
   color: #fff;
 }
 
 button {
-  background: var(--accent);
+  background: #ff1e1e;
   color: white;
-  font-weight: 700;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #ff5050;
+}
+
+.clickable {
+  color: #ff4040;
+  text-decoration: underline;
   cursor: pointer;
 }
 
-button:hover { background: #ff5252; }
+footer {
+  background: #111;
+  color: #bbb;
+  font-size: 0.85em;
+  padding: 15px;
+  margin-top: 30px;
+}
 
-/* UPI display */
-#upi-display { margin-top: 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-#upi-text { background: #0f0f0f; padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,0,0,0.08); }
-#upi-qr { background: #fff; border-radius: 8px; }
-
-/* small text */
-small { color: #bbb; display: block; margin-top: 6px; }
-
-/* contact */
-.contact-section { margin-top: 18px; color: #ddd; }
-
-/* footer */
-footer { text-align: center; margin-top: 18px; color: var(--muted); font-size: 0.9rem; }
-
-/* responsive tweaks */
-@media (min-width: 760px) {
-  .donation-section { padding: 28px; }
-  form { align-items: center; }
+.contact-section {
+  background: #0f0f0f;
+  padding: 15px;
+  border-top: 2px solid #ff1e1e33;
 }
