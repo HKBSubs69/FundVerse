@@ -44,12 +44,12 @@ function showLoading() {
   textEl.textContent = "";
   let i = 0;
 
-  // Type the text slowly and naturally
+  // Type effect (medium speed)
   function type() {
     if (i < line.length) {
       textEl.textContent += line.charAt(i);
       i++;
-      setTimeout(type, 55); // slower typing speed for readability
+      setTimeout(type, 70); // normal typing speed
     } else {
       // After typing finishes, fade out loader
       setTimeout(() => {
@@ -60,7 +60,7 @@ function showLoading() {
           main.classList.remove("hidden");
           main.style.opacity = "1";
         }, 1000);
-      }, 1200); // Wait 1.2 seconds after finishing the sentence
+      }, 1200);
     }
   }
 
@@ -78,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiText = document.getElementById("upi-text");
   const qrCanvas = document.getElementById("upi-qr");
 
+  // --- Update Progress Bar ---
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -96,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // --- Payment Option Handling ---
   const paymentOption = document.getElementById("payment-option");
   if (paymentOption) {
     paymentOption.addEventListener("change", (e) => {
@@ -108,9 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      upiDisplay.classList.remove("hidden");
+      // Hide and show dynamically
+      upiDisplay.classList.remove("active");
+      upiDisplay.style.display = "none";
 
       if (option === "upi-id") {
+        upiDisplay.style.display = "block";
         upiText.textContent = upiID;
         qrCanvas.classList.add("hidden");
         upiText.onclick = () => {
@@ -118,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = url;
         };
       } else if (option === "upi-qr") {
+        upiDisplay.style.display = "block";
         upiText.textContent = "";
         qrCanvas.classList.remove("hidden");
         const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
@@ -126,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Form Submit ---
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -133,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.getElementById("email").value.trim();
       const amount = parseFloat(document.getElementById("amount").value);
       const txnId = document.getElementById("txnId").value.trim();
+
       if (!name || !email || !amount || !txnId) {
         alert("Please fill all fields!");
         return;
@@ -160,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         alert("🎉 Thank you for your contribution!");
         form.reset();
-        upiDisplay.classList.add("hidden");
+        upiDisplay.style.display = "none";
         updateProgress();
       } catch (error) {
         console.error("Error adding donation:", error);
@@ -169,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Footer ---
   const footer = document.getElementById("footer");
   if (footer)
     footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
