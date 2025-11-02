@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse | Comic Project</title>
   <link rel="stylesheet" href="main.css" />
-
-  <!-- Firebase & EmailJS -->
+  
+  <!-- Firebase, EmailJS, and QR -->
   <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
   <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
   <!-- Loader Screen -->
   <div id="loader" class="loader">
     <div class="spinner"></div>
-    <p id="loading-text"></p>
+    <p id="loading-text" class="loading-line"></p>
   </div>
 
   <!-- Main Content -->
@@ -48,6 +50,7 @@
           <option value="upi-qr">UPI QR</option>
         </select>
 
+        <!-- Dynamic UPI Display -->
         <div id="upi-display" class="hidden">
           <p id="upi-text" class="clickable"></p>
           <canvas id="upi-qr"></canvas>
@@ -71,9 +74,7 @@
     <footer id="footer"></footer>
   </main>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  <script src="main.js" type="module"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- JS File -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
