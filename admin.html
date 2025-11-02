@@ -5,10 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
+
+  <!-- Firebase v8 (for GitHub Pages compatibility) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #000, #111);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container { max-width: 900px; margin: 40px auto; padding: 20px; }
+    .card {
+      background: #151515;
+      border: 1px solid #e50914;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(229,9,20,0.6);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #333;
+      outline: none;
+      background: #1b1b1b;
+      color: #fff;
+    }
+    input:focus { border-color: #e50914; }
+    .btn {
+      background-color: #e50914;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+      width: 100%;
+    }
+    .logout-btn {
+      background: #e50914;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111;
+      border-bottom: 2px solid #e50914;
+      padding: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #1a1a1a;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #333;
+      text-align: left;
+    }
+    th {
+      background-color: #e50914;
+      color: white;
+    }
+    tr:nth-child(even) { background-color: #111; }
+    .hidden { display: none; }
+    .progress-container {
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #e50914;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #bbb;
+      border-top: 1px solid #222;
+      margin-top: 40px;
+    }
+    .error { color: #ff4c4c; font-size: 0.9rem; }
+  </style>
 </head>
+
 <body>
   <div class="container">
     <!-- Login Section -->
@@ -27,7 +125,7 @@
         <button id="logout-btn" class="logout-btn">Logout</button>
       </header>
 
-      <div class="summary">
+      <div class="summary card">
         <h2>Project Summary</h2>
         <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
         <p><strong>Goal:</strong> ₹20,000</p>
@@ -37,7 +135,7 @@
         </div>
       </div>
 
-      <div class="donations">
+      <div class="donations card">
         <h2>Donations</h2>
         <table>
           <thead>
@@ -54,10 +152,9 @@
       </div>
     </section>
 
-    <!-- Footer -->
     <footer id="footer"></footer>
   </div>
 
-  <script src="admin.js"></script>
+  <script src="admin.js" defer></script>
 </body>
 </html>
