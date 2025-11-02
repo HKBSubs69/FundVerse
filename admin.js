@@ -1,4 +1,4 @@
-// Firebase modular (v12)
+// Firebase modular imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
   getFirestore,
@@ -7,7 +7,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import {
   getAuth,
-  signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
@@ -27,96 +26,53 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Elements
-const loginSection = document.getElementById("login-section");
-const dashboard = document.getElementById("dashboard");
-const loginBtn = document.getElementById("login-btn");
-const logoutBtn = document.getElementById("logout-btn");
-const donationsTable = document.getElementById("donations-table");
-const totalRaised = document.getElementById("total-raised");
-const progressBar = document.getElementById("progress-bar");
-const loginError = document.getElementById("login-error");
-
-const goalAmount = 20000;
-
-// Listen for login state
+// Redirect if not logged in
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    loginSection.style.display = "none";
-    dashboard.style.display = "block";
     loadDonations();
   } else {
-    dashboard.style.display = "none";
-    loginSection.style.display = "block";
-  }
-});
-
-// Login button
-loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("admin-email").value;
-  const password = document.getElementById("admin-password").value;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    loginError.textContent = "";
-  } catch (error) {
-    loginError.textContent = "Access Denied! Invalid credentials.";
+    // Redirect to Firebase hosted login page
+    window.location.href = `https://${firebaseConfig.authDomain}/__/auth/handler`;
   }
 });
 
 // Logout
-logoutBtn.addEventListener("click", async () => {
+document.getElementById("logout-btn").addEventListener("click", async () => {
   await signOut(auth);
+  window.location.reload();
 });
 
-// Load Firestore data
+// Load donations
 async function loadDonations() {
-  try {
-    const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
-    let total = 0;
-    donationsTable.innerHTML = "";
+  const donationsTable = document.getElementById("donations-table");
+  const totalRaised = document.getElementById("total-raised");
+  const progressBar = document.getElementById("progress-bar");
+  const goal = 20000;
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const amount = Number(data.amount) || 0;
-      total += amount;
+  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+  let total = 0;
 
-      const txn = data.txnID || "N/A";
-      const date = data.date
-        ? data.date
-        : new Date(data.timestamp?.seconds * 1000 || Date.now())
-            .toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-              timeZone: "Asia/Kolkata",
-            })
-            .replace("am", "AM")
-            .replace("pm", "PM");
+  donationsTable.innerHTML = "";
+  snapshot.forEach((doc) => {
+    const d = doc.data();
+    const amount = Number(d.amount) || 0;
+    total += amount;
 
-      const row = `
-        <tr>
-          <td>${data.name || "—"}</td>
-          <td>${data.email || "—"}</td>
-          <td>₹${amount.toLocaleString("en-IN")}</td>
-          <td>${txn}</td>
-          <td>${date}</td>
-        </tr>
-      `;
-      donationsTable.innerHTML += row;
-    });
+    const row = `
+      <tr>
+        <td>${d.name || "—"}</td>
+        <td>${d.email || "—"}</td>
+        <td>₹${amount}</td>
+        <td>${d.txnID || "N/A"}</td>
+        <td>${d.date || new Date().toLocaleString("en-IN", { hour12: true }).replace("am", "AM").replace("pm", "PM")}</td>
+      </tr>
+    `;
+    donationsTable.innerHTML += row;
+  });
 
-    totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
-    const percent = Math.min((total / goalAmount) * 100, 100);
-    progressBar.style.width = `${percent}%`;
-  } catch (err) {
-    console.error("Error loading donations:", err);
-  }
+  totalRaised.textContent = `₹${total.toLocaleString("en-IN")}`;
+  progressBar.style.width = `${(total / goal) * 100}%`;
+
+  document.getElementById("footer").innerHTML = 
+    `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | Created by Kushal Mitra & AI`;
 }
-
-// Footer
-document.getElementById("footer").innerHTML = 
-  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
