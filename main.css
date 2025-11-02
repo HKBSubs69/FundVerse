@@ -115,19 +115,29 @@ button:hover {
   background: #ff4040;
 }
 
-/* --- UPI Display --- */
+/* --- UPI Display Section --- */
 #upi-display {
-  background: #0f0f0f;
-  padding: 10px;
+  display: none; /* fully hides it by default */
   margin-top: 10px;
-  border-radius: 10px;
+}
+
+#upi-display.active {
+  display: block; /* only show when needed */
 }
 
 #upi-text {
   color: #ff4040;
-  font-weight: 600;
-  cursor: pointer;
   text-decoration: underline;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 5px;
+}
+
+#upi-qr {
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* --- Contact Section --- */
