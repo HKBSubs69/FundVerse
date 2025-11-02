@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
   <div class="container">
-
-    <!-- LOGIN -->
+    <!-- Login -->
     <section id="login-section" class="card centered">
       <h1 class="title">FundVerse Admin Login</h1>
       <input type="email" id="admin-email" placeholder="Admin Email" class="input-field" />
@@ -21,7 +17,7 @@
       <p id="login-error" class="error"></p>
     </section>
 
-    <!-- DASHBOARD -->
+    <!-- Dashboard -->
     <section id="dashboard" class="card" style="display:none;">
       <header class="header">
         <h1 class="title">FundVerse Dashboard</h1>
@@ -33,7 +29,6 @@
         <p><strong>Project:</strong> The Deserted Path (Comic Version)</p>
         <p><strong>Goal:</strong> ₹20,000</p>
         <p><strong>Total Raised:</strong> <span id="total-raised">₹0</span></p>
-
         <div class="progress-container">
           <div id="progress-bar" class="progress-bar"></div>
         </div>
@@ -61,6 +56,6 @@
     <footer id="footer" class="footer"></footer>
   </div>
 
-  <script src="admin.js"></script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
