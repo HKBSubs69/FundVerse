@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FundVerse Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js" type="module"></script>
 </head>
-
 <body>
   <div class="container">
-    <!-- 🔒 Admin Login -->
+    <!-- Login -->
     <section id="login-section" class="card">
       <h1 class="glow">FundVerse Admin Login</h1>
-      <input type="email" id="admin-email" placeholder="Admin Email" required />
-      <input type="password" id="admin-password" placeholder="Password" required />
+      <input id="admin-email" type="email" placeholder="Admin email" />
+      <input id="admin-password" type="password" placeholder="Password" />
       <button id="login-btn" class="btn">Login</button>
       <p id="login-error" class="error"></p>
     </section>
 
-    <!-- 🧭 Dashboard -->
-    <section id="dashboard" style="display:none;">
+    <!-- Dashboard (hidden until authorized) -->
+    <section id="dashboard" class="hidden">
       <header class="header">
         <h1 class="glow">FundVerse Dashboard</h1>
         <button id="logout-btn" class="logout-btn">Logout</button>
@@ -47,7 +43,7 @@
               <th>Email</th>
               <th>Amount (₹)</th>
               <th>Transaction ID</th>
-              <th>Date</th>
+              <th>Date & Time (IST)</th>
             </tr>
           </thead>
           <tbody id="donations-table"></tbody>
@@ -58,6 +54,12 @@
     <footer id="footer"></footer>
   </div>
 
-  <script type="module" src="admin.js"></script>
+  <!-- Firebase v8 SDKs (works on GitHub Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <!-- Admin script (v8-compatible) -->
+  <script src="admin.js"></script>
 </body>
 </html>
