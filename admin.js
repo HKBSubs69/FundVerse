@@ -1,8 +1,11 @@
-// ===============================
-// FundVerse Admin Panel Script
-// ===============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { 
+  getFirestore, collection, getDocs 
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { 
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
   authDomain: "fundverse-f3b0c.firebaseapp.com",
@@ -12,118 +15,89 @@ const firebaseConfig = {
   appId: "1:125480706897:web:6a8cddc96fb0dd2f936970"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-// Elements
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
-const emailInput = document.getElementById("admin-email");
-const passInput = document.getElementById("admin-password");
 const loginError = document.getElementById("login-error");
 const donationsTable = document.getElementById("donations-table");
-const totalRaisedEl = document.getElementById("total-raised");
 const progressBar = document.getElementById("progress-bar");
-const footer = document.getElementById("footer");
+const totalRaisedEl = document.getElementById("total-raised");
 
-// Goal Amount
 const goalAmount = 20000;
 
-// ===============================
-// Helper Functions
-// ===============================
-
-// Format date as "01 Nov 2025, 05:34 PM (IST)"
-function formatDate(isoString) {
-  try {
-    const date = new Date(isoString);
-    const options = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata"
-    };
-    return new Intl.DateTimeFormat("en-GB", options)
-      .format(date)
-      .replace(",", "") + " (IST)";
-  } catch {
-    return "Invalid Date";
-  }
+// --- Format Date to IST ---
+function formatIST(date) {
+  return new Date(date).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
 }
 
-// Fetch Donations from Firestore
-async function fetchDonations() {
-  try {
-    const snapshot = await db.collection("ComicProjectDonations").get();
-    let total = 0;
-    let rows = "";
+// --- Fetch Donations ---
+async function loadDonations() {
+  const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
+  donationsTable.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      total += parseInt(data.amount || 0);
+  let total = 0;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    total += Number(data.amount) || 0;
 
-      const txn = data.txnId || "N/A";
-      const dateStr = data.timestamp ? formatDate(data.timestamp) : "Invalid Date";
+    const row = `
+      <tr>
+        <td>${data.name || "—"}</td>
+        <td>${data.email || "—"}</td>
+        <td>₹${data.amount || 0}</td>
+        <td>${data.txnId || "—"}</td>
+        <td>${data.date || formatIST(data.timestamp?.toDate?.() || new Date())}</td>
+      </tr>`;
+    donationsTable.innerHTML += row;
+  });
 
-      rows += `
-        <tr>
-          <td>${data.name || "Unknown"}</td>
-          <td>${data.email || "—"}</td>
-          <td>₹${data.amount || 0}</td>
-          <td>${txn}</td>
-          <td>${dateStr}</td>
-        </tr>
-      `;
-    });
-
-    donationsTable.innerHTML = rows;
-    totalRaisedEl.textContent = `₹${total}`;
-
-    const percent = Math.min((total / goalAmount) * 100, 100);
-    progressBar.style.width = `${percent}%`;
-  } catch (error) {
-    console.error("Error fetching donations:", error);
-  }
+  totalRaisedEl.textContent = `₹${total.toLocaleString("en-IN")}`;
+  const percent = Math.min((total / goalAmount) * 100, 100);
+  progressBar.style.width = `${percent}%`;
 }
 
-// ===============================
-// Authentication (Simple Email/Password)
-// ===============================
-
+// --- Auth Handling ---
 loginBtn.addEventListener("click", async () => {
-  const email = emailInput.value.trim();
-  const password = passInput.value.trim();
-
-  if (!email || !password) {
-    loginError.textContent = "Please enter both email and password.";
-    return;
-  }
+  const email = document.getElementById("admin-email").value.trim();
+  const password = document.getElementById("admin-password").value.trim();
 
   try {
-    await firebase.auth().signInWithEmailAndPassword(email, password);
-    loginSection.style.display = "none";
-    dashboard.style.display = "block";
-    fetchDonations();
-  } catch (error) {
-    loginError.textContent = "Invalid credentials or no access.";
+    await signInWithEmailAndPassword(auth, email, password);
+    loginError.textContent = "";
+  } catch (err) {
+    loginError.textContent = "Invalid credentials. Try again.";
   }
 });
 
 logoutBtn.addEventListener("click", async () => {
-  await firebase.auth().signOut();
-  dashboard.style.display = "none";
-  loginSection.style.display = "block";
-  emailInput.value = "";
-  passInput.value = "";
+  await signOut(auth);
 });
 
-// ===============================
-// Footer Auto Year
-// ===============================
-footer.innerHTML = `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
+// --- Auth State Observer ---
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginSection.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    loadDonations();
+  } else {
+    dashboard.classList.add("hidden");
+    loginSection.classList.remove("hidden");
+  }
+});
+
+// --- Footer ---
+document.getElementById("footer").innerHTML =
+  `© FundVerse ${new Date().getFullYear()} | Managed by Blue Ocean Studios India | Made in India 🇮🇳 | All Rights Reserved | Created by Kushal Mitra & AI`;
