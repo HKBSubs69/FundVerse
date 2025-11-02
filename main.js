@@ -1,4 +1,4 @@
-// main.js - Stable final version (no emojis, mobile-safe, guaranteed loader finish)
+// main.js - Final stable with multi-line typing and universal emojis
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
@@ -26,28 +26,37 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-/* ---------------- LOADING TEXTS ---------------- */
+/* ---------------- LOADING LINES ---------------- */
 const messages = [
-  "Making dreams possible, one donation at a time...",
-  "Empowering creativity — your support brings stories to life.",
-  "Join the mission — every contribution fuels imagination.",
-  "Small acts of kindness build big dreams. Thank you for believing."
+  "✨ Empowering creativity — your support brings stories to life.",
+  "❤️ Every contribution counts. Help dreams turn into reality.",
+  "🚀 Join the journey — because every hero needs a supporter.",
+  "✅ Together, we create more than art — we create hope."
 ];
 
 /* ---------------- Typing effect ---------------- */
-function typeText(el, text, speed = 35) {
+function typeText(el, texts, speed = 35) {
   return new Promise((resolve) => {
     if (!el) return resolve();
-    el.textContent = "";
-    let i = 0;
-    const timer = setInterval(() => {
-      el.textContent = text.substring(0, i);
-      i++;
-      if (i > text.length) {
-        clearInterval(timer);
-        resolve();
+    let textIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+      if (textIndex >= texts.length) return resolve();
+
+      const text = texts[textIndex];
+      el.textContent = text.substring(0, charIndex);
+      charIndex++;
+
+      if (charIndex > text.length) {
+        textIndex++;
+        charIndex = 0;
+        setTimeout(type, 800); // small pause between lines
+      } else {
+        setTimeout(type, speed);
       }
-    }, speed);
+    }
+    type();
   });
 }
 
@@ -65,14 +74,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const paymentOption = document.getElementById("payment-option");
   const footer = document.getElementById("footer");
 
-  const message = messages[Math.floor(Math.random() * messages.length)];
+  // Pick 2 random lines
+  const shuffled = messages.sort(() => 0.5 - Math.random()).slice(0, 2);
 
-  // Typing effect with 5s fallback
+  // Typing animation with fallback timeout (max 6.5s)
   await Promise.race([
-    typeText(loadingText, message, 35),
-    new Promise((res) => setTimeout(res, 5000)),
+    typeText(loadingText, shuffled, 35),
+    new Promise((res) => setTimeout(res, 6500)),
   ]);
 
+  /* ---------------- Update Progress ---------------- */
   async function updateProgress() {
     try {
       const snapshot = await getDocs(collection(db, "ComicProjectDonations"));
@@ -91,11 +102,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await updateProgress();
 
-  // Hide loader after short delay
+  // Show page after typing or timeout
   setTimeout(() => {
     loader.style.display = "none";
     mainContent.classList.remove("hidden");
-  }, 500);
+  }, 6500);
 
   /* ---------------- PAYMENT OPTIONS ---------------- */
   if (paymentOption) {
