@@ -2,23 +2,29 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: #000;
   color: #fff;
   overflow-x: hidden;
 }
 
-/* --- Loader Section --- */
-#loader {
+.hidden {
+  display: none;
+}
+
+/* --- Loader --- */
+.loader {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #000;
   z-index: 9999;
-  transition: opacity 1s ease;
 }
 
 .spinner {
@@ -37,106 +43,140 @@ body {
   }
 }
 
-#loading-text {
+.typing-text {
   color: #ff3b3b;
   font-size: 1rem;
   text-align: center;
-  line-height: 1.5;
   max-width: 90%;
-  word-wrap: break-word;
-  letter-spacing: 0.5px;
-  white-space: pre-wrap;
-  animation: fadeIn 0.8s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* --- Main Content (hidden initially) --- */
-.hidden {
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-/* --- Progress Bar Section --- */
-.progress-section {
-  width: 90%;
-  max-width: 500px;
-  margin: 30px auto;
+/* --- Header --- */
+header {
   text-align: center;
+  margin-top: 30px;
+}
+
+.glow {
+  color: #fff;
+  text-shadow: 0 0 10px #ff3b3b, 0 0 20px #ff3b3b;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #ff7a7a;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* --- Progress Section --- */
+.progress-section {
+  text-align: center;
+  margin: 30px auto;
 }
 
 .progress-bar-container {
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.2);
+  height: 15px;
+  width: 80%;
   border-radius: 10px;
+  margin: 10px auto;
   overflow: hidden;
-  height: 12px;
-  margin-top: 10px;
 }
 
 #progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #ff3b3b, #ff7a7a);
   width: 0%;
-  transition: width 0.8s ease-in-out;
+  background-color: #ff3b3b;
+  transition: width 1s ease-in-out;
 }
 
-/* --- Buttons & Inputs --- */
-button,
+#raised-amount {
+  color: #ff3b3b;
+  font-weight: bold;
+}
+
+/* --- Donation Form --- */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 90%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 input,
-select {
-  font-family: "Poppins", sans-serif;
-  outline: none;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 0.95rem;
-  transition: 0.3s ease;
-}
-
+select,
 button {
-  background: #ff3b3b;
-  color: #fff;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #ff5555;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
 }
 
 input,
 select {
-  background: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: #bbb;
 }
 
-/* --- Responsive Typography --- */
-@media (max-width: 600px) {
-  #loading-text {
-    font-size: 0.9rem;
-    padding: 0 15px;
-  }
-  .spinner {
-    width: 40px;
-    height: 40px;
-  }
+button {
+  background-color: #ff3b3b;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #ff5c5c;
+}
+
+.hidden {
+  display: none;
+}
+
+/* --- UPI Section --- */
+#upi-display {
+  text-align: center;
+}
+
+#upi-text {
+  color: #ff3b3b;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* --- Contact Section --- */
+.contact-section {
+  text-align: center;
+  margin: 40px auto;
+}
+
+.contact-section a {
+  color: #ff3b3b;
+  text-decoration: none;
+}
+
+.contact-section a:hover {
+  text-decoration: underline;
 }
 
 /* --- Footer --- */
 footer {
   text-align: center;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 40px;
+  font-size: 0.8rem;
+  color: #999;
+  margin: 40px 0 20px;
 }
