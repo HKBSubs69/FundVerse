@@ -1,4 +1,4 @@
-// main.js - Final stable with multi-line typing and universal emojis
+// main.js - Stable spinner text, no emojis, full line rendering
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
@@ -26,12 +26,12 @@ const db = getFirestore(app);
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 
-/* ---------------- LOADING LINES ---------------- */
-const messages = [
-  "✨ Empowering creativity — your support brings stories to life.",
-  "❤️ Every contribution counts. Help dreams turn into reality.",
-  "🚀 Join the journey — because every hero needs a supporter.",
-  "✅ Together, we create more than art — we create hope."
+/* ---------------- Typing Lines ---------------- */
+const typingLines = [
+  "Empowering creativity — your support brings stories to life.",
+  "Every contribution counts — help dreams turn into reality.",
+  "Join the mission — every contribution fuels imagination.",
+  "Together, we create more than art — we create hope."
 ];
 
 /* ---------------- Typing effect ---------------- */
@@ -51,7 +51,7 @@ function typeText(el, texts, speed = 35) {
       if (charIndex > text.length) {
         textIndex++;
         charIndex = 0;
-        setTimeout(type, 800); // small pause between lines
+        setTimeout(type, 700); // pause between lines
       } else {
         setTimeout(type, speed);
       }
@@ -74,12 +74,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const paymentOption = document.getElementById("payment-option");
   const footer = document.getElementById("footer");
 
-  // Pick 2 random lines
-  const shuffled = messages.sort(() => 0.5 - Math.random()).slice(0, 2);
+  // Choose up to 2 lines to type
+  const shuffled = typingLines.sort(() => 0.5 - Math.random()).slice(0, 2);
 
-  // Typing animation with fallback timeout (max 6.5s)
+  // Typing animation (max 6.5 seconds)
   await Promise.race([
-    typeText(loadingText, shuffled, 35),
+    typeText(loadingText, shuffled, 30),
     new Promise((res) => setTimeout(res, 6500)),
   ]);
 
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await updateProgress();
 
-  // Show page after typing or timeout
+  // Show page after animation or timeout
   setTimeout(() => {
     loader.style.display = "none";
     mainContent.classList.remove("hidden");
