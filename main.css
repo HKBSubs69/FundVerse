@@ -1,6 +1,6 @@
 body {
   background: #0d0d0d;
-  color: #ffffff;
+  color: #fff;
   font-family: "Poppins", sans-serif;
   text-align: center;
   margin: 0;
@@ -20,6 +20,8 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 100;
+  opacity: 1;
+  transition: opacity 0.8s ease;
 }
 
 .spinner {
@@ -33,24 +35,20 @@ body {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 #typing-text {
   font-size: 1rem;
   color: #ff5555;
   min-height: 24px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
-header {
-  padding: 20px 10px;
-}
+header { padding: 20px 10px; }
 
 .glow {
   color: #ff1e1e;
@@ -99,9 +97,7 @@ header {
   box-shadow: 0 0 15px rgba(255, 30, 30, 0.3);
 }
 
-input,
-select,
-button {
+input, select, button {
   width: 90%;
   padding: 10px;
   margin: 8px 0;
@@ -110,22 +106,19 @@ button {
   font-size: 1em;
 }
 
-input,
-select {
+input, select {
   background: #222;
   color: #fff;
 }
 
 button {
   background: #ff1e1e;
-  color: #fff;
+  color: white;
   cursor: pointer;
   font-weight: bold;
 }
 
-button:hover {
-  background: #ff5050;
-}
+button:hover { background: #ff5050; }
 
 .clickable {
   color: #ff4040;
