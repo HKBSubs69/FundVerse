@@ -114,23 +114,39 @@ document.addEventListener("DOMContentLoaded", () => {
       upiDisplay.classList.remove("active");
       upiDisplay.style.display = "none";
 
-      if (option === "upi-id") {
-        upiDisplay.style.display = "block";
-        upiText.textContent = upiID;
-        qrCanvas.classList.add("hidden");
-        upiText.onclick = () => {
-          const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-          window.location.href = url;
-        };
-      } else if (option === "upi-qr") {
-        upiDisplay.style.display = "block";
-        upiText.textContent = "";
-        qrCanvas.classList.remove("hidden");
-        const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
-        QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
-      }
-    });
-  }
+   if (paymentOption) {
+  paymentOption.addEventListener("change", (e) => {
+    const option = e.target.value;
+    const amount = document.getElementById("amount").value.trim();
+
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid amount first.");
+      e.target.value = "";
+      return;
+    }
+
+    // Reset display
+    upiDisplay.style.display = "none";
+    upiText.textContent = "";
+    qrCanvas.classList.add("hidden");
+
+    if (option === "upi-id") {
+      upiDisplay.style.display = "block";
+      upiText.textContent = upiID;
+      upiText.style.color = "#00aaff"; // blue color for UPI ID
+      upiText.style.cursor = "pointer";
+      upiText.onclick = () => {
+        const url = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+        window.location.href = url;
+      };
+    } else if (option === "upi-qr") {
+      upiDisplay.style.display = "flex";
+      qrCanvas.classList.remove("hidden");
+      const qrData = `upi://pay?pa=${upiID}&pn=FundVerse&am=${amount}&cu=INR`;
+      QRCode.toCanvas(qrCanvas, qrData, { width: 200 });
+    }
+  });
+}
 
   // --- Form Submit ---
   if (form) {
