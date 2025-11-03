@@ -36,7 +36,7 @@ const lines = [
   "Empowering creativity — your support brings stories to life.",
   "Join the mission — every contribution fuels a dream.",
   "Together, we make imagination real.",
-  "Fueling art, passion, and purpose — one donation at a time.",
+  "Fueling art, passion, and purpose — one contribution at a time.",
 ];
 
 // --- Show Loader Once ---
