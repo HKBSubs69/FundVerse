@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FundVerse - Together, we can make imagination real</title>
+  <meta name="description" content="Join FundVerse — Together, we can make imagination real. Support our creative projects!" />
+  
+  <!-- Open Graph tags for WhatsApp/social media previews -->
+  <meta property="og:title" content="FundVerse - Together, we can make imagination real" />
+  <meta property="og:description" content="Join FundVerse — Together, we can make imagination real. Support our creative projects!" />
+  <meta property="og:url" content="https://fundverse.app" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="main.css" />
+  <!-- QR lib (global) — must load BEFORE main.js -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <!-- Cashfree Checkout JS SDK -->
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+</head>
+<body>
+  <!-- Loader (visible first) -->
+  <div id="loader" class="loader">
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="loading-text" aria-live="polite"></p>
+  </div>
+
+  <!-- Main content (hidden until loader finishes) -->
+  <main id="main-content" class="hidden" role="main">
+    <header>
+      <h1 class="glow">FundVerse</h1>
+      <h2 class="subtitle">Together, we can make imagination real</h2>
+      <p class="tagline">Project: The Deserted Path (Comic Version)</p>
+    </header>
+
+    <section class="progress-section" aria-label="progress">
+      <div class="progress-bar-container" aria-hidden="true">
+        <div id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <p id="raised-amount" aria-live="polite">Raised: ₹0 / ₹20,000</p>
+    </section>
+
+    <section class="donation-section" aria-label="donation">
+      <h2>Support the Project</h2>
+      <form id="donationForm" autocomplete="off" novalidate>
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="E-Mail Address" required />
+
+        <label for="phone">Mobile Number</label>
+        <div id="phone-group" style="display:flex; gap:8px;">
+          <select id="country-code" style="flex:0 0 auto; width:auto;">
+            <option value="+91" selected>🇮🇳 +91</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+974">🇶🇦 +974</option>
+            <option value="+966">🇸🇦 +966</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+234">🇳🇬 +234</option>
+          </select>
+          <input type="tel" id="phone" placeholder="Mobile Number" style="flex:1;" />
+        </div>
+        <small id="phone-hint">💡 Required for online (Cashfree) payment; optional for Manual UPI.</small>
+
+        <input type="number" id="amount" placeholder="Donation Amount (₹)" required min="1" />
+
+        <label for="payment-method">Payment Method</label>
+        <select id="payment-method" required>
+          <option value="">Select Payment Method</option>
+          <option value="cashfree">Pay Online (Cashfree)</option>
+          <option value="manual-upi">Manual UPI</option>
+        </select>
+
+        <div id="manual-upi-fields" class="hidden">
+          <label for="payment-option">Payment Option</label>
+          <select id="payment-option">
+            <option value="">Select Option</option>
+            <option value="upi-id">UPI ID</option>
+            <option value="upi-qr">UPI QR</option>
+          </select>
+
+          <div id="upi-display" class="hidden" aria-hidden="true">
+            <p id="upi-text" class="clickable" role="button" tabindex="0"></p>
+            <canvas id="upi-qr" width="220" height="220" style="display:none;"></canvas>
+          </div>
+
+          <label for="txnId">Transaction ID (After Payment)</label>
+          <input type="text" id="txnId" placeholder="Enter Transaction ID" />
+          <small id="txn-hint">💡 Find your Transaction ID in your UPI payment history.</small>
+        </div>
+
+        <p id="cashfree-hint" class="hidden">🔒 You'll be redirected to a secure Cashfree checkout to complete your payment.</p>
+
+        <!-- Google reCAPTCHA added -->
+        <div class="g-recaptcha" data-sitekey="6LfbW_wrAAAAAKjvTI2I__UrtZfd1pvJHMcbEc94"></div>
+
+        <label style="display:flex; align-items:flex-start; gap:8px; font-weight:400; font-size:0.9rem; margin-top:10px;">
+          <input type="checkbox" id="consent-checkbox" required style="margin-top:3px;" />
+          <span>
+            I agree to the
+            <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Conditions</a>,
+            <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>, and
+            <a href="refund-policy.html" target="_blank" rel="noopener">Refund &amp; Cancellation Policy</a>.
+          </span>
+        </label>
+
+        <button type="submit" id="contributeBtn">Contribute</button>
+      </form>
+    </section>
+
+    <section class="contact-section" aria-label="contact">
+      <h3>Contact Us</h3>
+      <p><strong class="email-label">E-Mail:</strong>
+        <a class="email-link" href="mailto:blueoceanstudiosindia@gmail.com">blueoceanstudiosindia@gmail.com</a>
+      </p>
+      <p style="margin-top:10px; font-size:0.85rem;">
+        <a href="terms.html">Terms &amp; Conditions</a> ·
+        <a href="privacy-policy.html">Privacy Policy</a> ·
+        <a href="refund-policy.html">Refund Policy</a> ·
+        <a href="disclaimer.html">Disclaimer</a>
+      </p>
+    </section>
+
+    <footer id="footer" aria-label="footer"></footer>
+  </main>
+
+  <!-- main.js must be module and loaded after QR lib -->
+  <script type="module" src="main.js"></script>
+  <!-- reCAPTCHA script -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</body>
+</html>
