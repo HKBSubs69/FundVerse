@@ -1,0 +1,17 @@
+{
+  "name": "fundverse-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+  "vars": {
+    "CASHFREE_ENV": "sandbox",
+    "SITE_URL": "https://fundverse.app",
+    "ALLOWED_ORIGIN": "https://fundverse.app"
+  }
+  // Secrets are NOT set here — never commit them. Set them with:
+  //   wrangler secret put FIREBASE_PROJECT_ID
+  //   wrangler secret put FIREBASE_CLIENT_EMAIL
+  //   wrangler secret put FIREBASE_PRIVATE_KEY
+  //   wrangler secret put CASHFREE_APP_ID
+  //   wrangler secret put CASHFREE_SECRET_KEY
+  //   wrangler secret put RECAPTCHA_SECRET_KEY
+}
