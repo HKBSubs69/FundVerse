@@ -1,4 +1,10 @@
 // --- Firebase v12 Modular SDK ---
+// Note: firebase-functions is no longer used. All Cashfree
+// operations (order creation, verification, webhook) are now
+// handled by the FundVerse Cloudflare Worker instead of Firebase
+// Cloud Functions — this avoids the Blaze (pay-as-you-go) plan
+// entirely. Firestore itself is unaffected; it stays on the free
+// Spark plan and continues to hold all donation data.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
   getFirestore,
@@ -8,10 +14,6 @@ import {
   getDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-import {
-  getFunctions,
-  httpsCallable,
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-functions.js";
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -26,17 +28,35 @@ const firebaseConfig = {
 // --- Initialize Firebase ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const functions = getFunctions(app);
 
-// Callable Cloud Functions (defined in /functions/index.js)
-const createCashfreeOrder = httpsCallable(functions, "createCashfreeOrder");
-const verifyCashfreePayment = httpsCallable(functions, "verifyCashfreePayment");
+// --- Cloudflare Worker base URL ---
+const WORKER_URL = "https://fundverse-worker.blueoceanstudiosindia.workers.dev";
+
+async function callWorker(path, payload) {
+  let resp;
+  try {
+    resp = await fetch(`${WORKER_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (networkErr) {
+    console.error(`Network error calling ${path}:`, networkErr);
+    throw new Error("Could not reach the payment server. Check your connection and try again.");
+  }
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(data.error || `Worker request to ${path} failed (${resp.status}).`);
+  }
+  return data;
+}
 
 // --- Constants ---
 const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
-// Set to "production" only after you've deployed functions with
-// CASHFREE_ENV=production and switched to live keys.
+// Set to "production" only after your Worker is deployed with
+// CASHFREE_ENV=production and live Cashfree keys.
 const CASHFREE_MODE = "sandbox";
 const PENDING_KEY = "fundverse_pending_order";
 
@@ -109,10 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const contributeBtn = document.getElementById("contributeBtn");
 
   // --- Update Progress Bar ---
-  // Reads a single public aggregate document (maintained by the
-  // onDonationWrite Cloud Function) instead of querying the full
-  // donations collection, so the browser never has read access to
-  // individual donor names, emails, or transaction IDs.
+  // Reads a single public aggregate document, kept in sync by the
+  // Cloudflare Worker (not the frontend), instead of querying the
+  // full donations collection — so the browser never has read
+  // access to individual donor names, emails, or transaction IDs.
   async function updateProgress() {
     try {
       const statsSnap = await getDoc(doc(db, "PublicStats", "CampaignTotals"));
@@ -284,11 +304,11 @@ document.addEventListener("DOMContentLoaded", () => {
         contributeBtn.textContent = "Redirecting to payment...";
 
         try {
-          // Ask the Cloud Function to create a Cashfree order. The
+          // Ask the Cloudflare Worker to create a Cashfree order. The
           // Cashfree Client Secret / App ID never touch the browser —
-          // the function creates the order server-side and returns
+          // the Worker creates the order server-side and returns
           // only a payment_session_id.
-          const result = await createCashfreeOrder({
+          const result = await callWorker("/create-order", {
             name,
             email,
             countryCode,
@@ -298,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
             recaptchaToken: recaptchaResponse,
           });
 
-          const { paymentSessionId, orderId } = result.data;
+          const { paymentSessionId, orderId } = result;
           if (!paymentSessionId || !orderId) {
             throw new Error("Could not create payment order.");
           }
@@ -317,7 +337,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         } catch (error) {
           console.error("Cashfree order error:", error);
-          alert("Unable to start payment. Please try again.");
+          alert(error.message || "Unable to start payment. Please try again.");
+          if (window.grecaptcha) window.grecaptcha.reset();
           contributeBtn.disabled = false;
           contributeBtn.textContent = "Proceed to Payment";
         }
@@ -333,11 +354,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!orderId) return;
 
     try {
-      // The Cloud Function re-checks the order status directly with
+      // The Worker re-checks the order status directly with
       // Cashfree's server API (never trusting the URL/query params
       // alone) before writing anything to Firestore.
-      const result = await verifyCashfreePayment({ orderId });
-      const { status } = result.data;
+      const result = await callWorker("/verify-payment", { orderId });
+      const { status } = result;
 
       if (status === "SUCCESS") {
         alert("🎉 Thank you for your contribution!");
