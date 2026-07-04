@@ -260,6 +260,10 @@ async function updatePublicStats(env, amountDelta, countDelta) {
     // If it doesn't exist, perform migration
     console.log("PublicStats/CampaignTotals not found. Performing initial migration.");
     const allDonations = await firestoreQuery(env, COLLECTION);
+
+console.log("Donations found:", allDonations.length);
+console.log("Donation data:", JSON.stringify(allDonations));
+
     let initialTotalRaised = 0;
     let initialContributorCount = 0;
 
