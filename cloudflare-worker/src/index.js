@@ -638,9 +638,11 @@ async function handleGetPublicStats(req, env) {
       );
     }
   } catch (error) {
-    console.error("Error fetching public stats:", error);
-    return json({ error: "Could not retrieve public stats." }, 500, env);
-  }
+  return json({
+    message: error.message,
+    stack: error.stack
+  }, 500, env);
+}
 }
 
 // ---------------------------------------------------------------
