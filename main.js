@@ -1,48 +1,30 @@
-// --- Firebase v12 Modular SDK ---
-// Note: firebase-functions is no longer used. All Cashfree
-// operations (order creation, verification, webhook) are now
-// handled by the FundVerse Cloudflare Worker instead of Firebase
-// Cloud Functions — this avoids the Blaze (pay-as-you-go) plan
-// entirely. Firestore itself is unaffected; it stays on the free
-// Spark plan and continues to hold all donation data.
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  getDoc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
-// --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyBV43M4YLgRrTZ4_Pavs2DuaTyRNxkwSEM",
-  authDomain: "fundverse-f3b0c.firebaseapp.com",
-  projectId: "fundverse-f3b0c",
-  storageBucket: "fundverse-f3b0c.firebasestorage.app",
-  messagingSenderId: "125480706897",
-  appId: "1:125480706897:web:6a8cddc96fb0dd2f936970",
-};
-
-// --- Initialize Firebase ---
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// --- Cloudflare Worker as Backend ---
+// All payment operations (Cashfree, Manual UPI) and public stats
+// are now handled by the FundVerse Cloudflare Worker. This avoids
+// direct client-side interaction with Firestore for these operations,
+// enhancing security and centralizing backend logic.
+// Firestore itself is unaffected; it stays on the free Spark plan
+// and continues to hold all donation data, accessed only by the Worker
+// and the authenticated Admin Panel.
 
 // --- Cloudflare Worker base URL ---
 const WORKER_URL = "https://fundverse-worker.blueoceanstudiosindia.workers.dev";
 
-async function callWorker(path, payload) {
+async function callWorker(path, payload, method = "POST") {
   let resp;
   try {
     resp = await fetch(`${WORKER_URL}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+  method,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  ...(payload !== null && payload !== undefined
+    ? { body: JSON.stringify(payload) }
+    : {}),
+});
   } catch (networkErr) {
     console.error(`Network error calling ${path}:`, networkErr);
-    throw new Error("Could not reach the payment server. Check your connection and try again.");
+    throw new Error("Could not reach the server. Check your connection and try again.");
   }
 
   const data = await resp.json().catch(() => ({}));
@@ -108,7 +90,7 @@ function showLoading() {
   type();
 }
 
-// --- Firestore + Payment Logic ---
+// --- Payment Logic ---
 document.addEventListener("DOMContentLoaded", () => {
   showLoading();
 
@@ -129,14 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const contributeBtn = document.getElementById("contributeBtn");
 
   // --- Update Progress Bar ---
-  // Reads a single public aggregate document, kept in sync by the
-  // Cloudflare Worker (not the frontend), instead of querying the
-  // full donations collection — so the browser never has read
-  // access to individual donor names, emails, or transaction IDs.
+  // Reads a single public aggregate document from the Cloudflare Worker.
   async function updateProgress() {
     try {
-      const statsSnap = await getDoc(doc(db, "PublicStats", "CampaignTotals"));
-      const total = statsSnap.exists() ? Number(statsSnap.data().totalRaised) || 0 : 0;
+      const stats = await callWorker("/public-stats", null, "GET");
+      const total = Number(stats.totalRaised) || 0;
       const percent = Math.min((total / goalAmount) * 100, 100);
       progressBar.style.width = `${percent}%`;
       raisedAmount.textContent = `Raised: ₹${total.toLocaleString(
@@ -144,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
       )} / ₹${goalAmount.toLocaleString("en-IN")}`;
     } catch (err) {
       console.error("Error updating progress:", err);
+      // Optionally, display a message to the user that stats could not be loaded
     }
   }
 
@@ -213,17 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const formattedNow = () =>
-    new Date().toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata",
-    });
-
   // --- Handle Form Submission ---
   if (form) {
     form.addEventListener("submit", async (e) => {
@@ -269,27 +238,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-          await addDoc(collection(db, "ComicProjectDonations"), {
+          await callWorker("/submit-manual-upi", {
             name,
             email,
-            ...(phoneRaw ? { countryCode, phone: phoneRaw } : {}),
+            countryCode,
+            phone: phoneRaw,
             amount,
             txnID,
-            date: formattedNow(),
-            paymentMethod: "manual-upi",
-            status: "confirmed",
             consentAccepted: true,
-            timestamp: serverTimestamp(),
+            recaptchaToken: recaptchaResponse,
           });
-          alert("🎉 Thank you for your contribution!");
+          alert("🎉 Thank you for your contribution! Your contribution will reflect shortly.");
           form.reset();
           upiDisplay.classList.add("hidden");
           manualUpiFields.classList.add("hidden");
           if (window.grecaptcha) window.grecaptcha.reset();
-          updateProgress();
+          updateProgress(); // Update progress bar after successful submission
         } catch (error) {
           console.error("Error adding donation:", error);
-          alert("Something went wrong. Try again!");
+          alert(error.message || "Something went wrong. Try again!");
         }
         return;
       }
@@ -361,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const { status } = result;
 
       if (status === "SUCCESS") {
-        alert("🎉 Thank you for your contribution!");
+        alert("🎉 Thank you for your contribution! Your contribution will reflect shortly.");
       } else if (status === "PENDING") {
         alert("Your payment is still processing. It will reflect shortly.");
       } else {
@@ -374,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sessionStorage.removeItem(PENDING_KEY);
       // Clean the order_id query param out of the URL.
       window.history.replaceState({}, document.title, window.location.pathname);
-      updateProgress();
+      updateProgress(); // Update progress bar after Cashfree return
     }
   }
 
