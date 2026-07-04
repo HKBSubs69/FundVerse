@@ -261,10 +261,11 @@ async function updatePublicStats(env, amountDelta, countDelta) {
     console.log("PublicStats/CampaignTotals not found. Performing initial migration.");
     const allDonations = await firestoreQuery(env, COLLECTION);
 
-return json({
-  donationsFound: allDonations.length,
+throw new Error(JSON.stringify({
+  collection: COLLECTION,
+  count: allDonations.length,
   donations: allDonations
-}, 200, env);
+}));
 
     let initialTotalRaised = 0;
     let initialContributorCount = 0;
