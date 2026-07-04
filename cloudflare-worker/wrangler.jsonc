@@ -3,7 +3,7 @@
   "main": "src/index.js",
   "compatibility_date": "2026-07-01",
   "vars": {
-    "CASHFREE_ENV": "sandbox",
+    "CASHFREE_ENV": "production",
     "SITE_URL": "https://fundverse.app",
     "ALLOWED_ORIGIN": "https://fundverse.app"
   }
