@@ -264,11 +264,13 @@ async function updatePublicStats(env, amountDelta, countDelta) {
     let initialContributorCount = 0;
 
     for (const donation of allDonations) {
-      if (isCounted(donation.fields.status)) {
-        initialTotalRaised += Number(donation.fields.amount) || 0;
-        initialContributorCount += 1;
-      }
-    }
+  const status = donation.fields.status;
+
+  if (!status || isCounted(status)) {
+    initialTotalRaised += Number(donation.fields.amount) || 0;
+    initialContributorCount += 1;
+  }
+}
 
     // Create the document with initial values
     await firestoreSet(env, statsDocPath, {
