@@ -308,8 +308,10 @@ async function updatePublicStats(env, amountDelta, countDelta) {
   });
 
   if (!resp.ok) {
-    throw new Error(`Firestore INCREMENT ${statsDocPath} failed: ${await resp.text()}`);
-  }
+  const text = await resp.text();
+  console.error("COMMIT FAILED:", text);
+  throw new Error(text);
+}
 }
 
 // ---------------------------------------------------------------
