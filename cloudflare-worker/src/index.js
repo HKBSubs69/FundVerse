@@ -7,9 +7,11 @@
  * on the free Spark plan).
  *
  * Endpoints:
- *   POST /create-order    -> creates a Cashfree order + PENDING doc
- *   POST /verify-payment  -> re-checks status with Cashfree, updates Firestore
- *   POST /webhook         -> Cashfree payment webhook (signature-verified)
+ *   POST /create-order        -> creates a Cashfree order + PENDING doc
+ *   POST /verify-payment      -> re-checks status with Cashfree, updates Firestore
+ *   POST /webhook             -> Cashfree payment webhook (signature-verified)
+ *   POST /submit-manual-upi   -> handles manual UPI submissions, writes to Firestore
+ *   GET /public-stats         -> returns current public stats
  *
  * Required secrets (wrangler secret put ...):
  *   FIREBASE_PROJECT_ID
@@ -26,7 +28,7 @@
  */
 
 const COLLECTION = "ComicProjectDonations";
-const STATS_DOC = "PublicStats/CampaignTotals";
+const STATS_DOC_PATH = "PublicStats/CampaignTotals";
 const WEBHOOK_EVENTS = "WebhookEvents";
 
 // ---------------------------------------------------------------
@@ -35,7 +37,7 @@ const WEBHOOK_EVENTS = "WebhookEvents";
 function corsHeaders(env) {
   return {
     "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS", // Added GET for public-stats
     "Access-Control-Allow-Headers": "Content-Type",
   };
 }
@@ -198,6 +200,22 @@ async function firestoreCreate(env, collectionPath, docId, data) {
   return resp; // caller checks resp.ok / resp.status === 409
 }
 
+// Adds a doc with an auto-generated ID
+async function firestoreAdd(env, collectionPath, data) {
+  const token = await getAccessToken(env);
+  const resp = await fetch(
+    `${firestoreBaseUrl(env)}/${collectionPath}`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: toFirestoreFields(data) }),
+    }
+  );
+  if (!resp.ok) throw new Error(`Firestore ADD ${collectionPath} failed: ${await resp.text()}`);
+  const result = await resp.json();
+  return { id: result.name.split('/').pop(), fields: fromFirestoreFields(result.fields) };
+}
+
 // Upserts (merge) a doc at an exact path using updateMask so
 // unspecified fields are left untouched — mirrors Admin SDK's
 // `.set(data, { merge: true })`.
@@ -213,17 +231,63 @@ async function firestoreSet(env, path, data) {
   return resp.json();
 }
 
-// Atomically increments numeric fields on a doc (creates the doc if
-// missing) using Firestore's native increment field transform via
-// the :commit endpoint — this is what keeps PublicStats/CampaignTotals
-// race-free under concurrent payments.
-async function firestoreIncrement(env, path, increments) {
+// Queries documents in a collection
+async function firestoreQuery(env, collectionPath) {
   const token = await getAccessToken(env);
-  const [collectionPath, docId] = splitDocPath(path);
-  const fieldTransforms = Object.entries(increments).map(([field, amount]) => ({
-    fieldPath: field,
-    increment: Number.isInteger(amount) ? { integerValue: String(amount) } : { doubleValue: amount },
-  }));
+  const resp = await fetch(`${firestoreBaseUrl(env)}/${collectionPath}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!resp.ok) throw new Error(`Firestore QUERY ${collectionPath} failed: ${await resp.text()}`);
+  const data = await resp.json();
+  return (data.documents || []).map(doc => ({ id: doc.name.split('/').pop(), fields: fromFirestoreFields(doc.fields) }));
+}
+
+// ---------------------------------------------------------------
+// Public Stats Management
+// ---------------------------------------------------------------
+function isCounted(status) {
+  return status === "SUCCESS" || status === "confirmed";
+}
+
+async function updatePublicStats(env, amountDelta, countDelta) {
+  const statsDocPath = STATS_DOC_PATH;
+  const token = await getAccessToken(env);
+
+  // Check if PublicStats/CampaignTotals exists
+  const existingStats = await firestoreGet(env, statsDocPath);
+
+  if (!existingStats) {
+    // If it doesn't exist, perform migration
+    console.log("PublicStats/CampaignTotals not found. Performing initial migration.");
+    const allDonations = await firestoreQuery(env, COLLECTION);
+    let initialTotalRaised = 0;
+    let initialContributorCount = 0;
+
+    for (const donation of allDonations) {
+      if (isCounted(donation.fields.status)) {
+        initialTotalRaised += Number(donation.fields.amount) || 0;
+        initialContributorCount += 1;
+      }
+    }
+
+    // Create the document with initial values
+    await firestoreSet(env, statsDocPath, {
+      totalRaised: initialTotalRaised,
+      contributorCount: initialContributorCount,
+      updatedAt: new Date().toISOString(),
+    });
+    console.log(`PublicStats/CampaignTotals initialized with totalRaised: ${initialTotalRaised}, contributorCount: ${initialContributorCount}`);
+  }
+
+  // Atomically increments numeric fields on a doc (creates the doc if
+  // missing) using Firestore's native increment field transform via
+  // the :commit endpoint — this is what keeps PublicStats/CampaignTotals
+  // race-free under concurrent payments.
+  const fieldTransforms = [
+    { fieldPath: "totalRaised", increment: { doubleValue: amountDelta } },
+    { fieldPath: "contributorCount", increment: { integerValue: countDelta } },
+    { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
+  ];
 
   const resp = await fetch(`${firestoreBaseUrl(env)}:commit`, {
     method: "POST",
@@ -232,11 +296,8 @@ async function firestoreIncrement(env, path, increments) {
       writes: [
         {
           transform: {
-            document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/${path}`,
-            fieldTransforms: [
-              ...fieldTransforms,
-              { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
-            ],
+            document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/${statsDocPath}`,
+            fieldTransforms: fieldTransforms,
           },
         },
       ],
@@ -244,22 +305,8 @@ async function firestoreIncrement(env, path, increments) {
   });
 
   if (!resp.ok) {
-    // If the doc doesn't exist yet, create it first, then retry the transform.
-    const text = await resp.text();
-    if (text.includes("NOT_FOUND")) {
-      await firestoreSet(env, path, {
-        totalRaised: 0,
-        contributorCount: 0,
-      });
-      return firestoreIncrement(env, path, increments);
-    }
-    throw new Error(`Firestore INCREMENT ${path} failed: ${text}`);
+    throw new Error(`Firestore INCREMENT ${statsDocPath} failed: ${await resp.text()}`);
   }
-}
-
-function splitDocPath(path) {
-  const parts = path.split("/");
-  return [parts.slice(0, -1).join("/"), parts[parts.length - 1]];
 }
 
 // ---------------------------------------------------------------
@@ -314,10 +361,6 @@ async function getCashfreeOrderStatus(env, orderId) {
 // ---------------------------------------------------------------
 // Shared: verify with Cashfree, write Firestore, keep totals in sync
 // ---------------------------------------------------------------
-function isCounted(status) {
-  return status === "SUCCESS" || status === "confirmed";
-}
-
 async function fetchAndRecordOrderStatus(env, orderId) {
   const docPath = `${COLLECTION}/${orderId}`;
   const before = await firestoreGet(env, docPath);
@@ -334,16 +377,16 @@ async function fetchAndRecordOrderStatus(env, orderId) {
   await firestoreSet(env, docPath, {
     status,
     orderStatusRaw: raw,
+    verifiedAt: new Date().toISOString(), // Add verifiedAt for consistency
   });
 
   const wasCounted = isCounted(beforeStatus);
   const isNowCounted = isCounted(status);
 
   if (wasCounted !== isNowCounted) {
-    await firestoreIncrement(env, STATS_DOC, {
-      totalRaised: isNowCounted ? Number(amount) : -Number(amount),
-      contributorCount: isNowCounted ? 1 : -1,
-    });
+    const amountDelta = isNowCounted ? Number(amount) : -Number(amount);
+    const countDelta = isNowCounted ? 1 : -1;
+    await updatePublicStats(env, amountDelta, countDelta);
   }
 
   return status;
@@ -497,7 +540,7 @@ async function handleWebhook(req, env) {
   const eventId = `${orderId}_${timestamp}`;
   const createResp = await firestoreCreate(env, WEBHOOK_EVENTS, eventId, {
     orderId,
-    receivedAt: new Date(),
+    receivedAt: new Date().toISOString(),
   });
 
   if (createResp.status === 409) {
@@ -515,6 +558,76 @@ async function handleWebhook(req, env) {
     return json({ error: "Webhook processing failed" }, 500, env);
   }
 }
+
+async function handleManualUpiSubmission(req, env) {
+  const body = await req.json().catch(() => ({}));
+  const { name, email, phone, countryCode, amount, txnID, consentAccepted, recaptchaToken } = body;
+
+  if (!name || !email || !amount || Number(amount) <= 0 || !txnID) {
+    return json({ error: "Missing or invalid donation details." }, 400, env);
+  }
+  if (!consentAccepted) {
+    return json({ error: "Consent to Terms & Privacy Policy is required." }, 400, env);
+  }
+
+  const remoteIp = req.headers.get("CF-Connecting-IP");
+  const recaptchaOk = await verifyRecaptcha(env, recaptchaToken, remoteIp);
+  if (!recaptchaOk) {
+    return json({ error: "reCAPTCHA verification failed. Please try again." }, 400, env);
+  }
+
+  const cleanPhone = String(phone || "").replace(/\D/g, "");
+  const cleanCountryCode = isValidCountryCode(countryCode) ? countryCode : "+91";
+
+  try {
+    const newDoc = await firestoreAdd(env, COLLECTION, {
+      name,
+      email,
+      ...(cleanPhone ? { countryCode: cleanCountryCode, phone: cleanPhone } : {}),
+      amount: Number(amount),
+      txnID,
+      date: new Date().toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric",
+        hour: "2-digit", minute: "2-digit", hour12: true,
+        timeZone: "Asia/Kolkata",
+      }),
+      paymentMethod: "manual-upi",
+      status: "confirmed", // Manual UPI is confirmed on submission
+      consentAccepted: true,
+      timestamp: new Date(),
+    });
+
+    // Update public stats immediately for manual UPI
+    await updatePublicStats(env, Number(amount), 1);
+
+    return json({ status: "SUCCESS", docId: newDoc.id }, 200, env);
+  } catch (error) {
+    console.error("Manual UPI submission error:", error);
+    return json({ error: "Failed to record manual UPI contribution." }, 500, env);
+  }
+}
+
+async function handleGetPublicStats(req, env) {
+  try {
+    const stats = await firestoreGet(env, STATS_DOC_PATH);
+    if (stats) {
+      return json(stats.fields, 200, env);
+        } else {
+      console.log("PublicStats/CampaignTotals not found during GET request. Attempting initial migration.");
+
+      await updatePublicStats(env, 0, 0);
+
+      const migratedStats = await firestoreGet(env, STATS_DOC_PATH);
+
+      return json(
+        migratedStats?.fields || {
+          totalRaised: 0,
+          contributorCount: 0,
+        },
+        200,
+        env
+      );
+    }
 
 // ---------------------------------------------------------------
 // Entry point
@@ -536,6 +649,12 @@ export default {
       }
       if (request.method === "POST" && url.pathname === "/webhook") {
         return await handleWebhook(request, env);
+      }
+      if (request.method === "POST" && url.pathname === "/submit-manual-upi") {
+        return await handleManualUpiSubmission(request, env);
+      }
+      if (request.method === "GET" && url.pathname === "/public-stats") {
+        return await handleGetPublicStats(request, env);
       }
       if (request.method === "GET" && url.pathname === "/health") {
         return json({ ok: true }, 200, env);
