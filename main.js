@@ -39,7 +39,7 @@ const goalAmount = 20000;
 const upiID = "7079441779@ikwik";
 // Set to "production" only after your Worker is deployed with
 // CASHFREE_ENV=production and live Cashfree keys.
-const CASHFREE_MODE = "sandbox";
+const CASHFREE_MODE = "production";
 const PENDING_KEY = "fundverse_pending_order";
 
 // --- Load QRCode Library ---
