@@ -28,6 +28,77 @@ body {
 }
 
 /* ============================================================
+   LOADER
+   ============================================================ */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #0a0a0a;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.9s ease;
+}
+
+.loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #ff5005;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#loading-text {
+  color: #ff7a7a;
+  margin-top: 18px;
+  font-size: 1.05rem;
+  max-width: 84%;
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Hide main initially */
+.hidden {
+  display: none;
+}
+
+main.hidden {
+  display: none;
+}
+
+main:not(.hidden) {
+  display: block;
+  opacity: 1;
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
    NAVIGATION
    ============================================================ */
 
@@ -133,7 +204,7 @@ body {
   padding-top: 60px;
 }
 
-.gradient-canvas {
+.shader-gradient-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -402,52 +473,26 @@ body {
 }
 
 /* ============================================================
-   WHY SECTION - CARDS GRID
+   WHY SECTION - EMOTIONAL COPY
    ============================================================ */
 
 .why-section {
   background: #0a0a0a;
 }
 
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.why-content {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  margin-top: 48px;
+  max-width: 800px;
+  margin: 48px auto 0;
 }
 
-.card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px;
+.why-text {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.8;
   text-align: center;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 80, 5, 0.3);
-  transform: translateY(-8px);
-  box-shadow: 0 24px 48px rgba(255, 80, 5, 0.1);
-}
-
-.card-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  display: block;
-}
-
-.card h3 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.card p {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.6;
 }
 
 /* ============================================================
@@ -810,7 +855,6 @@ body {
     font-size: 18px;
   }
   
-  .cards-grid,
   .faq-grid {
     grid-template-columns: 1fr;
   }
@@ -847,6 +891,10 @@ body {
   .cta-button.large {
     padding: 14px 32px;
     font-size: 16px;
+  }
+  
+  .why-text {
+    font-size: 15px;
   }
 }
 
@@ -942,6 +990,10 @@ body {
   
   .footer-links {
     gap: 12px;
+  }
+  
+  .why-text {
+    font-size: 14px;
   }
 }
 
