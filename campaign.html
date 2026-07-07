@@ -15,264 +15,264 @@
   <link rel="stylesheet" href="campaign.css" />
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <div class="nav-logo">
-        <a href="index.html" class="logo-link">FundVerse</a>
-      </div>
-      <div class="nav-menu">
-        <a href="#about" class="nav-link">About</a>
-        <a href="#rewards" class="nav-link">Rewards</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="index.html" class="nav-cta">Support Now</a>
-      </div>
-    </div>
-  </nav>
+  <!-- Loader (visible first) -->
+  <div id="loader" class="loader">
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="loading-text" aria-live="polite"></p>
+  </div>
 
-  <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <canvas id="gradient-canvas" class="gradient-canvas"></canvas>
-    
-    <div class="hero-content">
-      <div class="hero-logo">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="30" cy="30" r="28" stroke="currentColor" stroke-width="2" fill="none" opacity="0.3"/>
-          <path d="M30 8 L42 22 L30 36 L18 22 Z" fill="currentColor" opacity="0.8"/>
-          <circle cx="30" cy="30" r="8" fill="currentColor" opacity="0.5"/>
-        </svg>
+  <!-- Main content (hidden until loader finishes) -->
+  <main id="main-content" class="hidden" role="main">
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <a href="campaign.html" class="logo-link">FundVerse</a>
+        </div>
+        <div class="nav-menu">
+          <a href="#about" class="nav-link">About</a>
+          <a href="#rewards" class="nav-link">Rewards</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+          <a href="index.html" class="nav-cta">Support Now</a>
+        </div>
       </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div id="shader-gradient-container" class="shader-gradient-container"></div>
       
-      <h1 class="hero-title">Support Independent Comic Projects</h1>
-      <p class="hero-subtitle">Help bring imagination to life. Every contribution fuels creativity and brings stories to the world.</p>
-      
-      <div class="live-stats">
-        <div class="stat-card">
-          <div class="stat-label">Raised</div>
-          <div class="stat-value" id="stat-raised">₹0</div>
+      <div class="hero-content">
+        <div class="hero-logo">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" stroke="currentColor" stroke-width="2" fill="none" opacity="0.3"/>
+            <path d="M30 8 L42 22 L30 36 L18 22 Z" fill="currentColor" opacity="0.8"/>
+            <circle cx="30" cy="30" r="8" fill="currentColor" opacity="0.5"/>
+          </svg>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Goal</div>
-          <div class="stat-value" id="stat-goal">₹20,000</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Contributors</div>
-          <div class="stat-value" id="stat-contributors">0</div>
-        </div>
-      </div>
-      
-      <div class="progress-container">
-        <div class="progress-bar-wrapper">
-          <div class="progress-bar" id="progress-bar"></div>
-        </div>
-        <div class="progress-text" id="progress-text">0% Funded</div>
-      </div>
-      
-      <a href="index.html" class="cta-button primary">Continue to Contribution</a>
-      
-      <div class="scroll-indicator">
-        <span>Scroll to explore</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- About The Campaign -->
-  <section class="section about-section" id="about">
-    <div class="container">
-      <h2 class="section-title">About The Campaign</h2>
-      <p class="section-description">
-        We're creating something extraordinary. This independent project represents months of passion, creativity, and dedication from a talented team. Your support directly enables us to bring this vision to life with the quality and care it deserves.
-      </p>
-      <p class="section-description">
-        Every contribution, no matter the size, makes a meaningful difference. Together, we're proving that independent creators can produce world-class content without compromising on vision or integrity.
-      </p>
-    </div>
-  </section>
-
-  <!-- Why Your Support Matters -->
-  <section class="section why-section" id="why">
-    <div class="container">
-      <h2 class="section-title">Why Your Support Matters</h2>
-      <div class="cards-grid">
-        <div class="card">
-          <div class="card-icon">✨</div>
-          <h3>Independence</h3>
-          <p>Your support keeps this project independent, free from corporate constraints and creative compromises.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon">🎨</div>
-          <h3>Quality</h3>
-          <p>Funding enables us to invest in top-tier production, ensuring the highest quality output.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon">🌍</div>
-          <h3>Community</h3>
-          <p>You become part of a global community of supporters who believe in independent creativity.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-
-  <!-- Contributor Rewards -->
-  <section class="section rewards-section" id="rewards">
-    <div class="container">
-      <h2 class="section-title">Contributor Rewards</h2>
-      <div class="rewards-card-wrapper">
-        <div class="rewards-card">
-          <div class="rewards-card-header">
-            <div class="rewards-icon">🎁</div>
-            <h3>Every Verified Contributor Will Receive</h3>
+        
+        <h1 class="hero-title">Support Independent Comic Projects</h1>
+        <p class="hero-subtitle">Help bring imagination to life. Every contribution fuels creativity and brings stories to the world.</p>
+        
+        <div class="live-stats">
+          <div class="stat-card">
+            <div class="stat-label">Raised</div>
+            <div class="stat-value" id="stat-raised">₹0</div>
           </div>
-          
-          <div class="rewards-list">
-            <div class="reward-item">
-              <span class="reward-icon">📄</span>
-              <div class="reward-content">
-                <h4>Complimentary Digital Copy</h4>
-                <p>PDF / E-Book after the project's official release.</p>
-              </div>
+          <div class="stat-card">
+            <div class="stat-label">Goal</div>
+            <div class="stat-value" id="stat-goal">₹20,000</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Contributors</div>
+            <div class="stat-value" id="stat-contributors">0</div>
+          </div>
+        </div>
+        
+        <div class="progress-container">
+          <div class="progress-bar-wrapper">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <div class="progress-text" id="progress-text">0% Funded</div>
+        </div>
+        
+        <a href="index.html" class="cta-button primary">Continue to Contribution</a>
+        
+        <div class="scroll-indicator">
+          <span>Scroll to explore</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- About The Campaign -->
+    <section class="section about-section" id="about">
+      <div class="container">
+        <h2 class="section-title">About The Campaign</h2>
+        <p class="section-description">
+          We're creating something extraordinary. This independent project represents months of passion, creativity, and dedication from a talented team. Your support directly enables us to bring this vision to life with the quality and care it deserves.
+        </p>
+        <p class="section-description">
+          Every contribution, no matter the size, makes a meaningful difference. Together, we're proving that independent creators can produce world-class content without compromising on vision or integrity.
+        </p>
+      </div>
+    </section>
+
+    <!-- Why Your Support Matters -->
+    <section class="section why-section" id="why">
+      <div class="container">
+        <h2 class="section-title">Why Your Support Matters</h2>
+        <div class="why-content">
+          <p class="why-text">
+            When you support this project, you're not just funding a product—you're investing in the creative vision of artists who've poured their hearts into this work. Every rupee goes directly toward bringing stories to life that wouldn't exist otherwise.
+          </p>
+          <p class="why-text">
+            In a world where creativity is often dictated by algorithms and market trends, independent projects like this represent something rare: pure artistic expression. Your support gives creators the freedom to make bold choices, take creative risks, and deliver something genuinely original.
+          </p>
+          <p class="why-text">
+            This isn't just about the final product. It's about proving that people still care about quality storytelling. It's about showing that there's an audience for work made with passion rather than profit margins. When you contribute, you become part of a movement that values creativity for its own sake.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contributor Rewards -->
+    <section class="section rewards-section" id="rewards">
+      <div class="container">
+        <h2 class="section-title">Contributor Rewards</h2>
+        <div class="rewards-card-wrapper">
+          <div class="rewards-card">
+            <div class="rewards-card-header">
+              <div class="rewards-icon">🎁</div>
+              <h3>Every Verified Contributor Will Receive</h3>
             </div>
             
-            <div class="reward-item">
-              <span class="reward-icon">📱</span>
-              <div class="reward-content">
-                <h4>Project Updates</h4>
-                <p>Shared through Instagram Stories</p>
-                <div class="instagram-handles">
-                  <a href="https://instagram.com/hkbsubs" target="_blank" rel="noopener">@hkbsubs</a>
-                  <span class="separator">•</span>
-                  <a href="https://instagram.com/blueoceanstudiosindia" target="_blank" rel="noopener">@blueoceanstudiosindia</a>
+            <div class="rewards-list">
+              <div class="reward-item">
+                <span class="reward-icon">📄</span>
+                <div class="reward-content">
+                  <h4>Complimentary Digital Copy</h4>
+                  <p>PDF / E-Book after the project's official release.</p>
+                </div>
+              </div>
+              
+              <div class="reward-item">
+                <span class="reward-icon">📱</span>
+                <div class="reward-content">
+                  <h4>Project Updates</h4>
+                  <p>Shared through Instagram Stories</p>
+                  <div class="instagram-handles">
+                    <a href="https://instagram.com/hkbsubs" target="_blank" rel="noopener">@hkbsubs</a>
+                    <span class="separator">•</span>
+                    <a href="https://instagram.com/blueoceanstudiosindia" target="_blank" rel="noopener">@blueoceanstudiosindia</a>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="reward-item">
+                <span class="reward-icon">⚡</span>
+                <div class="reward-content">
+                  <h4>Early Release Notification</h4>
+                  <p>Be the first to know before the public release.</p>
                 </div>
               </div>
             </div>
             
-            <div class="reward-item">
-              <span class="reward-icon">⚡</span>
-              <div class="reward-content">
-                <h4>Early Release Notification</h4>
-                <p>Be the first to know before the public release.</p>
-              </div>
+            <div class="rewards-note">
+              <p><strong>Note:</strong> Digital rewards will be delivered after the official release of the project.</p>
             </div>
-            
-            <div class="reward-item">
-              <span class="reward-icon">✨</span>
-              <div class="reward-content">
-                <h4>Contributor Acknowledgement</h4>
-                <p>Recognition where applicable.</p>
-              </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="section timeline-section" id="timeline">
+      <div class="container">
+        <h2 class="section-title">Project Timeline</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h3>Funding Phase</h3>
+              <p>Campaign runs through the end of this month. Your support directly impacts our ability to proceed.</p>
             </div>
           </div>
           
-          <div class="rewards-note">
-            <p><strong>Note:</strong> Digital rewards will be delivered after the official release of the project.</p>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h3>Production</h3>
+              <p>With your support, we'll begin full-scale production, bringing the vision to life with professional quality.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h3>Delivery</h3>
+              <p>Contributors receive their rewards and exclusive access to the finished project and behind-the-scenes content.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h3>Launch</h3>
+              <p>The project launches publicly, and we celebrate this achievement with our amazing community of supporters.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Timeline -->
-  <section class="section timeline-section" id="timeline">
-    <div class="container">
-      <h2 class="section-title">Project Timeline</h2>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <h3>Funding Phase</h3>
-            <p>Campaign runs through the end of this month. Your support directly impacts our ability to proceed.</p>
+    <!-- FAQ -->
+    <section class="section faq-section" id="faq">
+      <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3 class="faq-question">When will I receive my rewards?</h3>
+            <p class="faq-answer">Digital rewards are delivered after the official release of the project. You'll receive exclusive updates throughout the production process via Instagram Stories, and final rewards will be sent upon project launch.</p>
           </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <h3>Production</h3>
-            <p>With your support, we'll begin full-scale production, bringing the vision to life with professional quality.</p>
+          
+          <div class="faq-item">
+            <h3 class="faq-question">Is my contribution secure?</h3>
+            <p class="faq-answer">Yes. We use industry-standard payment processing through Cashfree and support multiple payment methods. All transactions are encrypted and secure.</p>
           </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <h3>Delivery</h3>
-            <p>Contributors receive their rewards and exclusive access to the finished project and behind-the-scenes content.</p>
+          
+          <div class="faq-item">
+            <h3 class="faq-question">What if the project doesn't reach its goal?</h3>
+            <p class="faq-answer">We're committed to this project regardless. Even if we don't reach the full goal, we'll continue production and deliver the best possible result with the support we receive.</p>
           </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <h3>Launch</h3>
-            <p>The project launches publicly, and we celebrate this achievement with our amazing community of supporters.</p>
+          
+          <div class="faq-item">
+            <h3 class="faq-question">Can I contribute multiple times?</h3>
+            <p class="faq-answer">Absolutely! You can make multiple contributions. Each contribution is valued equally, and you'll receive rewards for each one.</p>
+          </div>
+          
+          <div class="faq-item">
+            <h3 class="faq-question">How do I stay updated?</h3>
+            <p class="faq-answer">Contributors receive exclusive updates via Instagram Stories throughout the production process. You'll be the first to know about milestones, behind-the-scenes content, and project progress.</p>
+          </div>
+          
+          <div class="faq-item">
+            <h3 class="faq-question">What payment methods do you accept?</h3>
+            <p class="faq-answer">We accept online payments through Cashfree and manual UPI transfers. Both methods are secure and processed through our trusted payment partner.</p>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FAQ -->
-  <section class="section faq-section" id="faq">
-    <div class="container">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-      <div class="faq-grid">
-        <div class="faq-item">
-          <h3 class="faq-question">When will I receive my rewards?</h3>
-          <p class="faq-answer">Digital rewards are delivered after the official release of the project. You'll receive exclusive updates throughout the production process via Instagram Stories, and final rewards will be sent upon project launch.</p>
-        </div>
-        
-        
-        <div class="faq-item">
-          <h3 class="faq-question">Is my contribution secure?</h3>
-          <p class="faq-answer">Yes. We use industry-standard payment processing through Cashfree and support multiple payment methods. All transactions are encrypted and secure.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3 class="faq-question">What if the project doesn't reach its goal?</h3>
-          <p class="faq-answer">We're committed to this project regardless. Even if we don't reach the full goal, we'll continue production and deliver the best possible result with the support we receive.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3 class="faq-question">Can I contribute multiple times?</h3>
-          <p class="faq-answer">Absolutely! You can make multiple contributions. Each contribution is valued equally, and you'll receive rewards for each one.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3 class="faq-question">How do I stay updated?</h3>
-          <p class="faq-answer">Contributors receive exclusive updates via email throughout the production process. You'll be the first to know about milestones, behind-the-scenes content, and project progress.</p>
+    <!-- Final CTA -->
+    <section class="section final-cta-section" id="final-cta">
+      <div class="container">
+        <div class="cta-content">
+          <h2>Ready to Make a Difference?</h2>
+          <p>Join our community of supporters and help bring independent creativity to life. Every contribution matters.</p>
+          <a href="index.html" class="cta-button primary large">Continue to Contribution</a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Final CTA -->
-  <section class="section final-cta-section" id="final-cta">
-    <div class="container">
-      <div class="cta-content">
-        <h2>Ready to Make a Difference?</h2>
-        <p>Join our community of supporters and help bring independent creativity to life. Every contribution matters.</p>
-        <a href="index.html" class="cta-button primary large">Continue to Contribution</a>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; <span id="footer-year"></span> FundVerse | Managed by Blue Ocean Studios India | Made in India 🇮🇳</p>
+        <div class="footer-links">
+          <a href="terms.html" target="_blank" rel="noopener">Terms</a>
+          <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
+          <a href="refund-policy.html" target="_blank" rel="noopener">Refund Policy</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </footer>
+  </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>&copy; <span id="footer-year"></span> FundVerse | Managed by Blue Ocean Studios India | Made in India 🇮🇳</p>
-      <div class="footer-links">
-        <a href="terms.html" target="_blank" rel="noopener">Terms</a>
-        <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
-        <a href="refund-policy.html" target="_blank" rel="noopener">Refund Policy</a>
-      </div>
-    </div>
-  </footer>
-
+  <!-- ShaderGradient Library -->
+  <script async src="https://cdn.jsdelivr.net/npm/shadergradient@1.5.0/dist/shadergradient.umd.js"></script>
+  
   <script src="campaign.js"></script>
 </body>
 </html>
