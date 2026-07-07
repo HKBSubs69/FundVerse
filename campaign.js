@@ -2,13 +2,13 @@
  * campaign.js - FundVerse Campaign Page
  * 
  * Features:
- * - Premium loader with typing animation (same as payment page)
- * - ShaderGradient hero background (official library)
+ * - OGL-based animated silk shader (Aduza-inspired)
+ * - Premium loader with typing animation
  * - Live data fetching from Cloudflare Worker (/public-stats)
  * - Animated counters and progress bar
  * - Smooth scroll animations
  * - Glass blur navbar on scroll
- * - Production-ready, no TODOs or placeholder code
+ * - Mobile-optimized, production-ready
  */
 
 // ============================================================
@@ -17,8 +17,8 @@
 
 const WORKER_URL = "https://fundverse-worker.blueoceanstudiosindia.workers.dev";
 const GOAL_AMOUNT = 20000;
-const UPDATE_INTERVAL = 5000; // Update stats every 5 seconds
-const ANIMATION_DURATION = 1000; // Counter animation duration
+const UPDATE_INTERVAL = 5000;
+const ANIMATION_DURATION = 1000;
 
 // ============================================================
 // LOADER ANIMATION
@@ -61,65 +61,254 @@ function showLoading() {
 }
 
 // ============================================================
-// SHADERGRADIENT INITIALIZATION
+// OGL SILK SHADER
 // ============================================================
 
-function initializeShaderGradient() {
-  const container = document.getElementById("shader-gradient-container");
-  
-  if (!container || !window.ShaderGradient) {
-    console.warn("ShaderGradient not available, using fallback");
-    setupFallbackGradient();
-    return;
+class SilkShader {
+  constructor(container) {
+    this.container = container;
+    this.renderer = null;
+    this.scene = null;
+    this.camera = null;
+    this.mesh = null;
+    this.time = 0;
+    this.animationId = null;
+    this.dpr = Math.min(window.devicePixelRatio, 1.5); // Cap DPR for mobile
+    
+    this.init();
   }
 
-  try {
-    // Initialize ShaderGradient with the exact preset from the user
-    const sg = new window.ShaderGradient();
-    sg.animate = true;
-    sg.axesHelper = false;
-    sg.brightness = 1.2;
-    sg.cAzimuthAngle = 180;
-    sg.cDistance = 3.6;
-    sg.cPolarAngle = 90;
-    sg.cameraZoom = 1;
-    sg.color1 = "#ff5005";
-    sg.color2 = "#dbba95";
-    sg.color3 = "#ff5005";
-    sg.envPreset = "city";
-    sg.fov = 45;
-    sg.grain = true;
-    sg.lightType = "3d";
-    sg.pixelDensity = 1;
-    sg.positionX = -1.4;
-    sg.positionY = 0;
-    sg.positionZ = 0;
-    sg.reflection = 0.1;
-    sg.rotationX = 0;
-    sg.rotationY = 10;
-    sg.rotationZ = 50;
-    sg.type = "plane";
-    sg.uAmplitude = 1;
-    sg.uDensity = 1.3;
-    sg.uFrequency = 5.5;
-    sg.uSpeed = 0.4;
-    sg.uStrength = 4;
-    sg.wireframe = false;
+  init() {
+    if (!window.OGL) {
+      console.warn("OGL not loaded, using fallback gradient");
+      this.setupFallback();
+      return;
+    }
 
-    // Append to container
-    container.appendChild(sg.canvas);
-  } catch (error) {
-    console.error("Error initializing ShaderGradient:", error);
-    setupFallbackGradient();
+    try {
+      const { Renderer, Camera, Transform, Plane, Program } = window.OGL;
+
+      // Create renderer
+      this.renderer = new Renderer({
+        dpr: this.dpr,
+        antialias: true,
+        alpha: true,
+      });
+
+      const gl = this.renderer.gl;
+      gl.clearColor(0.05, 0.05, 0.05, 1);
+      this.container.appendChild(gl.canvas);
+      this.resize();
+
+      // Create camera
+      this.camera = new Camera(this.renderer, {
+        fov: 45,
+        aspect: this.renderer.width / this.renderer.height,
+        near: 0.1,
+        far: 100,
+      });
+      this.camera.position.z = 2;
+
+      // Create scene
+      this.scene = new Transform();
+
+      // Create silk shader program
+      const program = new Program(gl, {
+        vertex: this.getVertexShader(),
+        fragment: this.getFragmentShader(),
+        uniforms: {
+          uTime: { value: 0 },
+          uResolution: { value: [this.renderer.width, this.renderer.height] },
+        },
+      });
+
+      // Create plane geometry
+      this.mesh = new Plane(gl, {
+        width: 2,
+        height: 2,
+      });
+
+      this.mesh.program = program;
+      this.mesh.setParent(this.scene);
+
+      // Handle resize
+      window.addEventListener("resize", () => this.resize());
+
+      // Start animation loop
+      this.animate();
+    } catch (error) {
+      console.error("Error initializing OGL silk shader:", error);
+      this.setupFallback();
+    }
   }
-}
 
-function setupFallbackGradient() {
-  const container = document.getElementById("shader-gradient-container");
-  if (container) {
-    container.style.background = "linear-gradient(135deg, #ff5005 0%, #dbba95 25%, #ff5005 50%, #ff7a3d 75%, #ff5005 100%)";
-    container.style.backgroundSize = "400% 400%";
-    container.style.animation = "gradientShift 15s ease infinite";
+  getVertexShader() {
+    return `
+      precision highp float;
+
+      attribute vec3 position;
+      attribute vec2 uv;
+
+      uniform mat4 uModelMatrix;
+      uniform mat4 uViewMatrix;
+      uniform mat4 uProjectionMatrix;
+
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(position, 1.0);
+      }
+    `;
+  }
+
+  getFragmentShader() {
+    return `
+      precision highp float;
+
+      uniform float uTime;
+      uniform vec2 uResolution;
+
+      varying vec2 vUv;
+
+      // Simplex-like noise function
+      float noise(vec3 p) {
+        vec3 i = floor(p);
+        vec3 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        
+        float n = mix(
+          mix(
+            mix(sin(dot(i + vec3(0, 0, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
+                sin(dot(i + vec3(1, 0, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x),
+            mix(sin(dot(i + vec3(0, 1, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
+                sin(dot(i + vec3(1, 1, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x), f.y),
+          mix(
+            mix(sin(dot(i + vec3(0, 0, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
+                sin(dot(i + vec3(1, 0, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x),
+            mix(sin(dot(i + vec3(0, 1, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
+                sin(dot(i + vec3(1, 1, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x), f.y), f.z);
+        
+        return fract(sin(n) * 43758.5453);
+      }
+
+      // Fractional Brownian Motion for organic cloth-like motion
+      float fbm(vec3 p) {
+        float value = 0.0;
+        float amplitude = 0.5;
+        float frequency = 1.0;
+        
+        for (int i = 0; i < 4; i++) {
+          value += amplitude * noise(p * frequency);
+          amplitude *= 0.5;
+          frequency *= 2.0;
+        }
+        
+        return value;
+      }
+
+      void main() {
+        vec2 uv = vUv;
+        
+        // Slow flowing cloth-like motion
+        vec3 p = vec3(uv * 2.0, uTime * 0.15);
+        
+        // Multiple layers of noise for organic silk effect
+        float silk = fbm(p);
+        float silk2 = fbm(p + vec3(10.0, 20.0, 0.0));
+        float silk3 = fbm(p * 0.5 + vec3(uTime * 0.1, 0.0, 0.0));
+        
+        // Combine layers with smooth blending
+        float pattern = mix(silk, silk2, sin(uTime * 0.3) * 0.5 + 0.5);
+        pattern = mix(pattern, silk3, 0.3);
+        
+        // Dark charcoal base
+        vec3 darkBase = vec3(0.08, 0.08, 0.1);
+        
+        // Warm amber/orange highlights
+        vec3 warmHighlight = vec3(1.0, 0.6, 0.2);
+        
+        // Create flowing highlights based on pattern
+        float highlight = pow(pattern, 2.0) * 0.6;
+        
+        // Blend base with highlights
+        vec3 color = mix(darkBase, warmHighlight, highlight * 0.5);
+        
+        // Add subtle secondary highlights
+        float secondaryHighlight = sin(pattern * 3.14159 + uTime * 0.2) * 0.5 + 0.5;
+        color = mix(color, vec3(1.0, 0.7, 0.3), secondaryHighlight * 0.15);
+        
+        // Film grain effect
+        float grain = fract(sin(dot(uv + uTime * 0.5, vec2(12.9898, 78.233))) * 43758.5453);
+        grain = mix(grain, 0.5, 0.85); // Reduce grain intensity
+        color *= mix(1.0, grain, 0.08);
+        
+        // Soft vignette edges
+        vec2 vignetteUv = vUv - 0.5;
+        float vignette = 1.0 - length(vignetteUv) * 0.8;
+        vignette = smoothstep(0.0, 1.0, vignette);
+        color *= mix(0.7, 1.0, vignette);
+        
+        // Cinematic lighting - subtle radial falloff
+        float radial = length(uv - 0.5) * 1.2;
+        color *= mix(1.0, 0.85, radial * radial);
+        
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+  }
+
+  animate() {
+    this.time += 0.016; // ~60fps
+    
+    if (this.mesh && this.mesh.program) {
+      this.mesh.program.uniforms.uTime.value = this.time;
+    }
+    
+    if (this.renderer) {
+      this.renderer.render({
+        scene: this.scene,
+        camera: this.camera,
+      });
+    }
+    
+    this.animationId = requestAnimationFrame(() => this.animate());
+  }
+
+  resize() {
+    if (!this.renderer) return;
+    
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+    
+    this.renderer.setSize(width, height);
+    
+    if (this.camera) {
+      this.camera.perspective({
+        aspect: width / height,
+      });
+    }
+    
+    if (this.mesh && this.mesh.program) {
+      this.mesh.program.uniforms.uResolution.value = [width, height];
+    }
+  }
+
+  setupFallback() {
+    // Fallback: CSS gradient animation
+    this.container.style.background = "linear-gradient(135deg, #0d0d0f 0%, #1a1a1f 25%, #2a1810 50%, #1a1a1f 75%, #0d0d0f 100%)";
+    this.container.style.backgroundSize = "400% 400%";
+    this.container.style.animation = "gradientShift 20s ease infinite";
+  }
+
+  destroy() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+    if (this.renderer && this.renderer.gl && this.renderer.gl.canvas) {
+      this.renderer.gl.canvas.remove();
+    }
+    window.removeEventListener("resize", () => this.resize());
   }
 }
 
@@ -160,10 +349,7 @@ class LiveDataManager {
   }
   
   startPolling(callback) {
-    // Fetch immediately
     this.fetchStats().then(callback);
-    
-    // Then poll at intervals
     this.updateInterval = setInterval(() => {
       this.fetchStats().then(callback);
     }, UPDATE_INTERVAL);
@@ -202,8 +388,6 @@ class AnimatedCounter {
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / this.duration, 1);
-      
-      // Easing function: cubic-bezier(0.34, 1.56, 0.64, 1)
       const easeProgress = this.cubicBezier(progress, 0.34, 1.56, 0.64, 1);
       
       this.currentValue = startValue + (endValue - startValue) * easeProgress;
@@ -218,7 +402,6 @@ class AnimatedCounter {
   }
   
   cubicBezier(t, p0, p1, p2, p3) {
-    // Simplified cubic bezier approximation
     const mt = 1 - t;
     return mt * mt * mt * p0 + 3 * mt * mt * t * p1 + 3 * mt * t * t * p2 + t * t * t * p3;
   }
@@ -261,8 +444,6 @@ class ProgressBar {
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing: cubic-bezier(0.34, 1.56, 0.64, 1)
       const easeProgress = this.cubicBezier(progress, 0.34, 1.56, 0.64, 1);
       
       this.currentPercent = startPercent + (newPercent - startPercent) * easeProgress;
@@ -308,7 +489,6 @@ class ScrollAnimations {
       });
     }, options);
     
-    // Observe all animated elements
     document.querySelectorAll('.section, .card, .reward-tier, .faq-item, .timeline-item').forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
@@ -316,7 +496,6 @@ class ScrollAnimations {
       this.observer.observe(el);
     });
     
-    // Add CSS for in-view state
     if (!document.getElementById('scroll-animations-style')) {
       const style = document.createElement('style');
       style.id = 'scroll-animations-style';
@@ -332,18 +511,13 @@ class ScrollAnimations {
   
   setupNavbarScroll() {
     const navbar = document.getElementById("navbar");
-    let lastScrollY = 0;
     
     window.addEventListener('scroll', () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > 50) {
+      if (window.scrollY > 50) {
         navbar.classList.add('scrolled');
       } else {
         navbar.classList.remove('scrolled');
       }
-      
-      lastScrollY = currentScrollY;
     }, { passive: true });
   }
 }
@@ -352,13 +526,18 @@ class ScrollAnimations {
 // INITIALIZATION
 // ============================================================
 
+let silkShader = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   // Show loading screen
   showLoading();
   
-  // Initialize ShaderGradient after page loads
+  // Initialize silk shader
   setTimeout(() => {
-    initializeShaderGradient();
+    const container = document.getElementById("shader-gradient-container");
+    if (container) {
+      silkShader = new SilkShader(container);
+    }
   }, 100);
   
   // Initialize live data manager
@@ -411,6 +590,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cleanup on page unload
   window.addEventListener('beforeunload', () => {
     dataManager.stopPolling();
+    if (silkShader) {
+      silkShader.destroy();
+    }
   });
 });
 
