@@ -2,7 +2,8 @@
  * campaign.js - FundVerse Campaign Page
  * 
  * Features:
- * - WebGL-based animated gradient hero (ShaderGradient-inspired)
+ * - Premium loader with typing animation (same as payment page)
+ * - ShaderGradient hero background (official library)
  * - Live data fetching from Cloudflare Worker (/public-stats)
  * - Animated counters and progress bar
  * - Smooth scroll animations
@@ -20,181 +21,105 @@ const UPDATE_INTERVAL = 5000; // Update stats every 5 seconds
 const ANIMATION_DURATION = 1000; // Counter animation duration
 
 // ============================================================
-// SHADER GRADIENT HERO
+// LOADER ANIMATION
 // ============================================================
 
-class ShaderGradient {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.gl = canvas.getContext('webgl', { antialias: true, alpha: true });
-    
-    if (!this.gl) {
-      console.warn('WebGL not supported, using fallback gradient');
-      this.useFallback = true;
-      this.setupFallback();
-      return;
+const loaderSentences = [
+  "Empowering creativity — your support brings stories to life.",
+  "Join the mission — every contribution fuels a dream.",
+  "Together, we make imagination real.",
+  "Fueling art, passion, and purpose — one contribution at a time.",
+];
+
+function showLoading() {
+  const loader = document.getElementById("loader");
+  const textEl = document.getElementById("loading-text");
+  const main = document.getElementById("main-content");
+
+  if (!loader || !textEl || !main) {
+    if (main) main.classList.remove("hidden");
+    return;
+  }
+
+  const sentence = loaderSentences[Math.floor(Math.random() * loaderSentences.length)];
+  textEl.textContent = "";
+  let i = 0;
+
+  function type() {
+    if (i < sentence.length) {
+      textEl.textContent += sentence.charAt(i);
+      i++;
+      setTimeout(type, 55);
+    } else {
+      setTimeout(() => {
+        loader.classList.add("hidden");
+        main.classList.remove("hidden");
+      }, 900);
     }
-    
-    this.useFallback = false;
-    this.time = 0;
-    this.animationId = null;
-    
-    this.setupShaders();
-    this.setupBuffers();
-    this.resizeCanvas();
-    this.animate();
-    
-    window.addEventListener('resize', () => this.resizeCanvas());
   }
+  type();
+}
+
+// ============================================================
+// SHADERGRADIENT INITIALIZATION
+// ============================================================
+
+function initializeShaderGradient() {
+  const container = document.getElementById("shader-gradient-container");
   
-  setupFallback() {
-    // Fallback: CSS gradient animation
-    this.canvas.style.background = `
-      linear-gradient(135deg, 
-        #ff5005 0%, 
-        #dbba95 25%, 
-        #ff5005 50%, 
-        #ff7a3d 75%, 
-        #ff5005 100%)
-    `;
-    this.canvas.style.backgroundSize = '400% 400%';
-    this.canvas.style.animation = 'gradientShift 15s ease infinite';
+  if (!container || !window.ShaderGradient) {
+    console.warn("ShaderGradient not available, using fallback");
+    setupFallbackGradient();
+    return;
   }
-  
-  setupShaders() {
-    const vertexShader = `
-      attribute vec2 position;
-      void main() {
-        gl_Position = vec4(position, 0.0, 1.0);
-      }
-    `;
-    
-    const fragmentShader = `
-      precision highp float;
-      uniform float time;
-      uniform vec2 resolution;
-      
-      // Organic noise function
-      float noise(vec3 p) {
-        vec3 i = floor(p);
-        vec3 f = fract(p);
-        f = f * f * (3.0 - 2.0 * f);
-        
-        float n = mix(
-          mix(
-            mix(sin(dot(i + vec3(0, 0, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
-                sin(dot(i + vec3(1, 0, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x),
-            mix(sin(dot(i + vec3(0, 1, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
-                sin(dot(i + vec3(1, 1, 0), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x), f.y),
-          mix(
-            mix(sin(dot(i + vec3(0, 0, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
-                sin(dot(i + vec3(1, 0, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x),
-            mix(sin(dot(i + vec3(0, 1, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, 
-                sin(dot(i + vec3(1, 1, 1), vec3(12.9898, 78.233, 45.164))) * 43758.5453, f.x), f.y), f.z);
-        
-        return fract(sin(n) * 43758.5453);
-      }
-      
-      void main() {
-        vec2 uv = gl_FragCoord.xy / resolution.xy;
-        
-        // Create flowing, organic movement
-        float n1 = noise(vec3(uv * 2.0, time * 0.3));
-        float n2 = noise(vec3(uv * 3.0 + vec3(10.0), time * 0.25));
-        float n3 = noise(vec3(uv * 1.5 - vec3(5.0), time * 0.2));
-        
-        // Combine noise for organic effect
-        float blend = sin(time * 0.5) * 0.5 + 0.5;
-        float pattern = mix(n1, mix(n2, n3, blend), 0.5);
-        
-        // Color palette inspired by the reference gradient
-        vec3 color1 = vec3(1.0, 0.31, 0.02); // #ff5005
-        vec3 color2 = vec3(0.86, 0.73, 0.58); // #dbba95
-        vec3 color3 = vec3(1.0, 0.48, 0.24); // #ff7a3d
-        
-        // Mix colors based on pattern and position
-        vec3 finalColor = mix(color1, color2, pattern);
-        finalColor = mix(finalColor, color3, sin(uv.x * 3.0 + time * 0.4) * 0.5 + 0.5);
-        
-        // Add some radial variation
-        float radial = length(uv - 0.5) * 1.5;
-        finalColor = mix(finalColor, color1, sin(radial + time * 0.3) * 0.2 + 0.3);
-        
-        gl_FragColor = vec4(finalColor, 1.0);
-      }
-    `;
-    
-    this.program = this.createProgram(vertexShader, fragmentShader);
-    this.gl.useProgram(this.program);
-    
-    this.timeUniform = this.gl.getUniformLocation(this.program, 'time');
-    this.resolutionUniform = this.gl.getUniformLocation(this.program, 'resolution');
+
+  try {
+    // Initialize ShaderGradient with the exact preset from the user
+    const sg = new window.ShaderGradient();
+    sg.animate = true;
+    sg.axesHelper = false;
+    sg.brightness = 1.2;
+    sg.cAzimuthAngle = 180;
+    sg.cDistance = 3.6;
+    sg.cPolarAngle = 90;
+    sg.cameraZoom = 1;
+    sg.color1 = "#ff5005";
+    sg.color2 = "#dbba95";
+    sg.color3 = "#ff5005";
+    sg.envPreset = "city";
+    sg.fov = 45;
+    sg.grain = true;
+    sg.lightType = "3d";
+    sg.pixelDensity = 1;
+    sg.positionX = -1.4;
+    sg.positionY = 0;
+    sg.positionZ = 0;
+    sg.reflection = 0.1;
+    sg.rotationX = 0;
+    sg.rotationY = 10;
+    sg.rotationZ = 50;
+    sg.type = "plane";
+    sg.uAmplitude = 1;
+    sg.uDensity = 1.3;
+    sg.uFrequency = 5.5;
+    sg.uSpeed = 0.4;
+    sg.uStrength = 4;
+    sg.wireframe = false;
+
+    // Append to container
+    container.appendChild(sg.canvas);
+  } catch (error) {
+    console.error("Error initializing ShaderGradient:", error);
+    setupFallbackGradient();
   }
-  
-  createProgram(vertexSrc, fragmentSrc) {
-    const vertex = this.gl.createShader(this.gl.VERTEX_SHADER);
-    this.gl.shaderSource(vertex, vertexSrc);
-    this.gl.compileShader(vertex);
-    
-    if (!this.gl.getShaderParameter(vertex, this.gl.COMPILE_STATUS)) {
-      console.error('Vertex shader error:', this.gl.getShaderInfoLog(vertex));
-    }
-    
-    const fragment = this.gl.createShader(this.gl.FRAGMENT_SHADER);
-    this.gl.shaderSource(fragment, fragmentSrc);
-    this.gl.compileShader(fragment);
-    
-    if (!this.gl.getShaderParameter(fragment, this.gl.COMPILE_STATUS)) {
-      console.error('Fragment shader error:', this.gl.getShaderInfoLog(fragment));
-    }
-    
-    const program = this.gl.createProgram();
-    this.gl.attachShader(program, vertex);
-    this.gl.attachShader(program, fragment);
-    this.gl.linkProgram(program);
-    
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error('Program link error:', this.gl.getProgramInfoLog(program));
-    }
-    
-    return program;
-  }
-  
-  setupBuffers() {
-    const positions = new Float32Array([
-      -1, -1,
-       1, -1,
-      -1,  1,
-       1,  1,
-    ]);
-    
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, positions, this.gl.STATIC_DRAW);
-    
-    const positionLocation = this.gl.getAttribLocation(this.program, 'position');
-    this.gl.enableVertexAttribArray(positionLocation);
-    this.gl.vertexAttribPointer(positionLocation, 2, this.gl.FLOAT, false, 0, 0);
-  }
-  
-  resizeCanvas() {
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
-    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    this.gl.uniform2f(this.resolutionUniform, this.canvas.width, this.canvas.height);
-  }
-  
-  animate() {
-    this.time += 0.016; // ~60fps
-    this.gl.uniform1f(this.timeUniform, this.time);
-    this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
-    this.animationId = requestAnimationFrame(() => this.animate());
-  }
-  
-  destroy() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
+}
+
+function setupFallbackGradient() {
+  const container = document.getElementById("shader-gradient-container");
+  if (container) {
+    container.style.background = "linear-gradient(135deg, #ff5005 0%, #dbba95 25%, #ff5005 50%, #ff7a3d 75%, #ff5005 100%)";
+    container.style.backgroundSize = "400% 400%";
+    container.style.animation = "gradientShift 15s ease infinite";
   }
 }
 
@@ -384,7 +309,7 @@ class ScrollAnimations {
     }, options);
     
     // Observe all animated elements
-    document.querySelectorAll('.section, .card, .allocation-item, .reward-tier, .faq-item, .timeline-item').forEach(el => {
+    document.querySelectorAll('.section, .card, .reward-tier, .faq-item, .timeline-item').forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
       el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
@@ -406,7 +331,7 @@ class ScrollAnimations {
   }
   
   setupNavbarScroll() {
-    const navbar = document.getElementById('navbar');
+    const navbar = document.getElementById("navbar");
     let lastScrollY = 0;
     
     window.addEventListener('scroll', () => {
@@ -427,20 +352,24 @@ class ScrollAnimations {
 // INITIALIZATION
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize shader gradient
-  const canvas = document.getElementById('gradient-canvas');
-  const gradient = new ShaderGradient(canvas);
+document.addEventListener("DOMContentLoaded", () => {
+  // Show loading screen
+  showLoading();
+  
+  // Initialize ShaderGradient after page loads
+  setTimeout(() => {
+    initializeShaderGradient();
+  }, 100);
   
   // Initialize live data manager
   const dataManager = new LiveDataManager();
   
   // Initialize UI elements
-  const raisedElement = document.getElementById('stat-raised');
-  const contributorsElement = document.getElementById('stat-contributors');
-  const goalElement = document.getElementById('stat-goal');
-  const progressBar = document.getElementById('progress-bar');
-  const progressText = document.getElementById('progress-text');
+  const raisedElement = document.getElementById("stat-raised");
+  const contributorsElement = document.getElementById("stat-contributors");
+  const goalElement = document.getElementById("stat-goal");
+  const progressBar = document.getElementById("progress-bar");
+  const progressText = document.getElementById("progress-text");
   
   const raisedCounter = new AnimatedCounter(raisedElement, 0, 0);
   const contributorsCounter = new AnimatedCounter(contributorsElement, 0, 0);
@@ -463,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   new ScrollAnimations();
   
   // Set footer year
-  document.getElementById('footer-year').textContent = new Date().getFullYear();
+  document.getElementById("footer-year").textContent = new Date().getFullYear();
   
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -482,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cleanup on page unload
   window.addEventListener('beforeunload', () => {
     dataManager.stopPolling();
-    gradient.destroy();
   });
 });
 
@@ -490,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // FALLBACK GRADIENT ANIMATION
 // ============================================================
 
-// Add this to the document if WebGL fails
 const style = document.createElement('style');
 style.textContent = `
   @keyframes gradientShift {
